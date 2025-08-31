@@ -150,11 +150,11 @@ IOT/
 
 ```python
 # mqtt_to_mongodb.py
-BROKER_HOST = "9b88959e8c674540989f6ed6cf143c4d.s1.eu.hivemq.cloud"
+BROKER_HOST = "YOUR_BROKER_HOST"
 BROKER_PORT = 8883
-DATA_TOPIC = "esp32/iot/data"
-USERNAME = "PhucHuwu"
-PASSWORD = "Phuc3724@"
+DATA_TOPIC = "YOUR_DATA_TOPIC"
+USERNAME = "YOUR_USERNAME"
+PASSWORD = "YOUR_PASSWORD"
 ```
 
 #### **Database Configuration**
@@ -263,7 +263,7 @@ COLLECTION_NAME = "sensor_data"
 │ │ DHT11 Humid │ │    │ │ MQTT Client │ │    │ │ Collections │ │    │ │ Sensor Data │ │
 │ │ LDR Light   │ │    │ │             │ │    │ │ Indexes     │ │    │ │ History     │ │
 │ │ 3x LED      │ │    │ └─────────────┘ │    │ │ Aggregation │ │    │ │ Profile     │ │
-│ └─────────────┘ │    └─────────────────┘    │ └─────────────┘ │    │ └─────────────┘ │
+│ └─────────────┘ │    │                 │    │ └─────────────┘ │    │ └─────────────┘ │
 └─────────────────┘    └─────────────────┘    └─────────────────┘    └─────────────────┘
          │                      │                      │                      │
          │                      │                      │                      │
