@@ -50,6 +50,7 @@ IOT/
 │   ├── api_server.py           # Flask API server (Port 5001)
 │   ├── mqtt_client.py          # Simple MQTT client
 │   └── mqtt_to_mongodb.py      # MQTT → MongoDB bridge
+│
 ├── FE/                         # Frontend Web Application
 │   ├── home-page.html          # Main dashboard
 │   ├── sensor-data.html        # Sensor data page
@@ -61,8 +62,11 @@ IOT/
 │   ├── api-client.js           # Backend API client
 │   ├── avatar-manager.js       # User avatar management
 │   └── custom-dropdown.js      # Custom dropdown component
+│
 ├── Hardware/                   # Hardware & Firmware
-│   └── IOT.ino                 # ESP32 code with DHT11, LDR sensors
+│   └── IOT/
+│       └── IOT.ino             # ESP32 code with DHT11, LDR sensors
+│
 └── README.md                   # Project documentation
 ```
 
