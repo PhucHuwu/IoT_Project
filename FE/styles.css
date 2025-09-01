@@ -111,7 +111,6 @@ body::before {
     z-index: -1;
 }
 
-
 .container {
     display: flex;
     height: 100vh;
@@ -451,7 +450,7 @@ body::before {
 }
 
 .nav-item .fa-users {
-    color: #ff3b30;
+    color: #ff383c;
 }
 
 .nav-item .fa-shield,
@@ -555,7 +554,7 @@ body::before {
 }
 
 .text-red {
-    color: #ff3b30;
+    color: #ff383c;
 }
 .text-blue {
     color: #007aff;
@@ -1207,7 +1206,7 @@ body::before {
     color: #34c759;
 }
 .sensor-value.red {
-    color: #ff3b30;
+    color: #ff383c;
 }
 
 .led-status {
@@ -1833,7 +1832,7 @@ body::before {
 
 .fa-times,
 .fa-close {
-    color: #ff3b30 !important;
+    color: #ff383c !important;
 }
 
 .fa-check {
@@ -1855,7 +1854,7 @@ body::before {
 
 .fa-trash,
 .fa-delete {
-    color: #ff3b30 !important;
+    color: #ff383c !important;
 }
 
 .fa-save,
@@ -2380,7 +2379,7 @@ body::after {
 }
 
 .status-indicator.offline i {
-    color: #ff3b30;
+    color: #ff383c;
 }
 
 .status-indicator.checking i {
@@ -3421,7 +3420,7 @@ body::after {
     border-radius: 50%;
     width: 26px;
     height: 26px;
-    color: #ff3b30;
+    color: #ff383c;
     font-size: 11px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -3951,7 +3950,7 @@ mark {
 }
 
 .info-label .fa-envelope {
-    color: #ff3b30;
+    color: #ff383c;
 }
 
 .info-label .fa-graduation-cap {
@@ -4562,7 +4561,7 @@ mark {
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
-    color: #ff3b30;
+    color: #ff383c;
     font-size: 14px;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);

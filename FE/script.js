@@ -160,7 +160,7 @@ async function updateSensorData() {
         );
         sensorCards.forEach((card) => {
             if (card.textContent !== "--°C" && card.textContent !== "--%") {
-                card.style.color = "#ff3b30";
+                card.style.color = "#FF383C";
             }
         });
     }
@@ -247,8 +247,8 @@ function updateConnectionIndicator(
             : 0;
 
         statusElement.innerHTML = `
-            <i class="fas fa-wifi" style="color: #ff3b30;"></i>
-            <span style="color: #ff3b30;">Offline</span>
+            <i class="fas fa-wifi" style="color: #FF383C;"></i>
+            <span style="color: #FF383C;">Offline</span>
         `;
     }
 }
@@ -256,22 +256,43 @@ function updateConnectionIndicator(
 function updateSensorCards(data, isDataFresh) {
     const tempCard = document.querySelector(".sensor-card.temperature");
     const tempValueElement = tempCard?.querySelector(".sensor-value");
+    // Nhiệt độ
     if (
         tempValueElement &&
         data.temperature !== null &&
         data.temperature !== undefined
     ) {
         tempValueElement.textContent = `${data.temperature}°C`;
-        updateSensorCardStatus(tempCard, isDataFresh, data.status);
+        let tempColor = "#34C759"; // xanh lá
+        if (data.temperature > 37 || data.temperature < 15) {
+            tempColor = "#FF383C"; // đỏ
+        } else if (
+            (data.temperature >= 33 && data.temperature <= 37) ||
+            (data.temperature >= 15 && data.temperature <= 19)
+        ) {
+            tempColor = "#FEBC2F"; // vàng
+        }
+        tempValueElement.style.color = tempColor;
     }
 
+    // Độ sáng
     const lightCard = document.querySelector(".sensor-card.light");
     const lightValueElement = lightCard?.querySelector(".sensor-value");
     if (lightValueElement && data.light !== null && data.light !== undefined) {
         lightValueElement.textContent = `${data.light}%`;
-        updateSensorCardStatus(lightCard, isDataFresh, data.status);
+        let lightColor = "#34C759";
+        if (data.light < 25 || data.light > 75) {
+            lightColor = "#FF383C";
+        } else if (
+            (data.light >= 25 && data.light < 40) ||
+            (data.light > 60 && data.light <= 75)
+        ) {
+            lightColor = "#FEBC2F";
+        }
+        lightValueElement.style.color = lightColor;
     }
 
+    // Độ ẩm
     const humidityCard = document.querySelector(".sensor-card.humidity");
     const humidityValueElement = humidityCard?.querySelector(".sensor-value");
     if (
@@ -280,7 +301,16 @@ function updateSensorCards(data, isDataFresh) {
         data.humidity !== undefined
     ) {
         humidityValueElement.textContent = `${data.humidity}%`;
-        updateSensorCardStatus(humidityCard, isDataFresh, data.status);
+        let humidityColor = "#34C759";
+        if (data.humidity < 25 || data.humidity > 75) {
+            humidityColor = "#FF383C";
+        } else if (
+            (data.humidity >= 25 && data.humidity < 40) ||
+            (data.humidity > 60 && data.humidity <= 75)
+        ) {
+            humidityColor = "#FEBC2F";
+        }
+        humidityValueElement.style.color = humidityColor;
     }
 }
 
