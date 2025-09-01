@@ -1806,7 +1806,6 @@ body::before {
 .sensor-card.led1.active .sensor-name::after,
 .sensor-card.led2.active .sensor-name::after,
 .sensor-card.led3.active .sensor-name::after {
-    content: " 💡";
     margin-left: 4px;
 }
 
