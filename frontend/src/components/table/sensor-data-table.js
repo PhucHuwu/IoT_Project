@@ -1,0 +1,1 @@
+//thực hiện các hoạt động vẽ bảng dữ liệu lên trang sensor-data
