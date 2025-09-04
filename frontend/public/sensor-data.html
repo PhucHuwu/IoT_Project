@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Dashboard - Dữ liệu cảm biến</title>
+    <link rel="stylesheet" href="../src/styles/main.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Taskbar</h2>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="home-page.html" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>Trang chủ</span>
+                </a>
+                <a href="sensor-data.html" class="nav-item active">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dữ liệu cảm biến</span>
+                </a>
+                <a href="action-history.html" class="nav-item">
+                    <i class="fas fa-history"></i>
+                    <span>Lịch sử hoạt động</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="header-center">
+                </div>
+                <div class="header-right">
+                    <div class="profile">
+                        <div class="avatar" onclick="window.location.href='profile.html'">G</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="page-title">
+                    <h1>Dữ liệu cảm biến</h1>
+                    <p>Xem và phân tích dữ liệu từ các cảm biến</p>
+                </div>
+
+                <div class="charts-data-section">
+                    <div class="chart-card single-chart">
+                        <div class="chart-header">
+                            <h3 id="chartTitle">Dữ liệu cảm biến theo thời gian</h3>
+                            <div class="chart-controls">
+                                <div class="chart-limit-control">
+                                    <label for="dataLimitSlider">Mật độ dữ liệu:</label>
+                                    <div class="slider-container">
+                                        <input type="range" id="dataLimitSlider" min="50" max="100" value="100"
+                                            step="25">
+                                        <span id="dataLimitValue">100</span>%
+                                    </div>
+                                </div>
+                                <div class="custom-dropdown">
+                                    <div class="dropdown-trigger" id="sensorTypeSelector">
+                                        <span>Nhiệt độ</span>
+                                        <div class="dropdown-arrow">
+                                            <svg viewBox="0 0 24 24">
+                                                <polyline points="6,9 12,15 18,9"></polyline>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown-menu">
+                                        <div class="dropdown-option selected" data-value="temperature">
+                                            <i class="fas fa-thermometer-half" style="color: #007AFF;"></i>
+                                            Nhiệt độ
+                                        </div>
+                                        <div class="dropdown-option" data-value="light">
+                                            <i class="fas fa-sun" style="color: #FF9500;"></i>
+                                            Ánh sáng
+                                        </div>
+                                        <div class="dropdown-option" data-value="humidity">
+                                            <i class="fas fa-tint" style="color: #34C759;"></i>
+                                            Độ ẩm
+                                        </div>
+                                        <div class="dropdown-option" data-value="all">
+                                            <i class="fas fa-chart-line" style="color: #9C27B0;"></i>
+                                            Tất cả cảm biến
+                                        </div>
+                                    </div>
+                                </div>
+                                <select id="sensorTypeSelector">
+                                    <option value="temperature">Nhiệt độ</option>
+                                    <option value="light">Ánh sáng</option>
+                                    <option value="humidity">Độ ẩm</option>
+                                    <option value="all">Tất cả cảm biến</option>
+                                </select>
+                                <select id="timePeriod">
+                                    <option value="today" selected>Hôm nay</option>
+                                    <option value="1day">1 Ngày trước</option>
+                                    <option value="2days">2 Ngày trước</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="chart-area">
+                            <div class="chart-scroll-indicator" id="chartScrollIndicator">
+                                <span id="scrollInfo">Hiển thị tất cả dữ liệu - Cuộn ngang để xem thêm</span>
+                            </div>
+                            <div class="chart-container-wrapper">
+                                <div class="chart-container">
+                                    <canvas id="sensorChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-unit" id="chartUnit">°C</div>
+                    </div>
+                </div>
+
+                <div class="data-table-section">
+                    <div class="table-card">
+                        <div class="table-header">
+                            <h3>Toàn bộ dữ liệu cảm biến</h3>
+                            <div class="table-controls">
+                                <select id="tablePageSize">
+                                    <option value="10">10 dòng</option>
+                                    <option value="25">25 dòng</option>
+                                    <option value="50">50 dòng</option>
+                                    <option value="100">100 dòng</option>
+                                </select>
+                                <button id="exportCSV" class="export-btn">
+                                    <i class="fas fa-download"></i>
+                                    Xuất CSV
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="table-search-controls">
+                            <div class="search-section">
+                                <div class="search-input-group">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" id="tableSearchInput" placeholder="Tìm kiếm dữ liệu...">
+                                    <button id="clearSearch" class="clear-btn" style="display: none;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="filter-toggle-section">
+                                <button id="toggleFilterPanel" class="filter-toggle-btn">
+                                    <i class="fas fa-filter"></i>
+                                    <span>Bộ lọc nâng cao</span>
+                                    <div class="filter-badge" id="activeFiltersCount" style="display: none;">0</div>
+                                    <div class="toggle-arrow">
+                                        <svg viewBox="0 0 24 24">
+                                            <polyline points="6,9 12,15 18,9"></polyline>
+                                        </svg>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="table-filters-panel" id="filterPanel" style="display: none;">
+                            <div class="filter-panel-content">
+                                <div class="filter-group">
+                                    <label><i class="fas fa-calendar-alt"></i> Khoảng thời gian:</label>
+                                    <div class="date-range-inputs">
+                                        <input type="date" id="dateFrom" class="date-input">
+                                        <span class="date-separator">đến</span>
+                                        <input type="date" id="dateTo" class="date-input">
+                                        <button id="applyDateFilter" class="filter-btn">
+                                            <i class="fas fa-calendar-check"></i>
+                                            Áp dụng
+                                        </button>
+                                        <button id="clearDateFilter" class="clear-filter-btn" style="display: none;">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="filter-group">
+                                    <label><i class="fas fa-thermometer-half"></i> Lọc theo giá trị cảm biến:</label>
+                                    <div class="range-filters">
+                                        <div class="range-filter">
+                                            <div class="range-label">
+                                                <i class="fas fa-thermometer-half" style="color: #ff6b35;"></i>
+                                                <span>Nhiệt độ (°C):</span>
+                                            </div>
+                                            <div class="range-inputs">
+                                                <input type="number" id="tempMin" placeholder="Min" class="range-input">
+                                                <span class="range-separator">-</span>
+                                                <input type="number" id="tempMax" placeholder="Max" class="range-input">
+                                            </div>
+                                        </div>
+                                        <div class="range-filter">
+                                            <div class="range-label">
+                                                <i class="fas fa-sun" style="color: #ffb300;"></i>
+                                                <span>Ánh sáng (%):</span>
+                                            </div>
+                                            <div class="range-inputs">
+                                                <input type="number" id="lightMin" placeholder="Min"
+                                                    class="range-input">
+                                                <span class="range-separator">-</span>
+                                                <input type="number" id="lightMax" placeholder="Max"
+                                                    class="range-input">
+                                            </div>
+                                        </div>
+                                        <div class="range-filter">
+                                            <div class="range-label">
+                                                <i class="fas fa-tint" style="color: #00acc1;"></i>
+                                                <span>Độ ẩm (%):</span>
+                                            </div>
+                                            <div class="range-inputs">
+                                                <input type="number" id="humidityMin" placeholder="Min"
+                                                    class="range-input">
+                                                <span class="range-separator">-</span>
+                                                <input type="number" id="humidityMax" placeholder="Max"
+                                                    class="range-input">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="range-actions">
+                                        <button id="applyRangeFilter" class="filter-btn">
+                                            <i class="fas fa-filter"></i>
+                                            Áp dụng bộ lọc
+                                        </button>
+                                        <button id="clearAllFilters" class="clear-filter-btn">
+                                            <i class="fas fa-eraser"></i>
+                                            Xóa tất cả
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <div class="table-loading" id="tableLoading" style="display: none;">
+                                <div class="loading-spinner"></div>
+                                <p>Đang tải dữ liệu...</p>
+                            </div>
+                            <table id="sensorDataTable" class="sensor-data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Thời gian</th>
+                                        <th>Cảm biến nhiệt độ (°C)</th>
+                                        <th>Cảm biến ánh sáng (%)</th>
+                                        <th>Cảm biến độ ẩm (%)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sensorTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-pagination" id="tablePagination">
+                            <div class="pagination-info">
+                                <span id="paginationInfo">Hiển thị 0 - 0 của 0 bản ghi</span>
+                            </div>
+                            <div class="pagination-controls">
+                                <button id="prevPage" class="page-btn" disabled>
+                                    <i class="fas fa-chevron-left"></i>
+                                    Trước
+                                </button>
+                                <div class="page-numbers" id="pageNumbers">
+                                </div>
+                                <button id="nextPage" class="page-btn" disabled>
+                                    Sau
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="../src/components/sensor-card.js"></script>
+    <script type="module" src="../src/components/chart-display.js"></script>
+    <script type="module" src="../update-data.js"></script>
+</body>
+
+</html>

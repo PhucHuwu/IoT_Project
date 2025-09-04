@@ -1,0 +1,112 @@
+.home-page .sensor-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.home-page .charts-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+}
+
+.sensor-data-page .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.sensor-data-page .data-table th,
+.sensor-data-page .data-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.sensor-data-page .data-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.profile-page .profile-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.profile-page .profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: white;
+    margin: 0 auto 1rem;
+}
+
+.action-history-page .history-item {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+    border-left: 4px solid #007bff;
+}
+
+.action-history-page .history-timestamp {
+    color: #666;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.action-history-page .history-action {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.action-history-page .history-details {
+    color: #555;
+}
+
+@media (max-width: 768px) {
+    .home-page .sensor-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .home-page .charts-section {
+        grid-template-columns: 1fr;
+    }
+
+    .sensor-data-page .data-table {
+        font-size: 0.875rem;
+    }
+
+    .sensor-data-page .data-table th,
+    .sensor-data-page .data-table td {
+        padding: 0.5rem;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .profile-page .profile-section,
+    .action-history-page .history-item {
+        background: #2d3748;
+        color: #e2e8f0;
+    }
+
+    .sensor-data-page .data-table th {
+        background-color: #4a5568;
+        color: #e2e8f0;
+    }
+
+    .action-history-page .history-timestamp,
+    .action-history-page .history-details {
+        color: #a0aec0;
+    }
+}

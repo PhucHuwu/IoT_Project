@@ -1,0 +1,119 @@
+.sensor-card {
+    transition: all 0.3s ease;
+}
+
+.sensor-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.sensor-card.temperature {
+    border-left: 4px solid #ff6b6b;
+}
+
+.sensor-card.humidity {
+    border-left: 4px solid #4ecdc4;
+}
+
+.sensor-card.light {
+    border-left: 4px solid #ffe66d;
+}
+
+.sensor-card.led1,
+.sensor-card.led2,
+.sensor-card.led3 {
+    border-left: 4px solid #95e1d3;
+}
+
+.chart-card {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.chart-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chart-container {
+    padding: 1rem;
+    height: 300px;
+    position: relative;
+}
+
+.toggle-switch {
+    width: 50px;
+    height: 25px;
+    background-color: #ccc;
+    border-radius: 25px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.toggle-switch.active {
+    background-color: #4caf50;
+}
+
+.toggle-slider {
+    width: 21px;
+    height: 21px;
+    background-color: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.3s ease;
+}
+
+.toggle-switch.active .toggle-slider {
+    transform: translateX(25px);
+}
+
+.status-normal {
+    color: #4caf50;
+}
+
+.status-warning {
+    color: #ff9800;
+}
+
+.status-error {
+    color: #f44336;
+}
+
+.status-unknown {
+    color: #9e9e9e;
+}
+
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

@@ -1,3 +1,4 @@
 .env
 __pycache__/
-styles.css.backup
+/backend/tests/
+.github/
