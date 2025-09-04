@@ -1,0 +1,99 @@
+from typing import Dict, Any
+from database import DatabaseManager
+from mqtt_client import MQTTManager
+from logger_config import logger
+
+
+class IoTMQTTReceiver:
+
+    def __init__(self):
+        self.db_manager = DatabaseManager()
+        self.mqtt_manager = MQTTManager(message_callback=self.process_sensor_data)
+
+    def process_sensor_data(self, sensor_data: Dict[str, Any]):
+        try:
+            document_id = self.db_manager.insert_sensor_data(sensor_data)
+
+            if document_id:
+                logger.info(f"Sensor data processed successfully: {document_id}")
+            else:
+                logger.error("Failed to store sensor data in database")
+
+        except Exception as e:
+            logger.error(f"Error processing sensor data: {e}")
+
+    def start_receiving(self):
+        try:
+            if not self.db_manager.is_connected():
+                logger.error("Database not connected. Cannot start receiver.")
+                return False
+
+            if not self.mqtt_manager.connect():
+                logger.error("Failed to connect to MQTT broker")
+                return False
+
+            self.mqtt_manager.start_loop()
+            return True
+
+        except KeyboardInterrupt:
+            logger.info("Received keyboard interrupt. Stopping...")
+            self.stop()
+            return False
+        except Exception as e:
+            logger.error(f"Error starting receiver: {e}")
+            return False
+
+    def stop(self):
+        try:
+            self.mqtt_manager.stop()
+            self.db_manager.close_connection()
+            logger.info("IoT MQTT Receiver stopped successfully")
+        except Exception as e:
+            logger.error(f"Error stopping receiver: {e}")
+
+    def get_recent_data(self, limit: int = 10):
+        try:
+            data = self.db_manager.get_recent_data(limit)
+
+            if not data:
+                logger.info("No data found in database")
+                return []
+
+            logger.info(f"Retrieved {len(data)} recent records")
+            for record in data:
+                logger.info(f"[{record['timestamp']}] "
+                            f"T: {record['temperature']}°C, "
+                            f"H: {record['humidity']}%, "
+                            f"L: {record['light']}%")
+
+            return data
+
+        except Exception as e:
+            logger.error(f"Error retrieving recent data: {e}")
+            return []
+
+
+def main():
+    receiver = None
+
+    try:
+        receiver = IoTMQTTReceiver()
+
+        logger.info("=== Recent Sensor Data ===")
+        receiver.get_recent_data(5)
+
+        logger.info("=== Starting MQTT Receiver ===")
+        logger.info("Press Ctrl+C to stop...")
+
+        receiver.start_receiving()
+
+    except Exception as e:
+        logger.error(f"Application error: {e}")
+
+    finally:
+        if receiver:
+            receiver.stop()
+
+
+if __name__ == "__main__":
+    main()

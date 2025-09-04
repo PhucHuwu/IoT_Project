@@ -7,7 +7,6 @@
     <title>IoT Dashboard - Dữ liệu cảm biến</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="avatar-manager.js"></script>
 </head>
 
 <body>
@@ -95,6 +94,12 @@
                                         </div>
                                     </div>
                                 </div>
+                                    <select id="sensorTypeSelector">
+                                        <option value="temperature">Nhiệt độ</option>
+                                        <option value="light">Ánh sáng</option>
+                                        <option value="humidity">Độ ẩm</option>
+                                        <option value="all">Tất cả cảm biến</option>
+                                    </select>
                                 <select id="timePeriod">
                                     <option value="today" selected>Hôm nay</option>
                                     <option value="1day">1 Ngày trước</option>
@@ -121,22 +126,12 @@
                         <div class="table-header">
                             <h3>Toàn bộ dữ liệu cảm biến</h3>
                             <div class="table-controls">
-                                <div class="custom-dropdown">
-                                    <div class="dropdown-trigger" id="tablePageSize">
-                                        <span>10 dòng</span>
-                                        <div class="dropdown-arrow">
-                                            <svg viewBox="0 0 24 24">
-                                                <polyline points="6,9 12,15 18,9"></polyline>
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <div class="dropdown-menu">
-                                        <div class="dropdown-option selected" data-value="10">10 dòng</div>
-                                        <div class="dropdown-option" data-value="25">25 dòng</div>
-                                        <div class="dropdown-option" data-value="50">50 dòng</div>
-                                        <div class="dropdown-option" data-value="100">100 dòng</div>
-                                    </div>
-                                </div>
+                                <select id="tablePageSize">
+                                    <option value="10">10 dòng</option>
+                                    <option value="25">25 dòng</option>
+                                    <option value="50">50 dòng</option>
+                                    <option value="100">100 dòng</option>
+                                </select>
                                 <button id="exportCSV" class="export-btn">
                                     <i class="fas fa-download"></i>
                                     Xuất CSV
@@ -284,9 +279,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="api-client.js"></script>
-    <script src="custom-dropdown.js"></script>
-    <script src="sensor-data-script.js"></script>
 </body>
 
 </html>
