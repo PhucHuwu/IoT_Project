@@ -1,0 +1,1 @@
+// thực hiện các hoạt động liên quan đến trang home-page

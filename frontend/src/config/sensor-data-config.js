@@ -1,0 +1,1 @@
+// cấu hình cho trang sensor-data

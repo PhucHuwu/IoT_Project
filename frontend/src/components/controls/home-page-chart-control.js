@@ -1,0 +1,1 @@
+//thực hiện điều khiển biểu đồ trên trang home-page
