@@ -72,6 +72,24 @@ class DatabaseManager:
             logger.error(f"Error retrieving data: {e}")
             return []
 
+    def get_data_by_time_range(self, start_time: datetime, end_time: datetime) -> List[Dict[str, Any]]:
+        try:
+            query = {
+                "timestamp": {
+                    "$gte": start_time,
+                    "$lte": end_time
+                }
+            }
+            cursor = self.collection.find(query).sort("timestamp", 1)
+            data = list(cursor)
+
+            logger.info(f"Retrieved {len(data)} records for time range {start_time} to {end_time}")
+            return data
+
+        except Exception as e:
+            logger.error(f"Error retrieving data by time range: {e}")
+            return []
+
     def close_connection(self):
         try:
             if self.mongo_client:

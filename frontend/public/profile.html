@@ -188,7 +188,6 @@
     </div>
 
     <script>
-        // Avatar update functionality
         let selectedAvatarType = null;
         let selectedAvatarData = null;
 
@@ -196,7 +195,6 @@
             document.getElementById('avatarModal').style.display = 'flex';
             document.body.style.overflow = 'hidden';
 
-            // Reset modal state
             document.getElementById('newAvatarSection').style.display = 'none';
             document.getElementById('updateBtn').disabled = true;
             selectedAvatarType = null;
@@ -215,13 +213,11 @@
         function previewAvatar(event) {
             const file = event.target.files[0];
             if (file) {
-                // Check file size (5MB limit)
                 if (file.size > 5 * 1024 * 1024) {
                     alert('Kích thước file quá lớn. Vui lòng chọn file nhỏ hơn 5MB.');
                     return;
                 }
 
-                // Check file type
                 if (!file.type.match('image.*')) {
                     alert('Vui lòng chọn file ảnh hợp lệ.');
                     return;
@@ -246,12 +242,10 @@
         }
 
         function selectPresetAvatar(avatar) {
-            // Remove active class from all preset avatars
             document.querySelectorAll('.preset-avatar').forEach(el => {
                 el.classList.remove('active');
             });
 
-            // Add active class to selected avatar
             event.target.classList.add('active');
 
             const newAvatarPreview = document.getElementById('newAvatarPreview');
@@ -272,11 +266,9 @@
                 return;
             }
 
-            // Sử dụng AvatarManager để cập nhật avatar
             if (window.avatarManager) {
                 window.avatarManager.saveAvatar(selectedAvatarType, selectedAvatarData);
             } else {
-                // Fallback nếu AvatarManager chưa load
                 if (selectedAvatarType === 'image') {
                     localStorage.setItem('userAvatarType', 'image');
                     localStorage.setItem('userAvatarData', selectedAvatarData);
@@ -285,7 +277,6 @@
                     localStorage.setItem('userAvatarData', selectedAvatarData);
                 }
 
-                // Manual update cho trang hiện tại
                 const profileAvatar = document.getElementById('profileAvatar');
                 const headerAvatar = document.querySelector('.header-right .avatar');
 
@@ -310,10 +301,8 @@
                 }
             }
 
-            // Show success message
             showNotification('Cập nhật ảnh đại diện thành công!', 'success');
 
-            // Close modal
             closeAvatarModal();
         }
 
@@ -327,12 +316,10 @@
 
             document.body.appendChild(notification);
 
-            // Show notification
             setTimeout(() => {
                 notification.classList.add('show');
             }, 100);
 
-            // Hide notification after 3 seconds
             setTimeout(() => {
                 notification.classList.remove('show');
                 setTimeout(() => {
@@ -341,14 +328,10 @@
             }, 3000);
         }
 
-        // Load saved avatar on page load
         function loadSavedAvatar() {
-            // AvatarManager sẽ tự động load avatar, không cần function này nữa
-            // Tuy nhiên giữ lại để backward compatibility
             if (window.avatarManager) {
                 window.avatarManager.loadSavedAvatar();
             } else {
-                // Fallback code
                 const avatarType = localStorage.getItem('userAvatarType');
                 const avatarData = localStorage.getItem('userAvatarData');
 
@@ -377,19 +360,16 @@
             }
         }
 
-        // Initialize avatar on page load
         document.addEventListener('DOMContentLoaded', function () {
             loadSavedAvatar();
         });
 
-        // Close modal when clicking outside
         document.getElementById('avatarModal').addEventListener('click', function (e) {
             if (e.target === this) {
                 closeAvatarModal();
             }
         });
 
-        // Handle drag and drop
         const uploadArea = document.querySelector('.upload-area');
 
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {

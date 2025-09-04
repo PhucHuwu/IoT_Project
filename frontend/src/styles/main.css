@@ -1038,59 +1038,6 @@ body::before {
     flex-wrap: wrap;
 }
 
-.chart-limit-control {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    color: #666;
-}
-
-.slider-container {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-#dataLimitSlider {
-    width: 100px;
-    height: 4px;
-    border-radius: 2px;
-    background: #ddd;
-    outline: none;
-    -webkit-appearance: none;
-    appearance: none;
-}
-
-#dataLimitSlider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: #007aff;
-    cursor: pointer;
-    border: 2px solid white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-#dataLimitSlider::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: #007aff;
-    cursor: pointer;
-    border: 2px solid white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-#dataLimitValue {
-    font-weight: 600;
-    color: #007aff;
-    min-width: 20px;
-    text-align: center;
-}
-
 .chart-header select {
     background: rgba(255, 255, 255, 0.9);
     border: 1px solid rgba(0, 0, 0, 0.1);
@@ -1604,21 +1551,6 @@ body::before {
         flex-direction: column;
         gap: 10px;
         align-items: stretch;
-    }
-
-    .chart-limit-control {
-        flex-direction: column;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .slider-container {
-        width: 100%;
-        justify-content: center;
-    }
-
-    #dataLimitSlider {
-        width: 150px;
     }
 
     .custom-dropdown {

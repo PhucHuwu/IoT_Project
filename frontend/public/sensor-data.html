@@ -54,14 +54,6 @@
                         <div class="chart-header">
                             <h3 id="chartTitle">Dữ liệu cảm biến theo thời gian</h3>
                             <div class="chart-controls">
-                                <div class="chart-limit-control">
-                                    <label for="dataLimitSlider">Mật độ dữ liệu:</label>
-                                    <div class="slider-container">
-                                        <input type="range" id="dataLimitSlider" min="50" max="100" value="100"
-                                            step="25">
-                                        <span id="dataLimitValue">100</span>%
-                                    </div>
-                                </div>
                                 <select id="sensorTypeSelector">
                                     <option value="temperature">Nhiệt độ</option>
                                     <option value="light">Ánh sáng</option>
@@ -247,6 +239,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="../src/pages/sensor-data-page.js"></script>
 </body>
 
 </html>
