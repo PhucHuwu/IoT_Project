@@ -5,10 +5,9 @@ class SensorDataChartController {
   constructor() {
     this.chartView = new SensorDataChart();
     this.currentSensorType = "temperature";
-    this.selectedDate = new Date().toISOString().split("T")[0]; // Today's date in YYYY-MM-DD format
+    this.selectedDate = new Date().toISOString().split("T")[0];
     this.isLoading = false;
 
-    // Initialize DOM elements
     this.datePicker = document.getElementById("datePicker");
     this.sensorTypeSelector = document.getElementById("sensorTypeSelector");
   }
@@ -20,13 +19,11 @@ class SensorDataChartController {
   }
 
   initializeDatePicker() {
-    // Set today's date as default
     const today = new Date();
     const formattedDate = today.toISOString().split("T")[0];
     this.datePicker.value = formattedDate;
     this.selectedDate = formattedDate;
 
-    // Set max date to today (prevent future dates)
     this.datePicker.max = formattedDate;
 
     console.log("Date picker initialized with:", this.selectedDate);

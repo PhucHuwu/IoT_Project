@@ -10,7 +10,6 @@ class SensorCardView {
       ".sensor-card.temperature .sensor-value"
     );
     if (temperatureCard) {
-      // Chỉ update nếu giá trị thực sự thay đổi
       const currentValue = parseFloat(temperatureCard.textContent);
       if (Math.abs(currentValue - value) > 0.1 || isNaN(currentValue)) {
         this.temperatureValue = value;

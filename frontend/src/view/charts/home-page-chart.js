@@ -5,7 +5,6 @@ class HomePageChart {
         this.humidityChart = null;
     }
 
-    // Method để force recreate chart khi thay đổi TimePeriod
     forceRecreateTemperatureChart(data) {
         if (this.temperatureChart) {
             this.temperatureChart.destroy();
@@ -34,10 +33,8 @@ class HomePageChart {
         const ctx = document.getElementById("temperatureChart");
         if (!ctx) return;
 
-        // Chuẩn bị dữ liệu cho chart
         const chartData = this.prepareChartData(data, "temperature");
 
-        // Nếu chart chưa tồn tại, tạo mới
         if (!this.temperatureChart) {
             this.temperatureChart = new Chart(ctx, {
                 type: "line",
@@ -64,10 +61,9 @@ class HomePageChart {
                 ),
             });
         } else {
-            // Cập nhật dữ liệu thay vì tạo lại chart
             this.temperatureChart.data.labels = chartData.labels;
             this.temperatureChart.data.datasets[0].data = chartData.values;
-            this.temperatureChart.update("none"); // Update không animation để tránh chớp giật
+            this.temperatureChart.update("none");
         }
     }
 
@@ -77,7 +73,6 @@ class HomePageChart {
 
         const chartData = this.prepareChartData(data, "light");
 
-        // Nếu chart chưa tồn tại, tạo mới
         if (!this.lightChart) {
             this.lightChart = new Chart(ctx, {
                 type: "line",
@@ -100,7 +95,6 @@ class HomePageChart {
                 options: this.getChartOptions("%", "light", chartData.values),
             });
         } else {
-            // Cập nhật dữ liệu thay vì tạo lại chart
             this.lightChart.data.labels = chartData.labels;
             this.lightChart.data.datasets[0].data = chartData.values;
             this.lightChart.update("none");
@@ -113,7 +107,6 @@ class HomePageChart {
 
         const chartData = this.prepareChartData(data, "humidity");
 
-        // Nếu chart chưa tồn tại, tạo mới
         if (!this.humidityChart) {
             this.humidityChart = new Chart(ctx, {
                 type: "line",
@@ -140,7 +133,6 @@ class HomePageChart {
                 ),
             });
         } else {
-            // Cập nhật dữ liệu thay vì tạo lại chart
             this.humidityChart.data.labels = chartData.labels;
             this.humidityChart.data.datasets[0].data = chartData.values;
             this.humidityChart.update("none");
@@ -152,7 +144,6 @@ class HomePageChart {
             return { labels: [], values: [] };
         }
 
-        // Sắp xếp dữ liệu theo thời gian tăng dần
         const sortedData = data.sort(
             (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
         );
@@ -191,13 +182,11 @@ class HomePageChart {
         };
 
         if (sensorType === "temperature") {
-            // Nhiệt độ: Hiển thị từ 0°C đến 50°C với 11 giá trị (0, 5, 10, 15, ..., 50)
             config.min = 0;
             config.max = 50;
             config.ticks.stepSize = 5;
             config.beginAtZero = true;
         } else if (sensorType === "light" || sensorType === "humidity") {
-            // Ánh sáng và độ ẩm: 0-100% với 11 giá trị (0, 10, 20, ..., 100)
             config.min = 0;
             config.max = 100;
             config.ticks.stepSize = 10;

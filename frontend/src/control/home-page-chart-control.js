@@ -20,30 +20,27 @@ class ChartController {
   }
 
   setupEventListeners() {
-    // Temperature chart time period selector
     const tempSelector = document.getElementById("temperatureTimePeriod");
     if (tempSelector) {
       tempSelector.addEventListener("change", (e) => {
         this.currentTimePeriods.temperature = e.target.value;
-        this.loadTemperatureChart(true); // Force recreate khi thay đổi TimePeriod
+        this.loadTemperatureChart(true);
       });
     }
 
-    // Light chart time period selector
     const lightSelector = document.getElementById("lightTimePeriod");
     if (lightSelector) {
       lightSelector.addEventListener("change", (e) => {
         this.currentTimePeriods.light = e.target.value;
-        this.loadLightChart(true); // Force recreate khi thay đổi TimePeriod
+        this.loadLightChart(true);
       });
     }
 
-    // Humidity chart time period selector
     const humiditySelector = document.getElementById("humidityTimePeriod");
     if (humiditySelector) {
       humiditySelector.addEventListener("change", (e) => {
         this.currentTimePeriods.humidity = e.target.value;
-        this.loadHumidityChart(true); // Force recreate khi thay đổi TimePeriod
+        this.loadHumidityChart(true);
       });
     }
   }
@@ -110,7 +107,7 @@ class ChartController {
   startAutoUpdate() {
     this.updateInterval = setInterval(() => {
       this.loadAllCharts();
-    }, 1000); // Update mỗi 30 giây
+    }, 1000);
   }
 
   stopAutoUpdate() {

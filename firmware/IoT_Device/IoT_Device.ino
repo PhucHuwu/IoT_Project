@@ -80,7 +80,10 @@ void connectToMqtt()
   secureWifiClient.setInsecure();
   mqttClient.setServer(mqttServer, mqttPort);
   mqttClient.setCallback(mqttCallback);
-  while (!mqttClient.connected())
+  mqttClient.setKeepAlive(60);
+  
+  int attempts = 0;
+  while (!mqttClient.connected() && attempts < 3)
   {
     Serial.print("Connecting to MQTT...");
     if (mqttClient.connect(mqttClientId, mqttUsername, mqttPassword))
@@ -88,13 +91,15 @@ void connectToMqtt()
       Serial.println("Connected");
       mqttClient.subscribe("esp32/iot/control");
       Serial.println("Subscribed to esp32/iot/control");
+      break;
     }
     else
     {
       Serial.print("Failed, rc=");
       Serial.print(mqttClient.state());
-      Serial.println(" retry in 5s");
-      delay(5000);
+      Serial.println(" retry in 2s");
+      attempts++;
+      delay(2000);
     }
   }
 }
@@ -132,34 +137,41 @@ void loop()
   }
   mqttClient.loop();
 
-  float humidityValue = dhtSensor.readHumidity();
-  float temperatureValue = dhtSensor.readTemperature();
-  int lightAdcValue = analogRead(LIGHT_SENSOR_ADC_PIN);
-  float lightPercentValue = (1.0 - (lightAdcValue / 4095.0)) * 100.0;
+  static unsigned long lastSensorRead = 0;
+  unsigned long currentTime = millis();
+  
+  if (currentTime - lastSensorRead >= 5000) {
+    lastSensorRead = currentTime;
+    
+    float humidityValue = dhtSensor.readHumidity();
+    float temperatureValue = dhtSensor.readTemperature();
+    int lightAdcValue = analogRead(LIGHT_SENSOR_ADC_PIN);
+    float lightPercentValue = (1.0 - (lightAdcValue / 4095.0)) * 100.0;
 
-  if (isnan(humidityValue) || isnan(temperatureValue))
-  {
-    Serial.println("Sensor error");
+    if (isnan(humidityValue) || isnan(temperatureValue))
+    {
+      Serial.println("Sensor error");
+    }
+    else
+    {
+      Serial.print("Temperature: ");
+      Serial.print(temperatureValue);
+      Serial.print(" °C, Humidity: ");
+      Serial.print(humidityValue);
+      Serial.print(" %, ");
+    }
+
+    Serial.print("Light: ");
+    Serial.print(lightPercentValue, 1);
+    Serial.println(" %");
+
+    if (!isnan(humidityValue) && !isnan(temperatureValue))
+    {
+      char mqttPayload[128];
+      snprintf(mqttPayload, sizeof(mqttPayload), "{\"temperature\":%.1f,\"humidity\":%.1f,\"light\":%.1f}", temperatureValue, humidityValue, lightPercentValue);
+      mqttClient.publish("esp32/iot/data", mqttPayload);
+    }
   }
-  else
-  {
-    Serial.print("Temperature: ");
-    Serial.print(temperatureValue);
-    Serial.print(" °C, Humidity: ");
-    Serial.print(humidityValue);
-    Serial.print(" %, ");
-  }
 
-  Serial.print("Light: ");
-  Serial.print(lightPercentValue, 1);
-  Serial.println(" %");
-
-  if (!isnan(humidityValue) && !isnan(temperatureValue))
-  {
-    char mqttPayload[128];
-    snprintf(mqttPayload, sizeof(mqttPayload), "{\"temperature\":%.1f,\"humidity\":%.1f,\"light\":%.1f}", temperatureValue, humidityValue, lightPercentValue);
-    mqttClient.publish("esp32/iot/data", mqttPayload);
-  }
-
-  delay(5000);
+  delay(100);
 }
