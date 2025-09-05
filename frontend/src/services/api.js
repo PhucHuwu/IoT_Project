@@ -29,10 +29,16 @@ class SensorDataService {
     }
   }
 
-  static async getChartData(timePeriod = "today") {
+  static async getChartData(timePeriod = "latest5") {
     try {
+      // Chuyển đổi timePeriod thành limit number
+      let limit = 5;
+      if (timePeriod === "latest10") limit = 10;
+      else if (timePeriod === "latest20") limit = 20;
+      else if (timePeriod === "latest5") limit = 5;
+
       const response = await fetch(
-        `${API_BASE_URL}/sensor-data/chart?timePeriod=${timePeriod}`
+        `${API_BASE_URL}/sensor-data-list?limit=${limit}`
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
