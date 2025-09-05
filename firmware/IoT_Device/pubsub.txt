@@ -1,0 +1,7 @@
+mosquitto_sub -h 9b88959e8c674540989f6ed6cf143c4d.s1.eu.hivemq.cloud -p 8883 --cafile /etc/ssl/cert.pem -u "PhucHuwu" -P "Phuc3724@" -t "esp32/iot/control"
+
+mosquitto_sub -h 9b88959e8c674540989f6ed6cf143c4d.s1.eu.hivemq.cloud -p 8883 --cafile /etc/ssl/cert.pem -u "PhucHuwu" -P "Phuc3724@" -t "esp32/iot/data"
+
+mosquitto_pub -h 9b88959e8c674540989f6ed6cf143c4d.s1.eu.hivemq.cloud -p 8883 --cafile /etc/ssl/cert.pem -u "PhucHuwu" -P "Phuc3724@" -t "esp32/iot/control" -m "LED1_ON"
+
+mosquitto_pub -h 9b88959e8c674540989f6ed6cf143c4d.s1.eu.hivemq.cloud -p 8883 --cafile /etc/ssl/cert.pem -u "PhucHuwu" -P "Phuc3724@" -t "esp32/iot/data" -m '{"temperature":25.0,"humidity":60.0,"light":80.0}'

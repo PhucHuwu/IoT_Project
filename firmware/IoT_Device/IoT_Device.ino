@@ -3,14 +3,18 @@
 #include <DHT.h>
 #include <WiFiClientSecure.h>
 
-#define DHT_PIN 19
+#define DHT_PIN 21
 #define DHT_TYPE DHT11
 #define LIGHT_SENSOR_ADC_PIN 34
 
-// const char *wifiSsid = "FreeWife24GHz";
-// const char *wifiPassword = "0977910920";
-const char *wifiSsid = "IOT";
-const char *wifiPassword = "12345678";
+#define LED1_PIN 25
+#define LED2_PIN 26
+#define LED3_PIN 27
+
+const char *wifiSsid = "FreeWife24GHz";
+const char *wifiPassword = "0977910920";
+// const char *wifiSsid = "IOT";
+// const char *wifiPassword = "12345678";
 
 const char *mqttServer = "9b88959e8c674540989f6ed6cf143c4d.s1.eu.hivemq.cloud";
 const int mqttPort = 8883;
@@ -23,16 +27,67 @@ PubSubClient mqttClient(secureWifiClient);
 
 DHT dhtSensor(DHT_PIN, DHT_TYPE);
 
+void mqttCallback(char *topic, byte *payload, unsigned int length)
+{
+  String message = "";
+  for (int i = 0; i < length; i++)
+  {
+    message += (char)payload[i];
+  }
+
+  Serial.print("Message received on topic: ");
+  Serial.print(topic);
+  Serial.print(" - Message: ");
+  Serial.println(message);
+
+  if (String(topic) == "esp32/iot/control")
+  {
+    if (message == "LED1_ON")
+    {
+      digitalWrite(LED1_PIN, HIGH);
+      Serial.println("LED1 turned ON");
+    }
+    else if (message == "LED1_OFF")
+    {
+      digitalWrite(LED1_PIN, LOW);
+      Serial.println("LED1 turned OFF");
+    }
+    else if (message == "LED2_ON")
+    {
+      digitalWrite(LED2_PIN, HIGH);
+      Serial.println("LED2 turned ON");
+    }
+    else if (message == "LED2_OFF")
+    {
+      digitalWrite(LED2_PIN, LOW);
+      Serial.println("LED2 turned OFF");
+    }
+    else if (message == "LED3_ON")
+    {
+      digitalWrite(LED3_PIN, HIGH);
+      Serial.println("LED3 turned ON");
+    }
+    else if (message == "LED3_OFF")
+    {
+      digitalWrite(LED3_PIN, LOW);
+      Serial.println("LED3 turned OFF");
+    }
+  }
+}
+
 void connectToMqtt()
 {
   secureWifiClient.setInsecure();
   mqttClient.setServer(mqttServer, mqttPort);
+  mqttClient.setCallback(mqttCallback);
   while (!mqttClient.connected())
   {
     Serial.print("Connecting to MQTT...");
     if (mqttClient.connect(mqttClientId, mqttUsername, mqttPassword))
     {
       Serial.println("Connected");
+      mqttClient.subscribe("esp32/iot/control");
+      Serial.println("Subscribed to esp32/iot/control");
     }
     else
     {
@@ -49,6 +104,15 @@ void setup()
   Serial.begin(115200);
   dhtSensor.begin();
   analogReadResolution(12);
+
+  pinMode(LED1_PIN, OUTPUT);
+  pinMode(LED2_PIN, OUTPUT);
+  pinMode(LED3_PIN, OUTPUT);
+
+  digitalWrite(LED1_PIN, LOW);
+  digitalWrite(LED2_PIN, LOW);
+  digitalWrite(LED3_PIN, LOW);
+
   WiFi.begin(wifiSsid, wifiPassword);
   Serial.print("Connecting to WiFi");
   while (WiFi.status() != WL_CONNECTED)
