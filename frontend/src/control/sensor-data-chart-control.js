@@ -5,29 +5,45 @@ class SensorDataChartController {
   constructor() {
     this.chartView = new SensorDataChart();
     this.currentSensorType = "temperature";
-    this.currentTimePeriod = "today";
+    this.selectedDate = new Date().toISOString().split("T")[0]; // Today's date in YYYY-MM-DD format
     this.isLoading = false;
+
+    // Initialize DOM elements
+    this.datePicker = document.getElementById("datePicker");
+    this.sensorTypeSelector = document.getElementById("sensorTypeSelector");
   }
 
   async init() {
     this.setupEventListeners();
+    this.initializeDatePicker();
     await this.loadChart();
   }
 
-  setupEventListeners() {
-    const sensorTypeSelector = document.getElementById("sensorTypeSelector");
-    const timePeriodSelector = document.getElementById("timePeriod");
+  initializeDatePicker() {
+    // Set today's date as default
+    const today = new Date();
+    const formattedDate = today.toISOString().split("T")[0];
+    this.datePicker.value = formattedDate;
+    this.selectedDate = formattedDate;
 
-    if (sensorTypeSelector) {
-      sensorTypeSelector.addEventListener("change", (e) => {
+    // Set max date to today (prevent future dates)
+    this.datePicker.max = formattedDate;
+
+    console.log("Date picker initialized with:", this.selectedDate);
+  }
+
+  setupEventListeners() {
+    if (this.sensorTypeSelector) {
+      this.sensorTypeSelector.addEventListener("change", (e) => {
         this.currentSensorType = e.target.value;
         this.loadChart();
       });
     }
 
-    if (timePeriodSelector) {
-      timePeriodSelector.addEventListener("change", (e) => {
-        this.currentTimePeriod = e.target.value;
+    if (this.datePicker) {
+      this.datePicker.addEventListener("change", (e) => {
+        this.selectedDate = e.target.value;
+        console.log("Selected date changed to:", this.selectedDate);
         this.loadChart();
       });
     }
@@ -38,7 +54,7 @@ class SensorDataChartController {
 
     try {
       console.log(
-        `Loading chart for sensor type: ${this.currentSensorType}, time period: ${this.currentTimePeriod}`
+        `Loading chart for sensor type: ${this.currentSensorType}, date: ${this.selectedDate}`
       );
 
       this.isLoading = true;
@@ -64,7 +80,7 @@ class SensorDataChartController {
   async getSensorData() {
     try {
       const response = await fetch(
-        `http://localhost:5001/api/v1/sensors/sensor-data/chart?timePeriod=${this.currentTimePeriod}`
+        `http://localhost:5001/api/v1/sensors/sensor-data/chart?date=${this.selectedDate}`
       );
 
       if (!response.ok) {

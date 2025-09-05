@@ -88,8 +88,8 @@ class SensorDataChart {
             borderWidth: 3,
             fill: true,
             tension: 0.4,
-            pointRadius: 3,
-            pointHoverRadius: 5,
+            pointRadius: 0,
+            pointHoverRadius: 0,
           },
         ],
       },
@@ -118,8 +118,8 @@ class SensorDataChart {
             borderWidth: 3,
             fill: false,
             tension: 0.4,
-            pointRadius: 3,
-            pointHoverRadius: 5,
+            pointRadius: 0,
+            pointHoverRadius: 0,
             yAxisID: "y",
           },
           {
@@ -130,8 +130,8 @@ class SensorDataChart {
             borderWidth: 3,
             fill: false,
             tension: 0.4,
-            pointRadius: 3,
-            pointHoverRadius: 5,
+            pointRadius: 0,
+            pointHoverRadius: 0,
             yAxisID: "y1",
           },
           {
@@ -142,8 +142,8 @@ class SensorDataChart {
             borderWidth: 3,
             fill: false,
             tension: 0.4,
-            pointRadius: 3,
-            pointHoverRadius: 5,
+            pointRadius: 0,
+            pointHoverRadius: 0,
             yAxisID: "y1",
           },
         ],
@@ -249,7 +249,7 @@ class SensorDataChart {
           title: {
             display: true,
             text: "Nhiệt độ (°C)",
-            color: "#ff6b35",
+            color: "#666",
             font: {
               size: 12,
               weight: "bold",
@@ -260,7 +260,7 @@ class SensorDataChart {
             lineWidth: 1,
           },
           ticks: {
-            color: "#ff6b35",
+            color: "#666",
             font: { size: 10 },
             callback: function (value) {
               return Math.round(value) + "°C";
@@ -276,7 +276,7 @@ class SensorDataChart {
           title: {
             display: true,
             text: "Độ ẩm & Ánh sáng (%)",
-            color: "#4ecdc4",
+            color: "#666",
             font: {
               size: 12,
               weight: "bold",
@@ -286,7 +286,7 @@ class SensorDataChart {
             drawOnChartArea: false,
           },
           ticks: {
-            color: "#4ecdc4",
+            color: "#666",
             font: { size: 10 },
             callback: function (value) {
               return Math.round(value) + "%";

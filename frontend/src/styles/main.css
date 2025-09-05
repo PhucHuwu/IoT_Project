@@ -1049,12 +1049,26 @@ body::before {
     transition: all 0.3s ease;
 }
 
-.chart-header select:hover {
+.chart-header .date-picker {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 30px;
+    padding: 8px 12px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 140px;
+}
+
+.chart-header select:hover,
+.chart-header .date-picker:hover {
     background: rgba(255, 255, 255, 1);
     border-color: #007aff;
 }
 
-.chart-header select:focus {
+.chart-header select:focus,
+.chart-header .date-picker:focus {
     outline: none;
     border-color: #007aff;
     box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
