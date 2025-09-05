@@ -10,6 +10,7 @@ MONGODB_COLLECTION_NAME = os.getenv('MONGODB_COLLECTION_NAME', 'sensor_data')
 MQTT_BROKER_HOST = os.getenv('MQTT_BROKER_HOST')
 MQTT_BROKER_PORT = int(os.getenv('MQTT_BROKER_PORT', 8883))
 MQTT_DATA_TOPIC = os.getenv('MQTT_DATA_TOPIC', 'esp32/iot/data')
+MQTT_CONTROL_TOPIC = os.getenv('MQTT_CONTROL_TOPIC', 'esp32/iot/control')
 MQTT_USERNAME = os.getenv('MQTT_USERNAME')
 MQTT_PASSWORD = os.getenv('MQTT_PASSWORD')
 

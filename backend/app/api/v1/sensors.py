@@ -2,9 +2,11 @@ from flask import Blueprint, jsonify, request
 from app.core.database import DatabaseManager
 from datetime import datetime, timedelta, timezone
 from app.core.logger_config import logger
+from app.services.led_control_service import LEDControlService
 
 sensors_bp = Blueprint('sensors', __name__)
 db = DatabaseManager()
+led_service = LEDControlService()
 
 
 @sensors_bp.route("/sensor-data-list")
@@ -50,21 +52,15 @@ def chart_data():
     end_time = datetime.now(timezone.utc)
 
     if date_str:
-        # Parse specific date (YYYY-MM-DD format)
         try:
-            # Parse date as local time, then convert to UTC for database query
-            # Assume Vietnam timezone (UTC+7)
             vn_tz = timezone(timedelta(hours=7))
 
-            # Parse date as Vietnam time
             selected_date_local = datetime.strptime(date_str, '%Y-%m-%d').replace(tzinfo=vn_tz)
 
-            # Convert to UTC for database query
             start_time = selected_date_local.replace(hour=0, minute=0, second=0, microsecond=0).astimezone(timezone.utc)
             end_time = selected_date_local.replace(hour=23, minute=59, second=59, microsecond=999999).astimezone(timezone.utc)
 
         except ValueError:
-            # If date parsing fails, default to today
             start_time = end_time.replace(hour=0, minute=0, second=0, microsecond=0)
     elif time_period == 'today':
         start_time = end_time.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -73,12 +69,10 @@ def chart_data():
     elif time_period == '2days':
         start_time = end_time - timedelta(days=2)
     else:
-        # Default to today
         start_time = end_time.replace(hour=0, minute=0, second=0, microsecond=0)
 
     data = db.get_data_by_time_range(start_time, end_time)
 
-    # Debug logging
     logger.info(f"Chart data request - date_str: {date_str}, time_period: {time_period}")
     logger.info(f"Query time range: {start_time} to {end_time}")
     logger.info(f"Found {len(data)} records")
@@ -88,3 +82,32 @@ def chart_data():
             doc['_id'] = str(doc['_id'])
 
     return jsonify(data)
+
+
+@sensors_bp.route("/led-control", methods=['POST'])
+def led_control():
+    try:
+        data = request.get_json()
+        led_id = data.get('led_id')
+        action = data.get('action')
+
+        if not led_id or not action:
+            return jsonify({"status": "error", "message": "Missing led_id or action"}), 400
+
+        if led_id not in ['LED1', 'LED2', 'LED3']:
+            return jsonify({"status": "error", "message": "Invalid led_id"}), 400
+
+        if action not in ['ON', 'OFF']:
+            return jsonify({"status": "error", "message": "Invalid action"}), 400
+
+        success = led_service.send_led_command(led_id, action)
+
+        if success:
+            logger.info(f"LED control command sent: {led_id}_{action}")
+            return jsonify({"status": "success", "message": f"Command {led_id}_{action} sent successfully"})
+        else:
+            return jsonify({"status": "error", "message": "Failed to send command"}), 500
+
+    except Exception as e:
+        logger.error(f"LED control error: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500

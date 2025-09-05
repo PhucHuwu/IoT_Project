@@ -1,46 +1,49 @@
 import SensorCardController from "../control/home-page-sensor-card-control.js";
 import ChartController from "../control/home-page-chart-control.js";
+import LEDController from "../control/home-page-led-control.js";
 
 class HomePageLoader {
-  constructor() {
-    this.sensorCardController = null;
-    this.chartController = null;
-  }
-
-  async init() {
-    try {
-      // Khởi tạo sensor cards
-      this.sensorCardController = new SensorCardController();
-      await this.sensorCardController.init();
-
-      // Khởi tạo charts
-      this.chartController = new ChartController();
-      await this.chartController.init();
-
-      console.log("Trang home-page đã được khởi tạo thành công");
-    } catch (error) {
-      console.error("Lỗi khi khởi tạo trang home-page:", error);
+    constructor() {
+        this.sensorCardController = null;
+        this.chartController = null;
+        this.ledController = null;
     }
-  }
 
-  destroy() {
-    if (this.sensorCardController) {
-      this.sensorCardController.destroy();
+    async init() {
+        try {
+            this.sensorCardController = new SensorCardController();
+            await this.sensorCardController.init();
+
+            this.chartController = new ChartController();
+            await this.chartController.init();
+
+            this.ledController = new LEDController();
+
+            console.log("Trang home-page đã được khởi tạo thành công");
+        } catch (error) {
+            console.error("Lỗi khi khởi tạo trang home-page:", error);
+        }
     }
-    if (this.chartController) {
-      this.chartController.destroy();
+
+    destroy() {
+        if (this.sensorCardController) {
+            this.sensorCardController.destroy();
+        }
+        if (this.chartController) {
+            this.chartController.destroy();
+        }
+        this.ledController = null;
     }
-  }
 }
 
 const homePageLoader = new HomePageLoader();
 
 document.addEventListener("DOMContentLoaded", () => {
-  homePageLoader.init();
+    homePageLoader.init();
 });
 
 window.addEventListener("beforeunload", () => {
-  homePageLoader.destroy();
+    homePageLoader.destroy();
 });
 
 export default homePageLoader;
