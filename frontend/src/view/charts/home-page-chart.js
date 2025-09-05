@@ -30,12 +30,18 @@ class HomePageChart {
     }
 
     updateTemperatureChart(data) {
+        console.log("Temperature chart data received:", data);
         const ctx = document.getElementById("temperatureChart");
-        if (!ctx) return;
+        if (!ctx) {
+            console.error("Temperature chart canvas not found!");
+            return;
+        }
 
         const chartData = this.prepareChartData(data, "temperature");
+        console.log("Prepared temperature chart data:", chartData);
 
         if (!this.temperatureChart) {
+            console.log("Creating new temperature chart...");
             this.temperatureChart = new Chart(ctx, {
                 type: "line",
                 data: {

@@ -274,3 +274,551 @@
         transform: rotate(360deg);
     }
 }
+
+.table-card {
+    background: linear-gradient(
+        135deg,
+        rgba(15, 15, 15, 0.02) 0%,
+        rgba(250, 250, 250, 0.7) 25%,
+        rgba(255, 255, 255, 0.9) 50%,
+        rgba(250, 250, 250, 0.95) 100%
+    );
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 30px;
+    padding: 24px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(250, 250, 250, 0.5);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.table-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    color: #333;
+}
+
+.table-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.table-controls select {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    padding: 8px 12px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.export-btn {
+    background: linear-gradient(135deg, #007aff 0%, #0051d5 100%);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+
+.export-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+
+.table-search-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.search-section {
+    flex: 1;
+    max-width: 400px;
+}
+
+.search-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-input-group i {
+    position: absolute;
+    left: 12px;
+    color: #666;
+    z-index: 2;
+}
+
+.search-input-group input {
+    width: 100%;
+    padding: 10px 12px 10px 36px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 25px;
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.9);
+    transition: all 0.3s ease;
+}
+
+.search-input-group input:focus {
+    outline: none;
+    border-color: #007aff;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+    background: rgba(255, 255, 255, 1);
+}
+
+.clear-btn {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    color: #666;
+    transition: all 0.2s ease;
+}
+
+.clear-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #333;
+}
+
+.filter-toggle-section {
+    flex-shrink: 0;
+}
+
+.filter-toggle-btn {
+    background: linear-gradient(135deg, #34c759 0%, #28a745 100%);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.filter-toggle-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3);
+}
+
+.filter-toggle-btn.active {
+    background: linear-gradient(135deg, #007aff 0%, #0051d5 100%);
+}
+
+.filter-badge {
+    background: #ff383c;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+.toggle-arrow {
+    width: 12px;
+    height: 12px;
+    transition: transform 0.3s ease;
+}
+
+.toggle-arrow svg {
+    width: 100%;
+    height: 100%;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+    transition: transform 0.3s ease;
+}
+
+.table-filters-panel {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 20px;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.filter-group {
+    margin-bottom: 20px;
+}
+
+.filter-group:last-child {
+    margin-bottom: 0;
+}
+
+.filter-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    color: #333;
+}
+
+.date-range-inputs {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.date-input {
+    padding: 8px 12px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.9);
+    transition: all 0.3s ease;
+}
+
+.date-separator {
+    color: #666;
+    font-weight: 500;
+}
+
+.filter-btn {
+    background: linear-gradient(135deg, #007aff 0%, #0051d5 100%);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 8px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 122, 255, 0.3);
+}
+
+.clear-filter-btn {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 8px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+
+.clear-filter-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(108, 117, 125, 0.3);
+}
+
+.range-filters {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.range-filter {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.range-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 160px;
+    font-weight: 500;
+}
+
+.range-inputs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.range-input {
+    width: 80px;
+    padding: 6px 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    font-size: 13px;
+    text-align: center;
+}
+
+.range-separator {
+    color: #666;
+}
+
+.range-actions {
+    margin-top: 16px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.table-container {
+    position: relative;
+    overflow-x: auto;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.table-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-radius: 15px;
+}
+
+.loading-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(0, 122, 255, 0.3);
+    border-top: 3px solid #007aff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 12px;
+}
+
+.sensor-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.sensor-data-table th {
+    background: rgba(0, 122, 255, 0.1);
+    color: #333;
+    font-weight: 600;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 2px solid rgba(0, 122, 255, 0.2);
+    white-space: nowrap;
+}
+
+.sensor-data-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    vertical-align: middle;
+}
+
+.sensor-data-table tr:hover {
+    background: rgba(0, 122, 255, 0.05);
+}
+
+.sensor-data-table .sensor-value {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+}
+
+.sensor-data-table .sensor-value .value {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.sensor-data-table .sensor-value .unit {
+    font-size: 12px;
+    color: #666;
+}
+
+.sensor-data-table .temp-value .value {
+    color: #ff383c;
+}
+
+.sensor-data-table .light-value .value {
+    color: #febc2f;
+}
+
+.sensor-data-table .humidity-value .value {
+    color: #34c759;
+}
+
+.no-data {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.no-data-message {
+    color: #666;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.no-data-message i {
+    font-size: 48px;
+    opacity: 0.3;
+}
+
+.table-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding: 16px 0;
+}
+
+.pagination-info {
+    color: #666;
+    font-size: 14px;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.page-btn {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+    background: #007aff;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.page-numbers {
+    display: flex;
+    gap: 4px;
+}
+
+.page-number-btn {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.page-number-btn:hover:not(.disabled) {
+    background: #007aff;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.page-number-btn.active {
+    background: #007aff;
+    color: white;
+    border-color: #007aff;
+}
+
+.page-number-btn.disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+@media (max-width: 768px) {
+    .table-search-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-section {
+        max-width: none;
+    }
+
+    .range-filter {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .range-label {
+        min-width: auto;
+    }
+
+    .date-range-inputs {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .table-pagination {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+    }
+
+    .page-numbers {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}

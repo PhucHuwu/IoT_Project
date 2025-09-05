@@ -90,6 +90,18 @@ class DatabaseManager:
             logger.error(f"Error retrieving data by time range: {e}")
             return []
 
+    def get_filtered_data(self, query_filter: Dict[str, Any], limit: int = 100) -> List[Dict[str, Any]]:
+        try:
+            cursor = self.collection.find(query_filter).sort("timestamp", -1).limit(limit)
+            data = list(cursor)
+
+            logger.info(f"Retrieved {len(data)} filtered records with query: {query_filter}")
+            return data
+
+        except Exception as e:
+            logger.error(f"Error retrieving filtered data: {e}")
+            return []
+
     def close_connection(self):
         try:
             if self.mongo_client:

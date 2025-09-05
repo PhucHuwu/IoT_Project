@@ -11,6 +11,13 @@ class HomePageLoader {
 
     async init() {
         try {
+            if (typeof Chart === "undefined") {
+                console.error("Chart.js chưa được load!");
+                return;
+            } else {
+                console.log("Chart.js đã được load thành công");
+            }
+
             this.sensorCardController = new SensorCardController();
             await this.sensorCardController.init();
 

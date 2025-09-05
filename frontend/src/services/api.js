@@ -14,11 +14,32 @@ class SensorDataService {
         }
     }
 
-    static async getSensorDataList(limit = 5, timePeriod = null) {
+    static async getSensorDataList(
+        limit = 5,
+        timePeriod = null,
+        filters = null
+    ) {
         try {
             let url = `${API_BASE_URL}/sensor-data-list?limit=${limit}`;
             if (timePeriod) {
                 url += `&timePeriod=${timePeriod}`;
+            }
+
+            if (filters) {
+                if (filters.dateFrom) url += `&dateFrom=${filters.dateFrom}`;
+                if (filters.dateTo) url += `&dateTo=${filters.dateTo}`;
+                if (filters.tempMin !== null)
+                    url += `&tempMin=${filters.tempMin}`;
+                if (filters.tempMax !== null)
+                    url += `&tempMax=${filters.tempMax}`;
+                if (filters.lightMin !== null)
+                    url += `&lightMin=${filters.lightMin}`;
+                if (filters.lightMax !== null)
+                    url += `&lightMax=${filters.lightMax}`;
+                if (filters.humidityMin !== null)
+                    url += `&humidityMin=${filters.humidityMin}`;
+                if (filters.humidityMax !== null)
+                    url += `&humidityMax=${filters.humidityMax}`;
             }
 
             const response = await fetch(url);
@@ -34,18 +55,26 @@ class SensorDataService {
 
     static async getChartData(timePeriod = "latest5") {
         try {
+            console.log("Getting chart data for period:", timePeriod);
             let limit = 5;
             if (timePeriod === "latest10") limit = 10;
             else if (timePeriod === "latest20") limit = 20;
             else if (timePeriod === "latest5") limit = 5;
 
-            const response = await fetch(
-                `${API_BASE_URL}/sensor-data-list?limit=${limit}`
-            );
+            const url = `${API_BASE_URL}/sensor-data-list?limit=${limit}`;
+            console.log("API URL:", url);
+
+            const response = await fetch(url);
+            console.log("API Response status:", response.status);
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            return await response.json();
+
+            const result = await response.json();
+            console.log("API Response data:", result);
+
+            return result;
         } catch (error) {
             console.error("Lỗi khi lấy dữ liệu biểu đồ:", error);
             throw error;

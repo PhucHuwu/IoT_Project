@@ -11,15 +11,127 @@ led_service = LEDControlService()
 
 @sensors_bp.route("/sensor-data-list")
 def sensor_data_list():
-    type_ = request.args.get('type', 'temperature')
-    limit = int(request.args.get('limit', 5))
+    try:
+        limit = int(request.args.get('limit', 5))
+        time_period = request.args.get('timePeriod', None)
 
-    data = db.get_recent_data(limit=limit)
-    for doc in data:
-        if '_id' in doc:
-            doc['_id'] = str(doc['_id'])
+        date_from = request.args.get('dateFrom', None)
+        date_to = request.args.get('dateTo', None)
+        temp_min = request.args.get('tempMin', None)
+        temp_max = request.args.get('tempMax', None)
+        light_min = request.args.get('lightMin', None)
+        light_max = request.args.get('lightMax', None)
+        humidity_min = request.args.get('humidityMin', None)
+        humidity_max = request.args.get('humidityMax', None)
 
-    return jsonify(data)
+        query_filter = {}
+
+        if date_from or date_to:
+            timestamp_filter = {}
+            if date_from:
+                try:
+                    start_date = datetime.strptime(date_from, '%Y-%m-%d').replace(
+                        hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc
+                    )
+                    timestamp_filter['$gte'] = start_date
+                except ValueError:
+                    pass
+
+            if date_to:
+                try:
+                    end_date = datetime.strptime(date_to, '%Y-%m-%d').replace(
+                        hour=23, minute=59, second=59, microsecond=999999, tzinfo=timezone.utc
+                    )
+                    timestamp_filter['$lte'] = end_date
+                except ValueError:
+                    pass
+
+            if timestamp_filter:
+                query_filter['timestamp'] = timestamp_filter
+
+        elif time_period:
+            end_time = datetime.now(timezone.utc)
+            if time_period == 'today':
+                start_time = end_time.replace(hour=0, minute=0, second=0, microsecond=0)
+                query_filter['timestamp'] = {'$gte': start_time, '$lte': end_time}
+            elif time_period == '1day':
+                start_time = end_time - timedelta(days=1)
+                query_filter['timestamp'] = {'$gte': start_time, '$lte': end_time}
+            elif time_period == '2days':
+                start_time = end_time - timedelta(days=2)
+                query_filter['timestamp'] = {'$gte': start_time, '$lte': end_time}
+
+        if temp_min is not None or temp_max is not None:
+            temp_filter = {}
+            if temp_min is not None:
+                try:
+                    temp_filter['$gte'] = float(temp_min)
+                except ValueError:
+                    pass
+            if temp_max is not None:
+                try:
+                    temp_filter['$lte'] = float(temp_max)
+                except ValueError:
+                    pass
+            if temp_filter:
+                query_filter['temperature'] = temp_filter
+
+        if light_min is not None or light_max is not None:
+            light_filter = {}
+            if light_min is not None:
+                try:
+                    light_filter['$gte'] = float(light_min)
+                except ValueError:
+                    pass
+            if light_max is not None:
+                try:
+                    light_filter['$lte'] = float(light_max)
+                except ValueError:
+                    pass
+            if light_filter:
+                query_filter['light'] = light_filter
+
+        if humidity_min is not None or humidity_max is not None:
+            humidity_filter = {}
+            if humidity_min is not None:
+                try:
+                    humidity_filter['$gte'] = float(humidity_min)
+                except ValueError:
+                    pass
+            if humidity_max is not None:
+                try:
+                    humidity_filter['$lte'] = float(humidity_max)
+                except ValueError:
+                    pass
+            if humidity_filter:
+                query_filter['humidity'] = humidity_filter
+
+        logger.info(f"Sensor data list query filter: {query_filter}")
+
+        if query_filter:
+            data = db.get_filtered_data(query_filter, limit=limit)
+        else:
+            data = db.get_recent_data(limit=limit)
+
+        for doc in data:
+            if '_id' in doc:
+                doc['_id'] = str(doc['_id'])
+
+        logger.info(f"Returned {len(data)} sensor data records")
+
+        return jsonify({
+            "status": "success",
+            "data": data,
+            "count": len(data)
+        })
+
+    except Exception as e:
+        logger.error(f"Error in sensor_data_list: {e}")
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+            "data": []
+        }), 500
 
 
 @sensors_bp.route("/sensor-data")

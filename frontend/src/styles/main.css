@@ -876,7 +876,7 @@ body::before {
     color: #666;
 }
 
-.sensor-value {
+.sensor-card .sensor-value {
     font-size: 24px;
     font-weight: 700;
     color: #34c759;
@@ -884,13 +884,13 @@ body::before {
     position: relative;
 }
 
-.sensor-value.orange {
+.sensor-card .sensor-value.orange {
     color: #febc2f;
 }
-.sensor-value.green {
+.sensor-card .sensor-value.green {
     color: #34c759;
 }
-.sensor-value.red {
+.sensor-card .sensor-value.red {
     color: #ff383c;
 }
 
