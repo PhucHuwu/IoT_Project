@@ -23,7 +23,11 @@ class LEDController {
                 const ledNumber = this.getLEDNumber(card.className);
                 const ledId = `LED${ledNumber}`;
 
-                toggleSwitch.addEventListener("click", () => {
+                toggleSwitch.addEventListener("click", (e) => {
+                    if (toggleSwitch.classList.contains("loading")) {
+                        e.preventDefault();
+                        return;
+                    }
                     this.toggleLED(ledId, toggleSwitch, ledStatus);
                 });
             }
@@ -39,16 +43,17 @@ class LEDController {
 
     async toggleLED(ledId, toggleElement, statusElement) {
         const currentState = this.ledStates[ledId];
-        const newAction = currentState ? "OFF" : "ON";
+        const newState = !currentState;
+        const newAction = newState ? "ON" : "OFF";
+
+        this.ledStates[ledId] = newState;
+        this.updateLEDUI(toggleElement, statusElement, newState);
+        toggleElement.classList.add("loading");
 
         try {
-            toggleElement.classList.add("loading");
-
             const result = await SensorDataService.controlLED(ledId, newAction);
 
             if (result.status === "success") {
-                this.ledStates[ledId] = !currentState;
-                this.updateLEDUI(toggleElement, statusElement, !currentState);
                 console.log(
                     `${ledId} đã ${newAction === "ON" ? "bật" : "tắt"}`
                 );
@@ -56,6 +61,9 @@ class LEDController {
                 throw new Error(result.message || "Lỗi không xác định");
             }
         } catch (error) {
+            this.ledStates[ledId] = currentState;
+            this.updateLEDUI(toggleElement, statusElement, currentState);
+
             console.error(`Lỗi điều khiển ${ledId}:`, error);
             alert(`Không thể điều khiển ${ledId}: ${error.message}`);
         } finally {
