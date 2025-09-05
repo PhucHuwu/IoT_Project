@@ -2,6 +2,10 @@
     transition: all 0.3s ease;
 }
 
+.sensor-card .sensor-value {
+    transition: all 0.2s ease;
+}
+
 .sensor-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
@@ -212,8 +216,28 @@
     color: #f44336;
 }
 
+.status-danger {
+    color: #d32f2f;
+}
+
 .status-unknown {
     color: #9e9e9e;
+}
+
+.sensor-card.status-normal {
+    border-left-color: #4caf50;
+}
+
+.sensor-card.status-warning {
+    border-left-color: #ff9800;
+}
+
+.sensor-card.status-danger {
+    border-left-color: #d32f2f;
+}
+
+.sensor-card.status-error {
+    border-left-color: #f44336;
 }
 
 .loading {

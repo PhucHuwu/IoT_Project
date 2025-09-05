@@ -1,0 +1,1 @@
+// controller cho bảng dữ liệu trong trang sensor-data

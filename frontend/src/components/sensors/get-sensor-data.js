@@ -1,1 +1,0 @@
-//thực hiện lấy dữ liệu cảm biến từ API

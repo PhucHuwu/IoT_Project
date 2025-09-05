@@ -1,0 +1,1 @@
+// controller cho chart trong trang home-page

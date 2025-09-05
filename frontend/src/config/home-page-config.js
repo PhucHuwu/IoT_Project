@@ -1,1 +1,0 @@
-// cấu hình cho trang home-page

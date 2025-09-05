@@ -1,1 +1,0 @@
-// thực hiện điều khiển bảng dữ liệu trên trang sensor-data

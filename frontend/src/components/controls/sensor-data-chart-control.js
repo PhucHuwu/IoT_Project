@@ -1,1 +1,0 @@
-// thực hiện điều khiển biểu đồ trên trang sensor-data
