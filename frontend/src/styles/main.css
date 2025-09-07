@@ -956,8 +956,8 @@ body::before {
 }
 
 .led-status {
-    font-size: var(--font-size-callout);
-    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-title2);
+    font-weight: var(--font-weight-bold);
     color: #999;
     text-transform: uppercase;
     letter-spacing: 0.06em;
