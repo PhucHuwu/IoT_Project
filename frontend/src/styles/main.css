@@ -6,8 +6,8 @@
 ::-webkit-scrollbar-track {
     background: linear-gradient(
         145deg,
-        rgba(255, 255, 255, 0.2) 0%,
-        rgba(255, 255, 255, 0.05) 100%
+        rgba(255, 255, 255, 0.5) 0%,
+        rgba(255, 255, 255, 0.5) 100%
     );
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -18,8 +18,8 @@
 ::-webkit-scrollbar-thumb {
     background: linear-gradient(
         145deg,
-        rgba(255, 255, 255, 0.6) 0%,
-        rgba(255, 255, 255, 0.3) 100%
+        rgba(135, 206, 250, 0.3) 0%,
+        rgba(144, 238, 144, 0.3) 100%
     );
     backdrop-filter: blur(30px);
     -webkit-backdrop-filter: blur(30px);
@@ -35,22 +35,22 @@ body {
         sans-serif;
     background: radial-gradient(
             ellipse at top left,
-            rgba(255, 255, 255, 0.3) 0%,
+            rgba(255, 255, 255, 0.5) 0%,
             transparent 60%
         ),
         radial-gradient(
             ellipse at top right,
-            rgba(135, 206, 250, 0.1) 0%,
+            rgba(135, 206, 250, 0.2) 0%,
             transparent 60%
         ),
         radial-gradient(
             ellipse at bottom left,
-            rgba(255, 192, 203, 0.1) 0%,
+            rgba(255, 192, 203, 0.5) 0%,
             transparent 60%
         ),
         radial-gradient(
             ellipse at bottom right,
-            rgba(144, 238, 144, 0.1) 0%,
+            rgba(144, 238, 144, 0.2) 0%,
             transparent 60%
         ),
         linear-gradient(
