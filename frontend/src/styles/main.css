@@ -1,3 +1,40 @@
+:root {
+    /* macOS Typography Scale */
+    --font-family-system: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+        "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --font-family-mono: "SF Mono", Monaco, "Cascadia Code", Menlo, Consolas,
+        monospace;
+
+    /* Font Weights */
+    --font-weight-ultralight: 100;
+    --font-weight-thin: 200;
+    --font-weight-light: 300;
+    --font-weight-regular: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    --font-weight-heavy: 800;
+    --font-weight-black: 900;
+
+    /* Font Sizes */
+    --font-size-caption2: 11px;
+    --font-size-caption1: 12px;
+    --font-size-footnote: 13px;
+    --font-size-subheadline: 15px;
+    --font-size-callout: 16px;
+    --font-size-body: 17px;
+    --font-size-headline: 17px;
+    --font-size-title3: 20px;
+    --font-size-title2: 22px;
+    --font-size-title1: 28px;
+    --font-size-large-title: 34px;
+
+    /* Line Heights */
+    --line-height-tight: 1.2;
+    --line-height-normal: 1.4;
+    --line-height-relaxed: 1.6;
+}
+
 ::-webkit-scrollbar {
     width: 12px;
     background: rgba(255, 255, 255, 0.1);
@@ -31,8 +68,13 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-        sans-serif;
+    font-family: var(--font-family-system);
+    font-size: var(--font-size-body);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--line-height-normal);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
     background: radial-gradient(
             ellipse at top left,
             rgba(255, 255, 255, 0.5) 0%,
@@ -185,8 +227,9 @@ body::before {
 }
 
 .sidebar-header h2 {
-    font-size: 18px;
-    font-weight: 600;
+    font-size: var(--font-size-headline);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-tight);
 }
 
 .sidebar-header i {
@@ -221,6 +264,10 @@ body::before {
     overflow: hidden;
     text-decoration: none;
     color: inherit;
+    font-size: var(--font-size-subheadline);
+    font-weight: var(--font-weight-medium);
+    font-family: var(--font-family-system);
+    line-height: var(--line-height-normal);
 }
 
 .nav-item::before {
@@ -625,16 +672,18 @@ body::before {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     color: white;
-    font-size: 10px;
+    font-size: var(--font-size-caption2);
+    font-weight: var(--font-weight-semibold);
+    font-family: var(--font-family-system);
     padding: 3px 6px;
     border-radius: 30px;
     min-width: 18px;
     text-align: center;
-    font-weight: 600;
     box-shadow: 0 2px 8px rgba(255, 56, 60, 0.4),
         inset 0 1px 0 rgba(255, 255, 255, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.2);
     animation: pulse 2s infinite;
+    line-height: var(--line-height-tight);
 }
 
 @keyframes pulse {
@@ -670,7 +719,10 @@ body::before {
     align-items: center;
     justify-content: center;
     color: white;
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
+    font-family: var(--font-family-system);
+    font-size: var(--font-size-callout);
+    line-height: var(--line-height-tight);
     cursor: pointer;
     transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
     box-shadow: 0 8px 25px rgba(173, 216, 230, 0.4),
@@ -776,14 +828,19 @@ body::before {
 }
 
 .page-title h1 {
-    font-size: 28px;
-    font-weight: 700;
+    font-size: var(--font-size-large-title);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
     margin-bottom: 8px;
+    letter-spacing: -0.02em;
 }
 
 .page-title p {
     color: #666;
     margin-bottom: 32px;
+    font-size: var(--font-size-body);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--line-height-normal);
 }
 
 .sensor-grid {
@@ -872,16 +929,20 @@ body::before {
 }
 
 .sensor-name {
-    font-size: 14px;
+    font-size: var(--font-size-footnote);
+    font-weight: var(--font-weight-medium);
     color: #666;
+    line-height: var(--line-height-normal);
 }
 
 .sensor-card .sensor-value {
-    font-size: 24px;
-    font-weight: 700;
+    font-size: var(--font-size-title1);
+    font-weight: var(--font-weight-bold);
     color: #34c759;
     transition: all 0.3s ease;
     position: relative;
+    line-height: var(--line-height-tight);
+    letter-spacing: -0.01em;
 }
 
 .sensor-card .sensor-value.orange {
@@ -895,11 +956,12 @@ body::before {
 }
 
 .led-status {
-    font-size: 18px;
-    font-weight: 600;
+    font-size: var(--font-size-callout);
+    font-weight: var(--font-weight-semibold);
     color: #999;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.06em;
+    line-height: var(--line-height-tight);
 }
 
 .led-status.on {
@@ -1026,8 +1088,9 @@ body::before {
 }
 
 .chart-header h3 {
-    font-size: 18px;
-    font-weight: 600;
+    font-size: var(--font-size-headline);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-tight);
     margin: 0;
 }
 
@@ -1043,7 +1106,9 @@ body::before {
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 30px;
     padding: 8px 12px;
-    font-size: 14px;
+    font-size: var(--font-size-footnote);
+    font-weight: var(--font-weight-regular);
+    font-family: var(--font-family-system);
     color: #333;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -1054,7 +1119,9 @@ body::before {
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 30px;
     padding: 8px 12px;
-    font-size: 14px;
+    font-size: var(--font-size-footnote);
+    font-weight: var(--font-weight-regular);
+    font-family: var(--font-family-system);
     color: #333;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -1095,6 +1162,7 @@ body::before {
 }
 
 .chart-container {
+    border-radius: 30px;
     height: 350px;
     width: 100%;
     position: relative;
@@ -1113,7 +1181,9 @@ body::before {
 .chart-unit {
     text-align: center;
     color: #666;
-    font-size: 12px;
+    font-size: var(--font-size-caption1);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-normal);
 }
 
 .dropdown-trigger {
@@ -1133,7 +1203,9 @@ body::before {
     border: 2px solid rgba(255, 255, 255, 0.5);
     border-radius: 30px;
     padding: 8px 32px 8px 16px;
-    font-size: 12px;
+    font-size: var(--font-size-caption1);
+    font-weight: var(--font-weight-medium);
+    font-family: var(--font-family-system);
     color: rgba(15, 15, 15, 0.8);
     cursor: pointer;
     display: flex;
@@ -1292,7 +1364,9 @@ body::before {
 
 .dropdown-option {
     padding: 10px 16px;
-    font-size: 14px;
+    font-size: var(--font-size-footnote);
+    font-weight: var(--font-weight-regular);
+    font-family: var(--font-family-system);
     color: rgba(15, 15, 15, 0.8);
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1302,6 +1376,7 @@ body::before {
     display: flex;
     align-items: center;
     gap: 8px;
+    line-height: var(--line-height-normal);
 }
 
 .dropdown-option i {
@@ -1724,15 +1799,19 @@ body::after {
 }
 
 .activity-header h3 {
-    font-size: 16px;
-    font-weight: 600;
+    font-size: var(--font-size-callout);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-tight);
+    font-family: var(--font-family-system);
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
 .activity-count {
-    font-size: 12px;
+    font-size: var(--font-size-caption1);
+    font-weight: var(--font-weight-medium);
+    font-family: var(--font-family-system);
     color: #666;
     background: linear-gradient(
         135deg,
@@ -1778,10 +1857,12 @@ body::after {
 }
 
 .activity-time {
-    font-size: 12px;
-    font-weight: 600;
+    font-size: var(--font-size-caption1);
+    font-weight: var(--font-weight-semibold);
+    font-family: var(--font-family-mono);
     color: #666;
     min-width: 40px;
+    line-height: var(--line-height-normal);
 }
 
 .activity-content {
@@ -1789,22 +1870,30 @@ body::after {
 }
 
 .activity-title {
-    font-size: 14px;
-    font-weight: 500;
+    font-size: var(--font-size-footnote);
+    font-weight: var(--font-weight-medium);
+    font-family: var(--font-family-system);
+    line-height: var(--line-height-normal);
     margin-bottom: 2px;
 }
 
 .activity-desc {
-    font-size: 12px;
+    font-size: var(--font-size-caption1);
+    font-weight: var(--font-weight-regular);
+    font-family: var(--font-family-system);
     color: #666;
+    line-height: var(--line-height-normal);
 }
 
 .activity-status {
     padding: 4px 12px;
     border-radius: 30px;
-    font-size: 10px;
-    font-weight: 600;
+    font-size: var(--font-size-caption2);
+    font-weight: var(--font-weight-semibold);
+    font-family: var(--font-family-system);
     text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: var(--line-height-tight);
 }
 
 .activity-status.success {
@@ -1867,8 +1956,10 @@ body::after {
 }
 
 .summary-header h3 {
-    font-size: 16px;
-    font-weight: 600;
+    font-size: var(--font-size-callout);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-tight);
+    font-family: var(--font-family-system);
 }
 
 .summary-header select {
@@ -1901,15 +1992,21 @@ body::after {
 }
 
 .stat-value {
-    font-size: 24px;
-    font-weight: 700;
+    font-size: var(--font-size-title1);
+    font-weight: var(--font-weight-bold);
+    font-family: var(--font-family-system);
     color: #34c759;
     margin-bottom: 4px;
+    line-height: var(--line-height-tight);
+    letter-spacing: -0.01em;
 }
 
 .stat-label {
-    font-size: 12px;
+    font-size: var(--font-size-caption1);
+    font-weight: var(--font-weight-medium);
+    font-family: var(--font-family-system);
     color: #666;
+    line-height: var(--line-height-normal);
 }
 
 .sensor-card {
