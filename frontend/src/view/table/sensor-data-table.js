@@ -159,26 +159,26 @@ class SensorDataTable {
             .map(
                 (item) => `
             <tr>
-                <td>${this.formatDateTime(item.timestamp)}</td>
+                <td>${this.highlightText(this.formatDateTime(item.timestamp))}</td>
                 <td class="sensor-value temp-value">
-                    <span class="value">${this.formatValue(
+                    <span class="value">${this.highlightText(this.formatValue(
                         item.temperature,
                         1
-                    )}</span>
+                    ))}</span>
                     <span class="unit">°C</span>
                 </td>
                 <td class="sensor-value light-value">
-                    <span class="value">${this.formatValue(
+                    <span class="value">${this.highlightText(this.formatValue(
                         item.light,
                         1
-                    )}</span>
+                    ))}</span>
                     <span class="unit">%</span>
                 </td>
                 <td class="sensor-value humidity-value">
-                    <span class="value">${this.formatValue(
+                    <span class="value">${this.highlightText(this.formatValue(
                         item.humidity,
                         1
-                    )}</span>
+                    ))}</span>
                     <span class="unit">%</span>
                 </td>
             </tr>
@@ -416,6 +416,26 @@ class SensorDataTable {
         )
             count++;
         return count;
+    }
+
+    highlightText(text) {
+        if (!this.searchTerm || !text) {
+            return text;
+        }
+
+        const searchLower = this.searchTerm.toLowerCase();
+        const textLower = text.toString().toLowerCase();
+        
+        if (!textLower.includes(searchLower)) {
+            return text;
+        }
+
+        const regex = new RegExp(`(${this.escapeRegex(this.searchTerm)})`, 'gi');
+        return text.toString().replace(regex, '<mark class="search-highlight">$1</mark>');
+    }
+
+    escapeRegex(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 }
 
