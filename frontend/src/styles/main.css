@@ -877,8 +877,12 @@ body {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .data-update-indicator {
@@ -916,8 +920,14 @@ body {
 }
 
 @keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }
 
 .table-search-controls {
@@ -966,6 +976,7 @@ body {
     background-size: 16px;
     padding-right: 40px;
     min-width: 140px;
+    height: 42px
 }
 
 .search-criteria-select:focus {
@@ -1653,35 +1664,6 @@ mark {
         max-width: none;
         flex-direction: column;
         gap: 8px;
-    }
-
-    .search-criteria-select {
-        background: linear-gradient(
-            135deg,
-            rgba(15, 15, 15, 0.03) 0%,
-            rgba(250, 250, 250, 0.6) 50%,
-            rgba(255, 255, 255, 0.8) 100%
-        );
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(250, 250, 250, 0.3);
-        border-radius: 30px;
-        padding: 8px 16px;
-        font-size: 12px;
-        color: rgba(15, 15, 15, 0.8);
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04),
-            inset 0 1px 0 rgba(255, 255, 255, 0.6);
-        outline: none;
-        appearance: none;
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right 12px center;
-        background-size: 16px;
-        padding-right: 40px;
-        min-width: auto;
-        width: 100%;
     }
 
     .filter-toggle-btn {
