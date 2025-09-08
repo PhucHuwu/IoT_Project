@@ -1,10 +1,12 @@
 import SensorDataTable from "../view/table/sensor-data-table.js";
 import SensorDataService from "../services/api.js";
+import UpdateIndicator from "../components/update-indicator.js";
 
 class SensorDataTableController {
   constructor() {
     this.table = null;
     this.refreshInterval = null;
+    this.updateIndicator = new UpdateIndicator();
     this.init();
   }
 
@@ -84,6 +86,13 @@ class SensorDataTableController {
       });
     }
 
+    const manualRefresh = document.getElementById("manualRefresh");
+    if (manualRefresh) {
+      manualRefresh.addEventListener("click", () => {
+        this.manualRefreshData(manualRefresh);
+      });
+    }
+
     const prevPage = document.getElementById("prevPage");
     const nextPage = document.getElementById("nextPage");
 
@@ -115,9 +124,11 @@ class SensorDataTableController {
     searchInput.placeholder = placeholders[criteria] || placeholders.all;
   }
 
-  async loadData() {
+  async loadData(showLoading = true) {
     try {
-      this.table.showLoading();
+      if (showLoading) {
+        this.table.showLoading();
+      }
       const response = await SensorDataService.getSensorDataList(1000);
 
       if (response.status === "success" && response.data) {
@@ -130,14 +141,56 @@ class SensorDataTableController {
       console.error("Lỗi khi tải dữ liệu bảng:", error);
       this.table.renderTable([]);
     } finally {
-      this.table.hideLoading();
+      if (showLoading) {
+        this.table.hideLoading();
+      }
+    }
+  }
+
+  async manualRefreshData(button) {
+    if (button) {
+      button.classList.add("spinning");
+      button.disabled = true;
+    }
+
+    try {
+      await this.loadData(false);
+      this.updateIndicator.show();
+      console.log("Dữ liệu đã được làm mới thủ công");
+    } finally {
+      if (button) {
+        setTimeout(() => {
+          button.classList.remove("spinning");
+          button.disabled = false;
+        }, 1000);
+      }
+    }
+  }
+
+  async refreshDataSilently() {
+    try {
+      const response = await SensorDataService.getSensorDataList(1000);
+
+      if (response.status === "success" && response.data) {
+        const currentData = this.table.getData();
+
+        if (JSON.stringify(currentData) !== JSON.stringify(response.data)) {
+          this.updateIndicator.show();
+          this.table.updateData(response.data);
+          console.log("Dữ liệu đã được cập nhật");
+        }
+      }
+    } catch (error) {
+      console.error("Lỗi khi refresh dữ liệu:", error);
     }
   }
 
   startAutoRefresh() {
     this.refreshInterval = setInterval(() => {
-      this.loadData();
+      this.refreshDataSilently();
     }, 30000);
+
+    console.log("Auto refresh enabled - Dữ liệu sẽ được cập nhật mỗi 30 giây");
   }
 
   stopAutoRefresh() {
@@ -149,6 +202,9 @@ class SensorDataTableController {
 
   destroy() {
     this.stopAutoRefresh();
+    if (this.updateIndicator) {
+      this.updateIndicator.destroy();
+    }
   }
 }
 

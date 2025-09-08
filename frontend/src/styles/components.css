@@ -1,5 +1,6 @@
 .sensor-card {
     transition: all 0.3s ease;
+    position: relative;
 }
 
 .sensor-card .sensor-value {
@@ -9,6 +10,45 @@
 .sensor-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.data-update-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(52, 199, 89, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    display: none;
+    z-index: 1000;
+    animation: slideIn 0.3s ease;
+}
+
+.data-update-indicator.show {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.update-spinner {
+    width: 12px;
+    height: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 .sensor-card.temperature {
@@ -342,6 +382,37 @@
 .export-btn:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+
+.refresh-btn {
+    background: linear-gradient(135deg, #34c759 0%, #2fb344 100%);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+
+.refresh-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3);
+}
+
+.refresh-btn:active {
+    transform: translateY(0);
+}
+
+.refresh-btn .fas {
+    animation: none;
+}
+
+.refresh-btn.spinning .fas {
+    animation: spin 1s linear infinite;
 }
 
 .table-search-controls {

@@ -350,6 +350,21 @@ class SensorDataTable {
   escapeRegex(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   }
+
+  getData() {
+    return this.currentData;
+  }
+
+  updateData(newData) {
+    const oldScrollPosition = window.pageYOffset;
+
+    this.currentData = Array.isArray(newData) ? newData : [];
+    this.applyFiltersAndSearch();
+    this.renderTableBody();
+    this.renderPagination();
+
+    window.scrollTo(0, oldScrollPosition);
+  }
 }
 
 export default SensorDataTable;

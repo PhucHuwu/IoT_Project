@@ -7,6 +7,7 @@ class SensorDataChartController {
     this.currentSensorType = "temperature";
     this.selectedDate = new Date().toISOString().split("T")[0];
     this.isLoading = false;
+    this.refreshInterval = null;
 
     this.datePicker = document.getElementById("datePicker");
     this.sensorTypeSelector = document.getElementById("sensorTypeSelector");
@@ -16,6 +17,7 @@ class SensorDataChartController {
     this.setupEventListeners();
     this.initializeDatePicker();
     await this.loadChart();
+    this.startAutoRefresh();
   }
 
   initializeDatePicker() {
@@ -41,7 +43,9 @@ class SensorDataChartController {
       this.datePicker.addEventListener("change", (e) => {
         this.selectedDate = e.target.value;
         console.log("Selected date changed to:", this.selectedDate);
+        this.stopAutoRefresh();
         this.loadChart();
+        this.startAutoRefresh();
       });
     }
   }
@@ -102,7 +106,38 @@ class SensorDataChartController {
     }
   }
 
+  async refreshChartSilently() {
+    if (this.isLoading) return;
+
+    try {
+      const data = await this.getSensorData();
+      if (data && data.length > 0) {
+        this.chartView.updateChart(data, this.currentSensorType);
+        this.updateScrollIndicator(data.length);
+      }
+    } catch (error) {
+      console.error("Lỗi khi refresh biểu đồ:", error);
+    }
+  }
+
+  startAutoRefresh() {
+    const today = new Date().toISOString().split("T")[0];
+    if (this.selectedDate === today) {
+      this.refreshInterval = setInterval(() => {
+        this.refreshChartSilently();
+      }, 30000);
+    }
+  }
+
+  stopAutoRefresh() {
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+      this.refreshInterval = null;
+    }
+  }
+
   destroy() {
+    this.stopAutoRefresh();
     this.chartView.destroy();
   }
 }
