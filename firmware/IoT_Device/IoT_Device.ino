@@ -11,10 +11,10 @@
 #define LED2_PIN 26
 #define LED3_PIN 27
 
-const char *wifiSsid = "FreeWife24GHz";
-const char *wifiPassword = "0977910920";
-// const char *wifiSsid = "IOT";
-// const char *wifiPassword = "12345678";
+// const char *wifiSsid = "FreeWife24GHz";
+// const char *wifiPassword = "0977910920";
+const char *wifiSsid = "IOT";
+const char *wifiPassword = "12345678";
 
 const char *mqttServer = "9b88959e8c674540989f6ed6cf143c4d.s1.eu.hivemq.cloud";
 const int mqttPort = 8883;
@@ -81,7 +81,7 @@ void connectToMqtt()
   mqttClient.setServer(mqttServer, mqttPort);
   mqttClient.setCallback(mqttCallback);
   mqttClient.setKeepAlive(60);
-  
+
   int attempts = 0;
   while (!mqttClient.connected() && attempts < 3)
   {
@@ -139,10 +139,11 @@ void loop()
 
   static unsigned long lastSensorRead = 0;
   unsigned long currentTime = millis();
-  
-  if (currentTime - lastSensorRead >= 5000) {
+
+  if (currentTime - lastSensorRead >= 1000)
+  {
     lastSensorRead = currentTime;
-    
+
     float humidityValue = dhtSensor.readHumidity();
     float temperatureValue = dhtSensor.readTemperature();
     int lightAdcValue = analogRead(LIGHT_SENSOR_ADC_PIN);
@@ -172,6 +173,4 @@ void loop()
       mqttClient.publish("esp32/iot/data", mqttPayload);
     }
   }
-
-  delay(100);
 }

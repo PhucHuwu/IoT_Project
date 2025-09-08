@@ -97,6 +97,15 @@
 
                         <div class="table-search-controls">
                             <div class="search-section">
+                                <div class="search-criteria-group">
+                                    <select id="searchCriteria" class="search-criteria-select">
+                                        <option value="all">Tất cả tiêu chí</option>
+                                        <option value="temperature">Nhiệt độ</option>
+                                        <option value="light">Ánh sáng</option>
+                                        <option value="humidity">Độ ẩm</option>
+                                        <option value="time">Thời gian</option>
+                                    </select>
+                                </div>
                                 <div class="search-input-group">
                                     <i class="fas fa-search"></i>
                                     <input type="text" id="tableSearchInput" placeholder="Tìm kiếm dữ liệu...">
@@ -105,94 +114,8 @@
                                     </button>
                                 </div>
                             </div>
-
-                            <div class="filter-toggle-section">
-                                <button id="toggleFilterPanel" class="filter-toggle-btn">
-                                    <i class="fas fa-filter"></i>
-                                    <span>Bộ lọc nâng cao</span>
-                                    <div class="filter-badge" id="activeFiltersCount" style="display: none;">0</div>
-                                    <div class="toggle-arrow">
-                                        <svg viewBox="0 0 24 24">
-                                            <polyline points="6,9 12,15 18,9"></polyline>
-                                        </svg>
-                                    </div>
-                                </button>
-                            </div>
                         </div>
 
-                        <div class="table-filters-panel" id="filterPanel" style="display: none;">
-                            <div class="filter-panel-content">
-                                <div class="filter-group">
-                                    <label><i class="fas fa-calendar-alt"></i> Khoảng thời gian:</label>
-                                    <div class="date-range-inputs">
-                                        <input type="date" id="dateFrom" class="date-input">
-                                        <span class="date-separator">đến</span>
-                                        <input type="date" id="dateTo" class="date-input">
-                                        <button id="applyDateFilter" class="filter-btn">
-                                            <i class="fas fa-calendar-check"></i>
-                                            Áp dụng
-                                        </button>
-                                        <button id="clearDateFilter" class="clear-filter-btn" style="display: none;">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div class="filter-group">
-                                    <label><i class="fas fa-thermometer-half"></i> Lọc theo giá trị cảm biến:</label>
-                                    <div class="range-filters">
-                                        <div class="range-filter">
-                                            <div class="range-label">
-                                                <i class="fas fa-thermometer-half" style="color: #FF383C;"></i>
-                                                <span>Nhiệt độ (°C):</span>
-                                            </div>
-                                            <div class="range-inputs">
-                                                <input type="number" id="tempMin" placeholder="Min" class="range-input">
-                                                <span class="range-separator">-</span>
-                                                <input type="number" id="tempMax" placeholder="Max" class="range-input">
-                                            </div>
-                                        </div>
-                                        <div class="range-filter">
-                                            <div class="range-label">
-                                                <i class="fas fa-sun" style="color: #FEBC2F;"></i>
-                                                <span>Ánh sáng (%):</span>
-                                            </div>
-                                            <div class="range-inputs">
-                                                <input type="number" id="lightMin" placeholder="Min"
-                                                    class="range-input">
-                                                <span class="range-separator">-</span>
-                                                <input type="number" id="lightMax" placeholder="Max"
-                                                    class="range-input">
-                                            </div>
-                                        </div>
-                                        <div class="range-filter">
-                                            <div class="range-label">
-                                                <i class="fas fa-tint" style="color: #00acc1;"></i>
-                                                <span>Độ ẩm (%):</span>
-                                            </div>
-                                            <div class="range-inputs">
-                                                <input type="number" id="humidityMin" placeholder="Min"
-                                                    class="range-input">
-                                                <span class="range-separator">-</span>
-                                                <input type="number" id="humidityMax" placeholder="Max"
-                                                    class="range-input">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="range-actions">
-                                        <button id="applyRangeFilter" class="filter-btn">
-                                            <i class="fas fa-filter"></i>
-                                            Áp dụng bộ lọc
-                                        </button>
-                                        <button id="clearAllFilters" class="clear-filter-btn">
-                                            <i class="fas fa-eraser"></i>
-                                            Xóa tất cả
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                         <div class="table-container">
                             <div class="table-loading" id="tableLoading" style="display: none;">
                                 <div class="loading-spinner"></div>
