@@ -1,18 +1,18 @@
 class ActionHistoryTable {
-  constructor() {
-    this.currentItems = [];
-  }
+    constructor() {
+        this.currentItems = [];
+    }
 
-  render(container, items) {
-    this.currentItems = Array.isArray(items) ? items : [];
-    container.innerHTML = "";
+    render(container, items) {
+        this.currentItems = Array.isArray(items) ? items : [];
+        container.innerHTML = "";
 
-    const card = document.createElement("div");
-    card.className = "table-card";
+        const card = document.createElement("div");
+        card.className = "table-card";
 
-    const tableHeader = document.createElement("div");
-    tableHeader.className = "table-header";
-    tableHeader.innerHTML = `
+        const tableHeader = document.createElement("div");
+        tableHeader.className = "table-header";
+        tableHeader.innerHTML = `
       <h3>Bảng lịch sử hành động</h3>
       <div class="table-controls">
         <select id="actionTablePageSize">
@@ -32,39 +32,39 @@ class ActionHistoryTable {
       </div>
     `;
 
-    const tableContainer = document.createElement("div");
-    tableContainer.className = "table-container";
+        const tableContainer = document.createElement("div");
+        tableContainer.className = "table-container";
 
-    const table = document.createElement("table");
-    table.className = "action-history-table";
+        const table = document.createElement("table");
+        table.className = "action-history-table";
 
-    const thead = document.createElement("thead");
-    thead.innerHTML = `
+        const thead = document.createElement("thead");
+        thead.innerHTML = `
       <tr>
         <th>Thiết bị</th>
         <th>Trạng thái</th>
         <th>Thời gian</th>
       </tr>
     `;
-    table.appendChild(thead);
+        table.appendChild(thead);
 
-    const tbody = document.createElement("tbody");
-    tbody.id = "actionHistoryTableBody";
+        const tbody = document.createElement("tbody");
+        tbody.id = "actionHistoryTableBody";
 
-    this.currentItems.forEach((item) => {
-      const tr = this._createRow(item);
-      tbody.appendChild(tr);
-    });
+        this.currentItems.forEach((item) => {
+            const tr = this._createRow(item);
+            tbody.appendChild(tr);
+        });
 
-    table.appendChild(tbody);
-    tableContainer.appendChild(table);
+        table.appendChild(tbody);
+        tableContainer.appendChild(table);
 
-    card.appendChild(tableHeader);
+        card.appendChild(tableHeader);
 
-    // add search controls below header (like sensor-data layout)
-    const searchControls = document.createElement("div");
-    searchControls.className = "table-search-controls";
-    searchControls.innerHTML = `
+        // add search controls below header (like sensor-data layout)
+        const searchControls = document.createElement("div");
+        searchControls.className = "table-search-controls";
+        searchControls.innerHTML = `
       <div class="table-search">
         <div class="search-section">
           <div class="search-input-group">
@@ -76,14 +76,14 @@ class ActionHistoryTable {
       </div>
     `;
 
-    card.appendChild(searchControls);
-    card.appendChild(tableContainer);
+        card.appendChild(searchControls);
+        card.appendChild(tableContainer);
 
-    // pagination controls (matches sensor-data layout)
-    const pagination = document.createElement("div");
-    pagination.className = "table-pagination";
-    pagination.id = "actionTablePagination";
-    pagination.innerHTML = `
+        // pagination controls (matches sensor-data layout)
+        const pagination = document.createElement("div");
+        pagination.className = "table-pagination";
+        pagination.id = "actionTablePagination";
+        pagination.innerHTML = `
       <div class="pagination-info">
         <span id="actionPaginationInfo">Hiển thị 0 - 0 của 0 bản ghi</span>
       </div>
@@ -100,60 +100,82 @@ class ActionHistoryTable {
       </div>
     `;
 
-    card.appendChild(pagination);
+        card.appendChild(pagination);
 
-    container.appendChild(card);
-  }
-
-  _createRow(item) {
-    const tr = document.createElement("tr");
-
-    const ledTd = document.createElement("td");
-    ledTd.textContent = item.led || "";
-
-    const stateTd = document.createElement("td");
-    stateTd.textContent = item.state || "";
-
-    const tsTd = document.createElement("td");
-    let ts = "";
-    if (item.timestamp) {
-      try {
-        ts = new Date(item.timestamp).toLocaleString("vi-VN");
-      } catch (e) {
-        ts = item.timestamp;
-      }
-    }
-    tsTd.textContent = ts;
-
-    tr.appendChild(ledTd);
-    tr.appendChild(stateTd);
-    tr.appendChild(tsTd);
-
-    return tr;
-  }
-
-  updateData(newItems, container) {
-    const normalized = Array.isArray(newItems) ? newItems : [];
-    if (JSON.stringify(normalized) === JSON.stringify(this.currentItems)) {
-      return; // nothing changed
+        container.appendChild(card);
     }
 
-    this.currentItems = normalized;
+    _createRow(item) {
+        const tr = document.createElement("tr");
 
-    // preserve scroll
-    const oldScroll = window.pageYOffset;
+        const ledTd = document.createElement("td");
+        ledTd.textContent = item.led || "";
 
-    const tbody = container.querySelector("#actionHistoryTableBody");
-    if (!tbody) return this.render(container, this.currentItems);
+        const stateTd = document.createElement("td");
+        // render a small colored badge for ON/OFF states and fallback text for others
+        const stateValue = (item.state || "").toString().toLowerCase();
+        const badge = document.createElement("span");
+        badge.className = "status-badge";
+        if (
+            stateValue === "on" ||
+            stateValue === "1" ||
+            stateValue === "true"
+        ) {
+            badge.classList.add("status-on");
+            badge.textContent = "ON";
+        } else if (
+            stateValue === "off" ||
+            stateValue === "0" ||
+            stateValue === "false"
+        ) {
+            badge.classList.add("status-off");
+            badge.textContent = "OFF";
+        } else {
+            badge.classList.add("status-unknown");
+            badge.textContent = item.state || "-";
+        }
+        stateTd.appendChild(badge);
 
-    // clear and repopulate
-    tbody.innerHTML = "";
-    this.currentItems.forEach((item) => {
-      tbody.appendChild(this._createRow(item));
-    });
+        const tsTd = document.createElement("td");
+        let ts = "";
+        if (item.timestamp) {
+            try {
+                ts = new Date(item.timestamp).toLocaleString("vi-VN");
+            } catch (e) {
+                ts = item.timestamp;
+            }
+        }
+        tsTd.textContent = ts;
 
-    window.scrollTo(0, oldScroll);
-  }
+        tr.appendChild(ledTd);
+        tr.appendChild(stateTd);
+        tr.appendChild(tsTd);
+
+        return tr;
+    }
+
+    updateData(newItems, container) {
+        const normalized = Array.isArray(newItems) ? newItems : [];
+        if (JSON.stringify(normalized) === JSON.stringify(this.currentItems)) {
+            return; // nothing changed
+        }
+
+        this.currentItems = normalized;
+
+        // preserve scroll
+        const oldScroll = window.pageYOffset;
+
+        const tbody = container.querySelector("#actionHistoryTableBody");
+        if (!tbody) return this.render(container, this.currentItems);
+
+        // clear and repopulate
+        tbody.innerHTML = "";
+        this.currentItems.forEach((item) => {
+            tbody.appendChild(this._createRow(item));
+        });
+
+        window.scrollTo(0, oldScroll);
+    }
 }
 
 export default ActionHistoryTable;

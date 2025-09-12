@@ -42,13 +42,23 @@
 }
 
 @keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .sensor-card.temperature {
@@ -279,6 +289,67 @@
     color: #9e9e9e;
 }
 
+/* small background badge for action history ON/OFF */
+.status-badge {
+    display: inline-block;
+    min-width: 36px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+    text-align: center;
+}
+
+.status-on {
+    background: linear-gradient(
+        135deg,
+        rgba(52, 199, 89, 0.8) 0%,
+        rgba(52, 199, 89, 1) 50%,
+        rgba(62, 209, 99, 1) 100%
+    );
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: none;
+    border-radius: 30px;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 3px 12px rgba(52, 199, 89, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    align-items: center;
+    gap: 6px;
+}
+
+.status-off {
+    background: linear-gradient(
+        135deg,
+        rgba(255, 68, 68, 0.8) 0%,
+        rgba(255, 68, 68, 1) 50%,
+        rgba(255, 77, 77, 1) 100%
+    );
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: none;
+    border-radius: 30px;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 3px 12px rgba(255, 68, 68, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    align-items: center;
+    gap: 6px;
+}
+
+.status-unknown {
+    background-color: rgba(158, 158, 158, 0.5);
+    color: #333;
+}
+
 .sensor-card.status-normal {
     border-left-color: #34c759;
 }
@@ -327,21 +398,28 @@
 
 .table-card {
     background: linear-gradient(
-        135deg,
-        rgba(15, 15, 15, 0.02) 0%,
-        rgba(250, 250, 250, 0.7) 25%,
-        rgba(255, 255, 255, 0.9) 50%,
-        rgba(250, 250, 250, 0.95) 100%
-    );
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+            145deg,
+            rgba(255, 255, 255, 0.35) 0%,
+            rgba(255, 255, 255, 0.15) 100%
+        ),
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.55) 0%,
+            rgba(255, 255, 255, 0.2) 25%,
+            rgba(255, 255, 255, 0.35) 50%,
+            rgba(255, 255, 255, 0.25) 100%
+        );
+    backdrop-filter: blur(60px) saturate(200%);
+    -webkit-backdrop-filter: blur(60px) saturate(200%);
     border-radius: 30px;
     padding: 24px;
-    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06),
-        inset 0 1px 0 rgba(255, 255, 255, 0.8),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.02);
-    border: 1px solid rgba(250, 250, 250, 0.5);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 20px 60px rgba(255, 255, 255, 0.1),
+        0 8px 32px rgba(0, 0, 0, 0.06), inset 0 3px 0 rgba(255, 255, 255, 0.9),
+        inset 0 -2px 0 rgba(255, 255, 255, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    position: relative;
+    overflow: hidden;
 }
 
 .table-header {
@@ -397,17 +475,28 @@
 }
 
 .export-btn {
-    background: linear-gradient(135deg, #007aff 0%, #0051d5 100%);
-    color: white;
+    background: linear-gradient(
+        135deg,
+        rgba(52, 199, 89, 0.8) 0%,
+        rgba(52, 199, 89, 1) 50%,
+        rgba(62, 209, 99, 1) 100%
+    );
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border: none;
-    border-radius: 20px;
+    border-radius: 30px;
     padding: 8px 16px;
-    font-size: 14px;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
     cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 3px 12px rgba(52, 199, 89, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     display: flex;
     align-items: center;
     gap: 6px;
-    transition: all 0.3s ease;
 }
 
 .export-btn:hover {
@@ -416,30 +505,44 @@
 }
 
 .refresh-btn {
-    background: linear-gradient(135deg, #34c759 0%, #2fb344 100%);
-    color: white;
+    background: linear-gradient(
+        135deg,
+        rgba(0, 122, 255, 0.8) 0%,
+        rgba(0, 122, 255, 1) 50%,
+        rgba(30, 144, 255, 1) 100%
+    );
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border: none;
-    border-radius: 20px;
+    border-radius: 30px;
     padding: 8px 16px;
-    font-size: 14px;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
     cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 3px 12px rgba(0, 122, 255, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     display: flex;
     align-items: center;
     gap: 6px;
-    transition: all 0.3s ease;
 }
 
 .refresh-btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3);
+    box-shadow: 0 4px 16px rgba(0, 122, 255, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .refresh-btn:active {
     transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .refresh-btn .fas {
-    animation: none;
+    transition: transform 0.3s ease;
 }
 
 .refresh-btn.spinning .fas {
@@ -814,13 +917,14 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 20px;
-    padding: 16px 0;
+    padding-top: 16px;
+    border-top: 1px solid rgba(250, 250, 250, 0.6);
 }
 
 .pagination-info {
-    color: #666;
-    font-size: 14px;
+    font-size: 12px;
+    color: rgba(15, 15, 15, 0.7);
+    font-weight: 500;
 }
 
 .pagination-controls {
@@ -830,16 +934,27 @@
 }
 
 .page-btn {
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 20px;
-    padding: 8px 16px;
-    font-size: 14px;
+    background: linear-gradient(
+        135deg,
+        rgba(15, 15, 15, 0.03) 0%,
+        rgba(250, 250, 250, 0.6) 50%,
+        rgba(255, 255, 255, 0.8) 100%
+    );
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(250, 250, 250, 0.3);
+    border-radius: 30px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(15, 15, 15, 0.8);
     cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
     display: flex;
     align-items: center;
     gap: 6px;
-    transition: all 0.3s ease;
 }
 
 .page-btn:hover:not(:disabled) {
@@ -851,25 +966,30 @@
 .page-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    background: rgba(250, 250, 250, 0.3);
 }
 
 .page-numbers {
     display: flex;
+    align-items: center;
     gap: 4px;
 }
 
 .page-number-btn {
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    font-size: 14px;
+    padding: 6px 10px;
+    border: 1px solid rgba(250, 250, 250, 0.3);
+    background: linear-gradient(
+        135deg,
+        rgba(15, 15, 15, 0.03) 0%,
+        rgba(250, 250, 250, 0.6) 50%,
+        rgba(255, 255, 255, 0.8) 100%
+    );
+    border-radius: 30px;
+    color: rgba(15, 15, 15, 0.8);
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
+    font-size: 12px;
+    font-weight: 600;
 }
 
 .page-number-btn:hover:not(.disabled) {
@@ -878,10 +998,16 @@
     transform: translateY(-1px);
 }
 
-.page-number-btn.active {
-    background: #007aff;
+.page-number.active {
+    background: linear-gradient(
+        135deg,
+        rgba(0, 122, 255, 0.8) 0%,
+        rgba(0, 122, 255, 1) 50%,
+        rgba(10, 132, 255, 1) 100%
+    );
     color: white;
-    border-color: #007aff;
+    box-shadow: 0 3px 12px rgba(0, 122, 255, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .page-number-btn.disabled {
