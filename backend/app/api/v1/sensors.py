@@ -223,3 +223,20 @@ def led_control():
     except Exception as e:
         logger.error(f"LED control error: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@sensors_bp.route("/action-history")
+def action_history():
+    try:
+        limit = int(request.args.get('limit', 50))
+        data = db.get_recent_action_history(limit=limit)
+
+        for doc in data:
+            if '_id' in doc:
+                doc['_id'] = str(doc['_id'])
+
+        return jsonify({"status": "success", "data": data, "count": len(data)})
+
+    except Exception as e:
+        logger.error(f"Error in action_history: {e}")
+        return jsonify({"status": "error", "message": str(e), "data": []}), 500

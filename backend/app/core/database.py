@@ -87,6 +87,17 @@ class DatabaseManager:
             logger.error(f"Error retrieving data: {e}")
             return []
 
+    def get_recent_action_history(self, limit: int = 50, collection_name: Optional[str] = 'action_history') -> List[Dict[str, Any]]:
+        try:
+            collection = self.db[collection_name]
+            cursor = collection.find().sort("timestamp", -1).limit(limit)
+            data = list(cursor)
+            logger.info(f"Retrieved {len(data)} recent action history records")
+            return data
+        except Exception as e:
+            logger.error(f"Error retrieving action history: {e}")
+            return []
+
     def get_data_by_time_range(self, start_time: datetime, end_time: datetime) -> List[Dict[str, Any]]:
         try:
             query = {

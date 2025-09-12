@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lịch sử hành động</title>
+    <link rel="stylesheet" href="../src/styles/main.css">
+    <link rel="stylesheet" href="../src/styles/pages.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Taskbar</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="home-page.html" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>Trang chủ</span>
+                </a>
+                <a href="sensor-data.html" class="nav-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dữ liệu cảm biến</span>
+                </a>
+                <a href="action-history.html" class="nav-item active">
+                    <i class="fas fa-history"></i>
+                    <span>Lịch sử hoạt động</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="header-center"></div>
+                <div class="header-right">
+                    <div class="profile">
+                        <div class="avatar" onclick="window.location.href='#'">P</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content action-history-page">
+                <div class="page-title">
+                    <h1>Lịch sử hoạt động</h1>
+                    <p>Danh sách hành động điều khiển thiết bị và thay đổi trạng thái</p>
+                </div>
+
+                <div id="action-history-container">
+                    Loading...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import ActionHistoryLoader from '../src/pages/action-history-loader.js';
+
+        const loader = new ActionHistoryLoader('action-history-container');
+        loader.load(100);
+    </script>
+</body>
+</html>
