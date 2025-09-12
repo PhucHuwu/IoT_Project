@@ -176,7 +176,9 @@
 /* Search input styles for action-history (match sensor-data) */
 .action-history-page .search-section {
     flex: 1;
-    max-width: 420px;
+    max-width: 600px;
+    /* ensure search inputs don't shrink below 300px */
+    min-width: 400px;
 }
 
 .action-history-page .search-input-group {
@@ -196,6 +198,7 @@
 
 .action-history-page #actionHistorySearchInput {
     width: 100%;
+    min-width: 300px;
     padding: 10px 12px 10px 36px;
     border: 1px solid rgba(0,0,0,0.08);
     border-radius: 25px;
