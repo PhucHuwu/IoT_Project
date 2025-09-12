@@ -96,28 +96,36 @@ function updateAvatar() {
             localStorage.setItem("userAvatarData", selectedAvatarData);
         }
 
-        // Manual update cho trang hiện tại
+        // Manual update cho trang hiện tại (kiểm tra tồn tại phần tử trước khi thao tác)
         const profileAvatar = document.getElementById("profileAvatar");
         const headerAvatar = document.querySelector(".header-right .avatar");
 
         if (selectedAvatarType === "image") {
-            profileAvatar.style.backgroundImage = `url(${selectedAvatarData})`;
-            profileAvatar.style.backgroundSize = "cover";
-            profileAvatar.style.backgroundPosition = "center";
-            profileAvatar.innerHTML = "";
+            if (profileAvatar) {
+                profileAvatar.style.backgroundImage = `url(${selectedAvatarData})`;
+                profileAvatar.style.backgroundSize = "cover";
+                profileAvatar.style.backgroundPosition = "center";
+                profileAvatar.innerHTML = "";
+            }
 
-            headerAvatar.style.backgroundImage = `url(${selectedAvatarData})`;
-            headerAvatar.style.backgroundSize = "cover";
-            headerAvatar.style.backgroundPosition = "center";
-            headerAvatar.innerHTML = "";
+            if (headerAvatar) {
+                headerAvatar.style.backgroundImage = `url(${selectedAvatarData})`;
+                headerAvatar.style.backgroundSize = "cover";
+                headerAvatar.style.backgroundPosition = "center";
+                headerAvatar.innerHTML = "";
+            }
         } else if (selectedAvatarType === "preset") {
-            profileAvatar.style.backgroundImage = "none";
-            profileAvatar.innerHTML = selectedAvatarData;
-            profileAvatar.style.fontSize = "48px";
+            if (profileAvatar) {
+                profileAvatar.style.backgroundImage = "none";
+                profileAvatar.innerHTML = selectedAvatarData;
+                profileAvatar.style.fontSize = "48px";
+            }
 
-            headerAvatar.style.backgroundImage = "none";
-            headerAvatar.innerHTML = selectedAvatarData;
-            headerAvatar.style.fontSize = "16px";
+            if (headerAvatar) {
+                headerAvatar.style.backgroundImage = "none";
+                headerAvatar.innerHTML = selectedAvatarData;
+                headerAvatar.style.fontSize = "16px";
+            }
         }
     }
 
@@ -172,21 +180,29 @@ function loadSavedAvatar() {
             );
 
             if (avatarType === "image") {
-                profileAvatar.style.backgroundImage = `url(${avatarData})`;
-                profileAvatar.style.backgroundSize = "cover";
-                profileAvatar.style.backgroundPosition = "center";
-                profileAvatar.innerHTML = "";
+                if (profileAvatar) {
+                    profileAvatar.style.backgroundImage = `url(${avatarData})`;
+                    profileAvatar.style.backgroundSize = "cover";
+                    profileAvatar.style.backgroundPosition = "center";
+                    profileAvatar.innerHTML = "";
+                }
 
-                headerAvatar.style.backgroundImage = `url(${avatarData})`;
-                headerAvatar.style.backgroundSize = "cover";
-                headerAvatar.style.backgroundPosition = "center";
-                headerAvatar.innerHTML = "";
+                if (headerAvatar) {
+                    headerAvatar.style.backgroundImage = `url(${avatarData})`;
+                    headerAvatar.style.backgroundSize = "cover";
+                    headerAvatar.style.backgroundPosition = "center";
+                    headerAvatar.innerHTML = "";
+                }
             } else if (avatarType === "preset") {
-                profileAvatar.style.backgroundImage = "none";
-                profileAvatar.innerHTML = avatarData;
+                if (profileAvatar) {
+                    profileAvatar.style.backgroundImage = "none";
+                    profileAvatar.innerHTML = avatarData;
+                }
 
-                headerAvatar.style.backgroundImage = "none";
-                headerAvatar.innerHTML = avatarData;
+                if (headerAvatar) {
+                    headerAvatar.style.backgroundImage = "none";
+                    headerAvatar.innerHTML = avatarData;
+                }
             }
         }
     }
@@ -197,12 +213,15 @@ document.addEventListener("DOMContentLoaded", function () {
     loadSavedAvatar();
 });
 
-// Close modal when clicking outside
-document.getElementById("avatarModal").addEventListener("click", function (e) {
-    if (e.target === this) {
-        closeAvatarModal();
-    }
-});
+// Close modal when clicking outside (only if modal exists on the page)
+const _avatarModal = document.getElementById("avatarModal");
+if (_avatarModal) {
+    _avatarModal.addEventListener("click", function (e) {
+        if (e.target === this) {
+            closeAvatarModal();
+        }
+    });
+}
 
 // Drag & drop support removed: keep click-to-upload (file input) only
 
@@ -266,14 +285,14 @@ class AvatarManager {
     getCurrentAvatar() {
         return {
             type: localStorage.getItem("userAvatarType") || "preset",
-            data: localStorage.getItem("userAvatarData") || "G",
+            data: localStorage.getItem("userAvatarData") || "P",
         };
     }
 
     resetAvatar() {
         localStorage.removeItem("userAvatarType");
         localStorage.removeItem("userAvatarData");
-        this.updateAllAvatars("preset", "G");
+        this.updateAllAvatars("preset", "P");
     }
 
     setupEventListeners() {
