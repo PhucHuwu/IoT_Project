@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dữ liệu cảm biến</title>
+    <link rel="stylesheet" href="../src/styles/main.css">
+    <link rel="stylesheet" href="../src/styles/profile.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Taskbar</h2>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="home-page.html" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>Trang chủ</span>
+                </a>
+                <a href="sensor-data.html" class="nav-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dữ liệu cảm biến</span>
+                </a>
+                <a href="action-history.html" class="nav-item">
+                    <i class="fas fa-history"></i>
+                    <span>Lịch sử hoạt động</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="header-center">
+                </div>
+                <div class="header-right">
+                    <div class="profile">
+                        <div class="avatar" onclick="window.location.href='profile.html'">P</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="page-title">
+                    <h1>Thông tin cá nhân</h1>
+                    <p>Thông tin chi tiết về người dùng</p>
+                </div>
+
+                <div class="profile-container">
+                    <div class="profile-card">
+                        <div class="profile-avatar-section">
+                            <div class="profile-avatar-large">
+                                <div class="avatar-image" id="profileAvatar">G</div>
+                                <div class="avatar-status"></div>
+                            </div>
+                            <button class="change-avatar-btn" onclick="openAvatarModal()">
+                                <i class="fas fa-camera"></i>
+                                Thay đổi ảnh đại diện
+                            </button>
+                            <input type="file" id="avatarInput" accept="image/*" style="display: none;"
+                                onchange="previewAvatar(event)">
+                        </div>
+
+                        <div class="profile-info">
+                            <div class="info-group">
+                                <label class="info-label">
+                                    <i class="fas fa-user"></i>
+                                    Họ và tên
+                                </label>
+                                <div class="info-value">Trần Hữu Phúc</div>
+                            </div>
+
+                            <div class="info-group">
+                                <label class="info-label">
+                                    <i class="fas fa-id-card"></i>
+                                    Mã sinh viên
+                                </label>
+                                <div class="info-value">B22DCCN634</div>
+                            </div>
+
+                            <div class="info-group">
+                                <label class="info-label">
+                                    <i class="fas fa-envelope"></i>
+                                    Email
+                                </label>
+                                <div class="info-value">Phuctranhuu37@gmail.com</div>
+                            </div>
+
+                            <div class="info-group">
+                                <label class="info-label">
+                                    <i class="fas fa-graduation-cap"></i>
+                                    Khoa
+                                </label>
+                                <div class="info-value">Công nghệ thông tin</div>
+                            </div>
+
+                            <div class="info-group">
+                                <label class="info-label">
+                                    <i class="fab fa-github"></i>
+                                    GitHub
+                                </label>
+                                <div class="info-value link-value">
+                                    <a href="https://github.com/PhucHuwu" target="_blank" rel="noopener noreferrer">
+                                        github.com/PhucHuwu
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="info-group">
+                                <label class="info-label">
+                                    <i class="fab fa-figma"></i>
+                                    Figma
+                                </label>
+                                <div class="info-value link-value">
+                                    <a href="https://www.figma.com/community/file/1543700896847257072/iot-figma"
+                                        target="_blank" rel="noopener noreferrer">
+                                        figma.com/iot-figma
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="info-group">
+                                <label class="info-label">
+                                    <i class="fas fa-briefcase"></i>
+                                    Portfolio
+                                </label>
+                                <div class="info-value link-value">
+                                    <a href="https://phuchuwu.vercel.app/" target="_blank" rel="noopener noreferrer">
+                                        phuchuwu.vercel.app
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="avatarModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-camera"></i> Cập nhật ảnh đại diện</h3>
+                    <button class="close-btn" onclick="closeAvatarModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="avatar-preview-section">
+                        <div class="current-avatar">
+                            <h4>Ảnh hiện tại</h4>
+                            <div class="preview-avatar current" id="currentAvatarPreview">G</div>
+                        </div>
+                        <div class="new-avatar" id="newAvatarSection" style="display: none;">
+                            <h4>Ảnh mới</h4>
+                            <div class="preview-avatar new" id="newAvatarPreview"></div>
+                        </div>
+                    </div>
+
+                    <div class="upload-section">
+                        <div class="upload-area" onclick="triggerFileInput()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Nhấn để chọn ảnh</p>
+                            <span>Hỗ trợ: JPG, PNG, GIF (Tối đa 5MB)</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeAvatarModal()">Hủy</button>
+                    <button class="btn-primary" onclick="updateAvatar()" id="updateBtn" disabled>Cập nhật</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../src/control/profile-control.js"></script>
+
+</body>
+
+</html>
