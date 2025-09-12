@@ -3,15 +3,16 @@ import json
 import ssl
 from typing import Optional, Callable
 from app.core.logger_config import logger
-from app.core.config import MQTT_BROKER_HOST, MQTT_BROKER_PORT, MQTT_DATA_TOPIC, MQTT_USERNAME, MQTT_PASSWORD
+from app.core.config import MQTT_BROKER_HOST, MQTT_BROKER_PORT, MQTT_DATA_TOPIC, MQTT_USERNAME, MQTT_PASSWORD, MQTT_ACTION_HISTORY_TOPIC
 from app.services.validation_service import DataValidator
 
 
 class MQTTManager:
 
-    def __init__(self, message_callback: Optional[Callable] = None):
+    def __init__(self, message_callback: Optional[Callable] = None, status_callback: Optional[Callable] = None):
         self.mqtt_client: Optional[mqtt.Client] = None
         self.message_callback = message_callback
+        self.status_callback = status_callback
         self.is_connected = False
         self.setup_client()
 
@@ -43,6 +44,8 @@ class MQTTManager:
 
             client.subscribe(MQTT_DATA_TOPIC)
             logger.info(f"Subscribed to topic: {MQTT_DATA_TOPIC}")
+            client.subscribe(MQTT_ACTION_HISTORY_TOPIC)
+            logger.info(f"Subscribed to topic: {MQTT_ACTION_HISTORY_TOPIC}")
 
         else:
             self.is_connected = False
@@ -62,14 +65,24 @@ class MQTTManager:
 
             logger.info(f"Received message on topic '{topic}': {payload}")
 
-            sensor_data = json.loads(payload)
-
-            if not DataValidator.validate_sensor_data(sensor_data):
-                logger.warning(f"Invalid data received: {sensor_data}")
-                return
-
-            if self.message_callback:
-                self.message_callback(sensor_data)
+            # Route messages by topic
+            if topic == MQTT_DATA_TOPIC:
+                sensor_data = json.loads(payload)
+                if not DataValidator.validate_sensor_data(sensor_data):
+                    logger.warning(f"Invalid data received: {sensor_data}")
+                    return
+                if self.message_callback:
+                    self.message_callback(sensor_data)
+            elif topic == MQTT_ACTION_HISTORY_TOPIC:
+                try:
+                    status_data = json.loads(payload)
+                except json.JSONDecodeError:
+                    logger.error(f"Invalid JSON status payload: {payload}")
+                    return
+                if self.status_callback:
+                    self.status_callback(status_data)
+            else:
+                logger.debug(f"Unhandled topic received: {topic}")
 
         except json.JSONDecodeError as e:
             logger.error(f"Invalid JSON data: {payload}, Error: {e}")

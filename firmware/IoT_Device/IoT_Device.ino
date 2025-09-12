@@ -22,6 +22,10 @@ const char *mqttUsername = "PhucHuwu";
 const char *mqttPassword = "Phuc3724@";
 const char *mqttClientId = "ESP32_IoT_Device";
 
+const char *mqttDataTopic = "esp32/iot/data";
+const char *mqttControlTopic = "esp32/iot/control";
+const char *mqttActionHistoryTopic = "esp32/iot/action-history";
+
 WiFiClientSecure secureWifiClient;
 PubSubClient mqttClient(secureWifiClient);
 
@@ -40,39 +44,54 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
   Serial.print(" - Message: ");
   Serial.println(message);
 
-  if (String(topic) == "esp32/iot/control")
+  if (String(topic) == String(mqttControlTopic))
   {
     if (message == "LED1_ON")
     {
       digitalWrite(LED1_PIN, HIGH);
       Serial.println("LED1 turned ON");
+      publishLedStatus("LED1", "ON");
     }
     else if (message == "LED1_OFF")
     {
       digitalWrite(LED1_PIN, LOW);
       Serial.println("LED1 turned OFF");
+      publishLedStatus("LED1", "OFF");
     }
     else if (message == "LED2_ON")
     {
       digitalWrite(LED2_PIN, HIGH);
       Serial.println("LED2 turned ON");
+      publishLedStatus("LED2", "ON");
     }
     else if (message == "LED2_OFF")
     {
       digitalWrite(LED2_PIN, LOW);
       Serial.println("LED2 turned OFF");
+      publishLedStatus("LED2", "OFF");
     }
     else if (message == "LED3_ON")
     {
       digitalWrite(LED3_PIN, HIGH);
       Serial.println("LED3 turned ON");
+      publishLedStatus("LED3", "ON");
     }
     else if (message == "LED3_OFF")
     {
       digitalWrite(LED3_PIN, LOW);
       Serial.println("LED3 turned OFF");
+      publishLedStatus("LED3", "OFF");
     }
   }
+}
+
+void publishLedStatus(const char *led, const char *state)
+{
+  if (!mqttClient.connected())
+    return;
+  char statusPayload[128];
+  snprintf(statusPayload, sizeof(statusPayload), "{\"type\":\"led_status\",\"led\":\"%s\",\"state\":\"%s\"}", led, state);
+  mqttClient.publish(mqttActionHistoryTopic, statusPayload);
 }
 
 void connectToMqtt()
@@ -170,7 +189,7 @@ void loop()
     {
       char mqttPayload[128];
       snprintf(mqttPayload, sizeof(mqttPayload), "{\"temperature\":%.1f,\"humidity\":%.1f,\"light\":%.1f}", temperatureValue, humidityValue, lightPercentValue);
-      mqttClient.publish("esp32/iot/data", mqttPayload);
+      mqttClient.publish(mqttDataTopic, mqttPayload);
     }
   }
 }

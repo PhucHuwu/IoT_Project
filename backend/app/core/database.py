@@ -46,9 +46,24 @@ class DatabaseManager:
                         f"Light: {sensor_data.get('light')}%")
 
             return str(result.inserted_id)
-
         except Exception as e:
             logger.error(f"Error inserting sensor data: {e}")
+            return None
+
+    def insert_action_history(self, action_data: Dict[str, Any], collection_name: Optional[str] = 'action_history') -> Optional[str]:
+        try:
+            # Use a dedicated collection for action history
+            collection = self.db[collection_name]
+
+            if 'timestamp' not in action_data:
+                action_data['timestamp'] = datetime.now(timezone.utc)
+
+            result = collection.insert_one(action_data)
+            logger.info(f"Action history stored in MongoDB with ID: {result.inserted_id}")
+            return str(result.inserted_id)
+
+        except Exception as e:
+            logger.error(f"Error inserting action history: {e}")
             return None
 
     def insert_data(self, data: Dict[str, Any]) -> Optional[object]:

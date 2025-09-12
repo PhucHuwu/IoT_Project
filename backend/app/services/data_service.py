@@ -8,7 +8,7 @@ class IoTMQTTReceiver:
 
     def __init__(self):
         self.db_manager = DatabaseManager()
-        self.mqtt_manager = MQTTManager(message_callback=self.process_sensor_data)
+        self.mqtt_manager = MQTTManager(message_callback=self.process_sensor_data, status_callback=self.process_action_status)
 
     def process_sensor_data(self, sensor_data: Dict[str, Any]):
         try:
@@ -21,6 +21,36 @@ class IoTMQTTReceiver:
 
         except Exception as e:
             logger.error(f"Error processing sensor data: {e}")
+
+    def process_action_status(self, status_data: Dict[str, Any]):
+        try:
+            # Expecting status_data to include: type, led, state
+            if not isinstance(status_data, dict):
+                logger.warning(f"Invalid status data type: {status_data}")
+                return
+
+            # Minimal validation
+            led = status_data.get('led')
+            state = status_data.get('state')
+            if not led or not state:
+                logger.warning(f"Missing led/state in status message: {status_data}")
+                return
+
+            action_record = {
+                'type': status_data.get('type', 'led_status'),
+                'led': led,
+                'state': state
+            }
+
+            result = self.db_manager.insert_action_history(action_record)
+
+            if result:
+                logger.info(f"Action status stored successfully: {result}")
+            else:
+                logger.error("Failed to store action status in database")
+
+        except Exception as e:
+            logger.error(f"Error processing action status: {e}")
 
     def start_receiving(self):
         try:
