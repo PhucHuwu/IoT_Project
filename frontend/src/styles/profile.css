@@ -175,22 +175,6 @@
     border-color: rgba(255, 255, 255, 0.6);
 }
 
-.avatar-status {
-    position: absolute;
-    bottom: 8px;
-    right: 8px;
-    width: 24px;
-    height: 24px;
-    background: linear-gradient(
-        145deg,
-        rgba(52, 199, 89, 0.9) 0%,
-        rgba(52, 199, 89, 1) 100%
-    );
-    border-radius: 50%;
-    border: 3px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3);
-}
-
 .change-avatar-btn {
     background: linear-gradient(
             145deg,
