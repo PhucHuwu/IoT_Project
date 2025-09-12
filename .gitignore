@@ -2,3 +2,4 @@
 __pycache__/
 /backend/tests/
 .github/
+.DS_Store
