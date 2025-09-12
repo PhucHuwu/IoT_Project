@@ -114,11 +114,11 @@ class SensorDataTableController {
     if (!searchInput) return;
 
     const placeholders = {
-      all: "Tìm kiếm dữ liệu...",
-      temperature: "Tìm kiếm theo nhiệt độ (VD: 25.5)...",
-      light: "Tìm kiếm theo ánh sáng (VD: 75.2)...",
-      humidity: "Tìm kiếm theo độ ẩm (VD: 60.8)...",
-      time: "Tìm kiếm theo thời gian (VD: 2024-01-15 hoặc 14:30)...",
+        all: "Tìm kiếm dữ liệu",
+        temperature: "Tìm kiếm theo nhiệt độ (VD: 25.5)",
+        light: "Tìm kiếm theo ánh sáng (VD: 75.2)",
+        humidity: "Tìm kiếm theo độ ẩm (VD: 60.8)",
+        time: "Tìm kiếm theo thời gian (VD: 12/09 hoặc 14:30)",
     };
 
     searchInput.placeholder = placeholders[criteria] || placeholders.all;
