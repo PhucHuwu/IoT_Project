@@ -30,6 +30,9 @@ class ActionHistoryTableControl {
                 this.latestItems,
                 this.searchTerm
             );
+            // sync search props to view for highlighting
+            this.tableView.searchTerm = this.searchTerm;
+            this.tableView.searchCriteria = this.searchCriteria;
             this.tableView.render(this.container, filtered);
             this._attachSearchListeners();
             this._attachControlListeners();
@@ -69,6 +72,9 @@ class ActionHistoryTableControl {
             const end = Math.min(start + this.itemsPerPage, totalItems);
             const pageData = filtered.slice(start, end);
 
+            // sync search props to view for highlighting
+            this.tableView.searchTerm = this.searchTerm;
+            this.tableView.searchCriteria = this.searchCriteria;
             const prev = this.tableView.currentItems || [];
             const changed = JSON.stringify(prev) !== JSON.stringify(pageData);
             if (changed) {
@@ -239,6 +245,8 @@ class ActionHistoryTableControl {
         const end = Math.min(start + this.itemsPerPage, totalItems);
         const pageData = filtered.slice(start, end);
 
+        this.tableView.searchTerm = this.searchTerm;
+        this.tableView.searchCriteria = this.searchCriteria;
         this.tableView.updateData(pageData, this.container);
         this.renderPagination();
     }

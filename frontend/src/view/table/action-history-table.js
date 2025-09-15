@@ -1,6 +1,8 @@
 class ActionHistoryTable {
     constructor() {
         this.currentItems = [];
+        this.searchTerm = "";
+        this.searchCriteria = "time"; // 'time' or 'device'
     }
 
     render(container, items) {
@@ -114,8 +116,13 @@ class ActionHistoryTable {
     _createRow(item) {
         const tr = document.createElement("tr");
 
+        // highlight match rows
+        if (this.hasSearchMatch(item)) {
+            tr.classList.add("search-match");
+        }
+
         const ledTd = document.createElement("td");
-        ledTd.textContent = item.led || "";
+        ledTd.innerHTML = this.highlightText(item.led || "", "device");
 
         const stateTd = document.createElement("td");
         // render a small colored badge for ON/OFF states and fallback text for others
@@ -151,7 +158,7 @@ class ActionHistoryTable {
                 ts = item.timestamp;
             }
         }
-        tsTd.textContent = ts;
+        tsTd.innerHTML = this.highlightText(ts, "time");
 
         tr.appendChild(ledTd);
         tr.appendChild(stateTd);
@@ -181,6 +188,46 @@ class ActionHistoryTable {
         });
 
         window.scrollTo(0, oldScroll);
+    }
+
+    hasSearchMatch(item) {
+        if (!this.searchTerm) return false;
+        const searchLower = this.searchTerm.toLowerCase();
+        if (this.searchCriteria === "device") {
+            const device = (item.led || item.device || "")
+                .toString()
+                .toLowerCase();
+            return device.includes(searchLower);
+        }
+        // default: time
+        try {
+            const s = new Date(item.timestamp).toLocaleString("vi-VN");
+            return s.toLowerCase().includes(searchLower);
+        } catch (e) {
+            return String(item.timestamp || "")
+                .toLowerCase()
+                .includes(searchLower);
+        }
+    }
+
+    highlightText(text, columnType) {
+        if (!this.searchTerm || !text) return text;
+        const shouldHighlight = this.searchCriteria === columnType;
+        if (!shouldHighlight) return text;
+        const searchLower = this.searchTerm.toLowerCase();
+        const textLower = text.toString().toLowerCase();
+        if (!textLower.includes(searchLower)) return text;
+        const regex = new RegExp(
+            `(${this.escapeRegex(this.searchTerm)})`,
+            "gi"
+        );
+        return text
+            .toString()
+            .replace(regex, '<mark class="search-highlight">$1</mark>');
+    }
+
+    escapeRegex(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     }
 }
 
