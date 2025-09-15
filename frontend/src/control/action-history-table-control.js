@@ -117,7 +117,7 @@ class ActionHistoryTableControl {
         if (!input) return;
         const map = {
             time: "Tìm kiếm theo thời gian (VD: 12/09 hoặc 14:30)",
-            device: "Tìm kiếm theo thiết bị (VD: ESP32-1 hoặc led1)",
+            device: "Tìm kiếm theo thiết bị (VD: LED1)",
         };
         input.placeholder = map[criteria] || map.time;
     }
