@@ -89,16 +89,38 @@ class LEDController {
 
             const actions = historyResult.data;
 
-            // Determine latest action per LED. Backend stores action history with fields: { led: 'LED1', state: 'ON' }
+            // Determine latest action per LED. Use timestamp when available, otherwise fallback to array order.
             const latestByLed = {};
-            for (const act of actions) {
-                const ledId =
+            for (let i = 0; i < actions.length; i++) {
+                const act = actions[i];
+                const rawLedId =
                     act.led || act.led_id || act.device_id || act.deviceId;
                 const state = act.state || act.action || act.cmd || act.command;
-                if (!ledId || state === undefined || state === null) continue;
+                if (!rawLedId || state === undefined || state === null)
+                    continue;
 
-                if (!latestByLed[ledId])
-                    latestByLed[ledId] = { state: state, raw: act };
+                let normalizedLedId = String(rawLedId).trim().toUpperCase();
+                if (!/^LED\d+$/.test(normalizedLedId)) {
+                    const m = String(rawLedId).match(/\d+/);
+                    if (m) normalizedLedId = `LED${m[0]}`;
+                }
+
+                let order = null;
+                if (act.timestamp) order = Date.parse(act.timestamp);
+                else if (act.time) order = Date.parse(act.time);
+                else if (act.created_at) order = Date.parse(act.created_at);
+                else order = i; // fallback to index order
+
+                if (
+                    !latestByLed[normalizedLedId] ||
+                    order > latestByLed[normalizedLedId].order
+                ) {
+                    latestByLed[normalizedLedId] = {
+                        state: state,
+                        raw: act,
+                        order,
+                    };
+                }
             }
 
             // Update internal states and UI
@@ -121,12 +143,11 @@ class LEDController {
                 this.ledStates[ledId] = !!isOn;
 
                 // Update UI elements if present
+                const normalizedLower = ledId.toLowerCase();
                 const card =
+                    document.querySelector(`.sensor-card.${normalizedLower}`) ||
                     document.querySelector(
-                        `.sensor-card.${ledId.toLowerCase()}`
-                    ) ||
-                    document.querySelector(
-                        `.sensor-card[class*="${ledId.toLowerCase()}"]`
+                        `.sensor-card[class*="${normalizedLower}"]`
                     );
                 if (card) {
                     const toggleSwitch = card.querySelector(".toggle-switch");
