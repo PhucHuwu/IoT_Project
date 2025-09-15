@@ -67,6 +67,12 @@ class ActionHistoryTable {
         searchControls.innerHTML = `
       <div class="table-search">
         <div class="search-section">
+          <div class="search-criteria-group">
+            <select id="actionSearchCriteria" class="search-criteria-select">
+              <option value="time">Thời gian</option>
+              <option value="device">Thiết bị</option>
+            </select>
+          </div>
           <div class="search-input-group">
             <i class="fas fa-search"></i>
             <input type="text" id="actionHistorySearchInput" placeholder="Tìm theo thời gian (VD: 12/9/2025 hoặc 15:30)">

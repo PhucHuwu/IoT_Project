@@ -8,6 +8,7 @@ class LEDController {
             LED3: false,
         };
         this.initializeLEDControls();
+        this.loadLEDStatesFromBackend();
     }
 
     initializeLEDControls() {
@@ -68,6 +69,75 @@ class LEDController {
             alert(`Không thể điều khiển ${ledId}: ${error.message}`);
         } finally {
             toggleElement.classList.remove("loading");
+        }
+    }
+
+    async loadLEDStatesFromBackend() {
+        try {
+            const historyResult = await SensorDataService.getActionHistory(100);
+
+            if (
+                !historyResult ||
+                historyResult.status !== "success" ||
+                !Array.isArray(historyResult.data)
+            ) {
+                console.warn(
+                    "Không có lịch sử hành động hợp lệ để xác định trạng thái LED"
+                );
+                return;
+            }
+
+            const actions = historyResult.data;
+
+            // Determine latest action per LED. Backend stores action history with fields: { led: 'LED1', state: 'ON' }
+            const latestByLed = {};
+            for (const act of actions) {
+                const ledId =
+                    act.led || act.led_id || act.device_id || act.deviceId;
+                const state = act.state || act.action || act.cmd || act.command;
+                if (!ledId || state === undefined || state === null) continue;
+
+                if (!latestByLed[ledId])
+                    latestByLed[ledId] = { state: state, raw: act };
+            }
+
+            // Update internal states and UI
+            Object.keys(this.ledStates).forEach((ledId) => {
+                const latest = latestByLed[ledId];
+                let isOn = false;
+                if (
+                    latest &&
+                    latest.state !== undefined &&
+                    latest.state !== null
+                ) {
+                    const s = String(latest.state).toUpperCase();
+                    isOn =
+                        s === "ON" ||
+                        s === "1" ||
+                        s === "TRUE" ||
+                        s === "ON_LINE" ||
+                        s === "ONLINE";
+                }
+                this.ledStates[ledId] = !!isOn;
+
+                // Update UI elements if present
+                const card =
+                    document.querySelector(
+                        `.sensor-card.${ledId.toLowerCase()}`
+                    ) ||
+                    document.querySelector(
+                        `.sensor-card[class*="${ledId.toLowerCase()}"]`
+                    );
+                if (card) {
+                    const toggleSwitch = card.querySelector(".toggle-switch");
+                    const statusElement = card.querySelector(".led-status");
+                    if (toggleSwitch && statusElement) {
+                        this.updateLEDUI(toggleSwitch, statusElement, isOn);
+                    }
+                }
+            });
+        } catch (error) {
+            console.error("Lỗi khi tải trạng thái LED từ backend:", error);
         }
     }
 

@@ -9,8 +9,10 @@ class ActionHistoryTableControl {
         this.updateIndicator = new UpdateIndicator();
         this.refreshInterval = null;
         this.searchTerm = "";
+        this.searchCriteria = "time"; // 'time' | 'device' | 'all'
         this.latestItems = [];
         this.searchListenersAttached = false;
+        this.controlListenersAttached = false;
         this.itemsPerPage = 10;
         this.currentPage = 1;
     }
@@ -80,9 +82,20 @@ class ActionHistoryTableControl {
     }
 
     _filterItemsByTime(items, term) {
+        // Generic filter that supports time-based or device-based filtering
         if (!term) return Array.isArray(items) ? items : [];
         const t = term.toLowerCase();
-        return (Array.isArray(items) ? items : []).filter((it) => {
+        const list = Array.isArray(items) ? items : [];
+        if (this.searchCriteria === "device") {
+            return list.filter((it) => {
+                if (!it) return false;
+                const device = (it.led || it.device || "").toString();
+                return device.toLowerCase().includes(t);
+            });
+        }
+
+        // default: time-based filtering
+        return list.filter((it) => {
             if (!it || !it.timestamp) return false;
             try {
                 const s = new Date(it.timestamp).toLocaleString("vi-VN");
@@ -93,23 +106,44 @@ class ActionHistoryTableControl {
         });
     }
 
+    _updateSearchPlaceholder(criteria) {
+        const input = this.container.querySelector("#actionHistorySearchInput");
+        if (!input) return;
+        const map = {
+            time: "Tìm kiếm theo thời gian (VD: 12/09 hoặc 14:30)",
+            device: "Tìm kiếm theo thiết bị (VD: ESP32-1 hoặc led1)",
+        };
+        input.placeholder = map[criteria] || map.time;
+    }
+
     _attachSearchListeners() {
         if (this.searchListenersAttached) return;
         const input = this.container.querySelector("#actionHistorySearchInput");
         const clearBtn = this.container.querySelector(
             "#actionHistoryClearSearch"
         );
+        const criteria = this.container.querySelector("#actionSearchCriteria");
         if (!input) return;
+
+        // initialize criteria if present
+        if (criteria) {
+            this.searchCriteria = criteria.value || "time";
+            this._updateSearchPlaceholder(this.searchCriteria);
+            criteria.addEventListener("change", (e) => {
+                this.searchCriteria = e.target.value || "time";
+                this.currentPage = 1;
+                this._updateSearchPlaceholder(this.searchCriteria);
+                this._renderCurrentPage();
+            });
+        }
 
         input.addEventListener("input", (e) => {
             const v = e.target.value.trim();
             this.searchTerm = v;
             if (clearBtn) clearBtn.style.display = v ? "block" : "none";
-            const filtered = this._filterItemsByTime(
-                this.latestItems,
-                this.searchTerm
-            );
-            this.tableView.updateData(filtered, this.container);
+            // Reset to first page and re-render using controller pagination
+            this.currentPage = 1;
+            this._renderCurrentPage();
         });
 
         if (clearBtn) {
@@ -117,9 +151,9 @@ class ActionHistoryTableControl {
                 if (input) input.value = "";
                 this.searchTerm = "";
                 clearBtn.style.display = "none";
-                const filtered = this._filterItemsByTime(this.latestItems, "");
-                this.tableView.updateData(filtered, this.container);
-                input.focus();
+                this.currentPage = 1;
+                this._renderCurrentPage();
+                if (input) input.focus();
             });
         }
 
@@ -127,6 +161,7 @@ class ActionHistoryTableControl {
     }
 
     _attachControlListeners() {
+        if (this.controlListenersAttached) return;
         const pageSize = this.container.querySelector("#actionTablePageSize");
         const manualRefresh = this.container.querySelector(
             "#actionManualRefresh"
@@ -184,6 +219,8 @@ class ActionHistoryTableControl {
 
         // render pagination initially
         this.renderPagination();
+
+        this.controlListenersAttached = true;
     }
 
     _renderCurrentPage() {
