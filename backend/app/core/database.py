@@ -75,9 +75,11 @@ class DatabaseManager:
             return InsertResult(result_id)
         return None
 
-    def get_recent_data(self, limit: int = 10) -> List[Dict[str, Any]]:
+    def get_recent_data(self, limit: Optional[int] = 10) -> List[Dict[str, Any]]:
         try:
-            cursor = self.collection.find().sort("timestamp", -1).limit(limit)
+            cursor = self.collection.find().sort("timestamp", -1)
+            if limit is not None:
+                cursor = cursor.limit(limit)
             data = list(cursor)
 
             logger.info(f"Retrieved {len(data)} recent records")
@@ -116,9 +118,11 @@ class DatabaseManager:
             logger.error(f"Error retrieving data by time range: {e}")
             return []
 
-    def get_filtered_data(self, query_filter: Dict[str, Any], limit: int = 100) -> List[Dict[str, Any]]:
+    def get_filtered_data(self, query_filter: Dict[str, Any], limit: Optional[int] = 100) -> List[Dict[str, Any]]:
         try:
-            cursor = self.collection.find(query_filter).sort("timestamp", -1).limit(limit)
+            cursor = self.collection.find(query_filter).sort("timestamp", -1)
+            if limit is not None:
+                cursor = cursor.limit(limit)
             data = list(cursor)
 
             logger.info(f"Retrieved {len(data)} filtered records with query: {query_filter}")

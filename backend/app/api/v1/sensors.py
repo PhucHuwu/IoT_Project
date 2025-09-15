@@ -12,8 +12,25 @@ led_service = LEDControlService()
 @sensors_bp.route("/sensor-data-list")
 def sensor_data_list():
     try:
-        limit = int(request.args.get('limit', 5))
+        limit_arg = request.args.get('limit', 5)
+        # Allow 'all' or non-positive values to mean no limit
+        if isinstance(limit_arg, str) and limit_arg.lower() == 'all':
+            limit = None
+        else:
+            try:
+                limit = int(limit_arg)
+                if limit <= 0:
+                    limit = None
+            except (ValueError, TypeError):
+                limit = 5
         time_period = request.args.get('timePeriod', None)
+        # sample: return every `sample`-th record from the query results (1 = no sampling)
+        try:
+            sample = int(request.args.get('sample', 1))
+            if sample < 1:
+                sample = 1
+        except ValueError:
+            sample = 1
 
         date_from = request.args.get('dateFrom', None)
         date_to = request.args.get('dateTo', None)
@@ -113,11 +130,15 @@ def sensor_data_list():
         else:
             data = db.get_recent_data(limit=limit)
 
+        # Apply sampling to reduce payload: take every `sample`-th item
+        if sample and sample > 1:
+            data = data[::sample]
+
         for doc in data:
             if '_id' in doc:
                 doc['_id'] = str(doc['_id'])
 
-        logger.info(f"Returned {len(data)} sensor data records")
+        logger.info(f"Returned {len(data)} sensor data records (sample={sample})")
 
         return jsonify({
             "status": "success",

@@ -135,7 +135,12 @@ class SensorDataTableController {
             if (showLoading) {
                 this.table.showLoading();
             }
-            const response = await SensorDataService.getSensorDataList(1000);
+            const response = await SensorDataService.getSensorDataList(
+                "all",
+                null,
+                null,
+                3
+            );
 
             if (response.status === "success" && response.data) {
                 this.table.renderTable(response.data);
@@ -175,7 +180,12 @@ class SensorDataTableController {
 
     async refreshDataSilently() {
         try {
-            const response = await SensorDataService.getSensorDataList(1000);
+            const response = await SensorDataService.getSensorDataList(
+                "all",
+                null,
+                null,
+                3
+            );
 
             if (response.status === "success" && response.data) {
                 const currentData = this.table.getData();
