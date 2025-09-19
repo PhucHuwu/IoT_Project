@@ -175,10 +175,8 @@
     }
 }
 
-/* dark mode tweaks for action-history table removed to keep table in light mode */
-
-/* Search input styles for action-history - mirror sensor-data search styles (scoped) */
 .action-history-page .search-section {
+    align-items: center;
     flex: 1;
     max-width: 400px;
     display: flex;

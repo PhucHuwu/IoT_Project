@@ -422,139 +422,19 @@
     overflow: hidden;
 }
 
-.table-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.table-header h3 {
-    font-size: 18px;
-    font-weight: 600;
-    margin: 0;
-    color: #333;
-}
-
 .table-controls {
     display: flex;
     gap: 12px;
     align-items: center;
 }
 
-.table-controls select {
-    background: linear-gradient(
-        135deg,
-        rgba(15, 15, 15, 0.03) 0%,
-        rgba(250, 250, 250, 0.6) 50%,
-        rgba(255, 255, 255, 0.8) 100%
-    );
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(250, 250, 250, 0.3);
-    border-radius: 30px;
-    padding: 8px 16px;
-    font-size: 12px;
-    color: rgba(15, 15, 15, 0.8);
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04),
-        inset 0 1px 0 rgba(255, 255, 255, 0.6);
-}
-
-.table-controls select:hover {
-    border-color: #007aff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.8);
-}
-
-.table-controls select:focus {
-    outline: none;
-    border-color: #007aff;
-    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
-}
-
-.export-btn {
-    background: linear-gradient(
-        135deg,
-        rgba(52, 199, 89, 0.8) 0%,
-        rgba(52, 199, 89, 1) 50%,
-        rgba(62, 209, 99, 1) 100%
-    );
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: none;
-    border-radius: 30px;
-    padding: 8px 16px;
-    color: white;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 3px 12px rgba(52, 199, 89, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.export-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
-}
-
-.refresh-btn {
-    background: linear-gradient(
-        135deg,
-        rgba(0, 122, 255, 0.8) 0%,
-        rgba(0, 122, 255, 1) 50%,
-        rgba(30, 144, 255, 1) 100%
-    );
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: none;
-    border-radius: 30px;
-    padding: 8px 16px;
-    color: white;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 3px 12px rgba(0, 122, 255, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.refresh-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(0, 122, 255, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
-}
-
-.refresh-btn:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
-}
-
-.refresh-btn .fas {
-    transition: transform 0.3s ease;
-}
-
-.refresh-btn.spinning .fas {
-    animation: spin 1s linear infinite;
-}
-
 .table-search-controls {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: flex-start;
     gap: 16px;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
 }
 
 .search-section {
@@ -691,6 +571,47 @@
 
 .filter-group:last-child {
     margin-bottom: 0;
+}
+
+.filter-label {
+    display: block;
+    white-space: nowrap;
+    font-weight: 500;
+    color: #333;
+    font-size: 13px;
+}
+
+.filter-select {
+    background: linear-gradient(
+        135deg,
+        rgba(15, 15, 15, 0.03) 0%,
+        rgba(250, 250, 250, 0.6) 50%,
+        rgba(255, 255, 255, 0.8) 100%
+    );
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(250, 250, 250, 0.3);
+    border-radius: 30px;
+    padding: 8px 16px;
+    font-size: 12px;
+    color: rgba(15, 15, 15, 0.8);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    max-width: 240px;
+}
+
+.filter-select:hover {
+    border-color: #007aff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #007aff;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
 }
 
 .filter-group label {

@@ -66,13 +66,7 @@ class ActionHistoryTable {
         const searchControls = document.createElement("div");
         searchControls.className = "table-search-controls";
         searchControls.innerHTML = `
-      <div class="table-search">
         <div class="search-section">
-          <div class="search-input-group">
-            <i class="fas fa-search"></i>
-            <input type="text" id="actionHistorySearchInput" placeholder="Tìm theo thời gian (VD: 12/9/2025 hoặc 15:30)">
-            <button id="actionHistoryClearSearch" class="clear-btn" style="display:none;"><i class="fas fa-times"></i></button>
-          </div>
           <label class="filter-label">Thiết bị</label>
           <select id="actionFilterDevice" class="filter-select">
             <option value="all">Tất cả</option>
@@ -83,8 +77,12 @@ class ActionHistoryTable {
             <option value="on">ON</option>
             <option value="off">OFF</option>
           </select>
+          <div class="search-input-group">
+            <i class="fas fa-search"></i>
+            <input type="text" id="actionHistorySearchInput" placeholder="Tìm theo thời gian (VD: 12/9/2025 hoặc 15:30)">
+            <button id="actionHistoryClearSearch" class="clear-btn" style="display:none;"><i class="fas fa-times"></i></button>
+          </div>
         </div>
-      </div>
     `;
 
         card.appendChild(searchControls);
