@@ -92,11 +92,9 @@ class LEDControlService:
     def send_led_command(self, led_id: str, action: str) -> bool:
         try:
             if not self.is_connected:
-                logger.warning("LED Control Service: Not connected, attempting to reconnect...")
-                self._connect_to_broker()
-
-            if not self.is_connected:
-                logger.error("LED Control Service: Still not connected after reconnect attempt")
+                logger.warning("LED Control Service: Not connected, scheduling background reconnect and returning False")
+                # schedule a reconnect attempt in background without blocking caller
+                threading.Thread(target=self._reconnect, daemon=True).start()
                 return False
 
             mqtt_command = f"{led_id}_{action}"

@@ -1,4 +1,6 @@
 from typing import Dict, Any
+from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor
 from app.core.database import DatabaseManager
 from app.services.mqtt_service import MQTTManager
 from app.core.logger_config import logger
@@ -9,6 +11,7 @@ class IoTMQTTReceiver:
     def __init__(self):
         self.db_manager = DatabaseManager()
         self.mqtt_manager = MQTTManager(message_callback=self.process_sensor_data, status_callback=self.process_action_status)
+        self._executor = ThreadPoolExecutor(max_workers=4)
 
     def process_sensor_data(self, sensor_data: Dict[str, Any]):
         try:
@@ -24,6 +27,7 @@ class IoTMQTTReceiver:
 
     def process_action_status(self, status_data: Dict[str, Any]):
         try:
+            logger.info(f"process_action_status received at {datetime.utcnow().isoformat()}Z: {status_data}")
             # Expecting status_data to include: type, led, state
             if not isinstance(status_data, dict):
                 logger.warning(f"Invalid status data type: {status_data}")
@@ -42,12 +46,19 @@ class IoTMQTTReceiver:
                 'state': state
             }
 
-            result = self.db_manager.insert_action_history(action_record)
+            # Offload DB write to background thread to avoid blocking MQTT callback thread
+            def _write_action(record):
+                try:
+                    res = self.db_manager.insert_action_history(record)
+                    if res:
+                        logger.info(f"Action status stored successfully at {datetime.utcnow().isoformat()}Z: {res}")
+                    else:
+                        logger.error(f"Failed to store action status in database at {datetime.utcnow().isoformat()}Z")
+                except Exception as e:
+                    logger.error(f"Background write error at {datetime.utcnow().isoformat()}Z: {e}")
 
-            if result:
-                logger.info(f"Action status stored successfully: {result}")
-            else:
-                logger.error("Failed to store action status in database")
+            self._executor.submit(_write_action, action_record)
+            logger.info(f"Submitted action history write to background at {datetime.utcnow().isoformat()}Z")
 
         except Exception as e:
             logger.error(f"Error processing action status: {e}")
