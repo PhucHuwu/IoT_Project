@@ -100,50 +100,28 @@
                     </div>
                 </div>
 
-                <div class="charts-section">
-                    <div class="chart-card">
+                <div class="charts-data-section">
+                    <div class="chart-card single-chart">
                         <div class="chart-header">
-                            <h3>Nhiệt độ</h3>
-                            <select id="temperatureTimePeriod">
-                                <option value="latest5" selected>5 dữ liệu gần nhất</option>
-                                <option value="latest10">10 dữ liệu gần nhất</option>
-                                <option value="latest20">20 dữ liệu gần nhất</option>
-                            </select>
+                            <h3 id="chartTitle">Dữ liệu cảm biến theo thời gian</h3>
+                            <div class="chart-controls">
+                                <select id="sensorTypeSelector">
+                                    <option value="temperature">Nhiệt độ</option>
+                                    <option value="light">Ánh sáng</option>
+                                    <option value="humidity">Độ ẩm</option>
+                                    <option value="all">Tất cả cảm biến</option>
+                                </select>
+                                <input type="date" id="datePicker" class="date-picker">
+                            </div>
                         </div>
-                        <div class="chart-container">
-                            <canvas id="temperatureChart"></canvas>
+                        <div class="chart-area">
+                            <div class="chart-container-wrapper">
+                                <div class="chart-container">
+                                    <canvas id="sensorChart"></canvas>
+                                </div>
+                            </div>
                         </div>
-                        <div class="chart-unit">°C</div>
-                    </div>
-
-                    <div class="chart-card">
-                        <div class="chart-header">
-                            <h3>Ánh sáng</h3>
-                            <select id="lightTimePeriod">
-                                <option value="latest5" selected>5 dữ liệu gần nhất</option>
-                                <option value="latest10">10 dữ liệu gần nhất</option>
-                                <option value="latest20">20 dữ liệu gần nhất</option>
-                            </select>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="lightChart"></canvas>
-                        </div>
-                        <div class="chart-unit">%</div>
-                    </div>
-
-                    <div class="chart-card">
-                        <div class="chart-header">
-                            <h3>Độ ẩm</h3>
-                            <select id="humidityTimePeriod">
-                                <option value="latest5" selected>5 dữ liệu gần nhất</option>
-                                <option value="latest10">10 dữ liệu gần nhất</option>
-                                <option value="latest20">20 dữ liệu gần nhất</option>
-                            </select>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="humidityChart"></canvas>
-                        </div>
-                        <div class="chart-unit">%</div>
+                        <div class="chart-unit" id="chartUnit">°C</div>
                     </div>
                 </div>
             </div>

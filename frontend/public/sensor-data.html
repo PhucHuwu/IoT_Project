@@ -47,30 +47,7 @@
             </div>
 
             <div class="content">
-                <div class="charts-data-section">
-                    <div class="chart-card single-chart">
-                        <div class="chart-header">
-                            <h3 id="chartTitle">Dữ liệu cảm biến theo thời gian</h3>
-                            <div class="chart-controls">
-                                <select id="sensorTypeSelector">
-                                    <option value="temperature">Nhiệt độ</option>
-                                    <option value="light">Ánh sáng</option>
-                                    <option value="humidity">Độ ẩm</option>
-                                    <option value="all">Tất cả cảm biến</option>
-                                </select>
-                                <input type="date" id="datePicker" class="date-picker">
-                            </div>
-                        </div>
-                        <div class="chart-area">
-                            <div class="chart-container-wrapper">
-                                <div class="chart-container">
-                                    <canvas id="sensorChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="chart-unit" id="chartUnit">°C</div>
-                    </div>
-                </div>
+                <!-- Biểu đồ đã được gỡ bỏ - giữ phần nội dung trang và bảng dữ liệu -->
 
                 <div class="data-table-section">
                     <div class="table-card">
@@ -156,7 +133,6 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module" src="../src/pages/sensor-data-loader.js"></script>
     <script src="../src/control/profile-control.js"></script>
 </body>
