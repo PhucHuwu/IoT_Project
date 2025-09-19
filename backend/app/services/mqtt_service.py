@@ -1,6 +1,8 @@
 import paho.mqtt.client as mqtt
 import json
 import ssl
+import os
+import time
 from typing import Optional, Callable
 from app.core.logger_config import logger
 from app.core.config import MQTT_BROKER_HOST, MQTT_BROKER_PORT, MQTT_DATA_TOPIC, MQTT_USERNAME, MQTT_PASSWORD, MQTT_ACTION_HISTORY_TOPIC
@@ -18,7 +20,18 @@ class MQTTManager:
 
     def setup_client(self):
         try:
-            self.mqtt_client = mqtt.Client(client_id="python_iot_receiver")
+            pid = os.getpid()
+            ts = int(time.time())
+            client_id = f"python_iot_receiver_{pid}_{ts}"
+            self.mqtt_client = mqtt.Client(client_id=client_id)
+            self._client_id = client_id
+            self._reconnect_attempts = 0
+
+            # enable paho internal logging to help diagnose disconnects
+            try:
+                self.mqtt_client.enable_logger()
+            except Exception:
+                pass
 
             self.mqtt_client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
 
@@ -27,11 +40,18 @@ class MQTTManager:
             context.verify_mode = ssl.CERT_NONE
             self.mqtt_client.tls_set_context(context)
 
+            # configure reconnect backoff (min 1s, max 120s)
+            try:
+                self.mqtt_client.reconnect_delay_set(min_delay=1, max_delay=120)
+            except Exception:
+                pass
+
             self.mqtt_client.on_connect = self._on_connect
             self.mqtt_client.on_message = self._on_message
             self.mqtt_client.on_disconnect = self._on_disconnect
+            self.mqtt_client.on_log = self._on_log
 
-            logger.info("MQTT client initialized")
+            logger.info(f"MQTT client initialized (client_id={client_id})")
 
         except Exception as e:
             logger.error(f"MQTT client initialization failed: {e}")
@@ -40,7 +60,7 @@ class MQTTManager:
     def _on_connect(self, client, userdata, flags, rc):
         if rc == 0:
             self.is_connected = True
-            logger.info(f"Connected to MQTT broker: {MQTT_BROKER_HOST}:{MQTT_BROKER_PORT}")
+            logger.info(f"Connected to MQTT broker: {MQTT_BROKER_HOST}:{MQTT_BROKER_PORT} (client_id={getattr(self, '_client_id', 'unknown')})")
 
             client.subscribe(MQTT_DATA_TOPIC)
             logger.info(f"Subscribed to topic: {MQTT_DATA_TOPIC}")
@@ -54,9 +74,17 @@ class MQTTManager:
     def _on_disconnect(self, client, userdata, rc):
         self.is_connected = False
         if rc != 0:
-            logger.warning("Unexpected MQTT disconnection. Will auto-reconnect")
+            self._reconnect_attempts += 1
+            logger.warning(
+                f"Unexpected MQTT disconnection (rc={rc}) (client_id={getattr(self, '_client_id', 'unknown')}). Will auto-reconnect (attempt={self._reconnect_attempts})")
         else:
             logger.info("Disconnected from MQTT broker")
+
+    def _on_log(self, client, userdata, level, buf):
+        try:
+            logger.debug(f"paho-mqtt: level={level}, msg={buf}")
+        except Exception:
+            pass
 
     def _on_message(self, client, userdata, msg):
         try:

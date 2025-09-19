@@ -32,10 +32,23 @@ def start_mqtt_receiver():
 def main():
     app = create_app()
 
-    mqtt_thread = threading.Thread(target=start_mqtt_receiver, daemon=True)
-    mqtt_thread.start()
+    use_reloader = True
+    debug_mode = True
 
-    app.run(host="0.0.0.0", port=5001, debug=True)
+    try:
+        debug_mode = app.config.get('DEBUG', True)
+    except Exception:
+        pass
+
+    is_main_process = True
+    if debug_mode:
+        is_main_process = (os.environ.get('WERKZEUG_RUN_MAIN') == 'true')
+
+    if is_main_process:
+        mqtt_thread = threading.Thread(target=start_mqtt_receiver, daemon=True)
+        mqtt_thread.start()
+
+    app.run(host="0.0.0.0", port=5001, debug=debug_mode)
 
 
 if __name__ == "__main__":
