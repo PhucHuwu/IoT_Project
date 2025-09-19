@@ -346,6 +346,7 @@ body {
     font-weight: var(--font-weight-bold);
     line-height: var(--line-height-tight);
     margin-bottom: 8px;
+    margin-top: 8px;
     letter-spacing: -0.02em;
 }
 
