@@ -729,13 +729,6 @@
     justify-content: flex-end;
 }
 
-.table-container {
-    position: relative;
-    overflow-x: auto;
-    border-radius: 15px;
-    background: rgba(255, 255, 255, 0.7);
-}
-
 .table-loading {
     position: absolute;
     top: 0;
