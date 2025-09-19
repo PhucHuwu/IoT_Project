@@ -11,10 +11,10 @@
 #define LED2_PIN 26
 #define LED3_PIN 27
 
-// const char *wifiSsid = "FreeWife24GHz";
-// const char *wifiPassword = "0977910920";
-const char *wifiSsid = "IOT";
-const char *wifiPassword = "12345678";
+const char *wifiSsid = "FreeWife24GHz";
+const char *wifiPassword = "0977910920";
+// const char *wifiSsid = "IOT";
+// const char *wifiPassword = "12345678";
 
 const char *mqttServer = "9b88959e8c674540989f6ed6cf143c4d.s1.eu.hivemq.cloud";
 const int mqttPort = 8883;
