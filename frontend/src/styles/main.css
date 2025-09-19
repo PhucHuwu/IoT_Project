@@ -383,6 +383,13 @@ body {
     margin-bottom: 20px;
 }
 
+.data-table-section {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
 .sensor-card {
     background: linear-gradient(
             145deg,
@@ -774,6 +781,10 @@ body {
     transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
     position: relative;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
 }
 
 .table-header {
@@ -1402,10 +1413,15 @@ body {
 
 .table-container {
     border-radius: 30px;
+    /* prevent internal scrollbars; table content should be paginated */
     overflow: hidden;
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
 }
 
 .sensor-data-table {

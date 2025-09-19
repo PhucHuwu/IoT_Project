@@ -422,6 +422,40 @@
     overflow: hidden;
 }
 
+/* Specific rules for action history page to let table-card fill available content
+   and avoid internal scrollbars. The container in action-history.html is
+   #action-history-container inside .content.action-history-page */
+.content.action-history-page {
+    display: flex;
+    flex-direction: column;
+}
+
+#action-history-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+#action-history-container .table-card {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+#action-history-container .table-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden; /* prevent internal scrollbars */
+}
+
+#action-history-container .table-loading {
+    position: absolute;
+}
+
 .table-controls {
     display: flex;
     gap: 12px;
