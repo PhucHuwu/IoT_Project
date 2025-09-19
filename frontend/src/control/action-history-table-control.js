@@ -35,15 +35,14 @@ class ActionHistoryTableControl {
                 this.selectedDevice,
                 this.selectedState
             );
-            // sync search props to view for highlighting
             this.tableView.searchTerm = this.searchTerm;
             this.tableView.searchCriteria = this.searchCriteria;
             this.tableView.render(this.container, filtered);
-            // populate device filter options from latest items (render must run first)
             this._populateDeviceFilter(items);
+            this.searchListenersAttached = false;
+            this.controlListenersAttached = false;
             this._attachSearchListeners();
             this._attachControlListeners();
-            // Ensure the default page size is applied immediately (e.g. 10 rows)
             this._renderCurrentPage();
         } catch (err) {
             console.error("Lỗi khi lấy lịch sử hành động:", err);
