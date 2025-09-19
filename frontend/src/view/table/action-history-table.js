@@ -63,7 +63,6 @@ class ActionHistoryTable {
 
         card.appendChild(tableHeader);
 
-        // add search controls below header: only time-based search (removed criteria selector)
         const searchControls = document.createElement("div");
         searchControls.className = "table-search-controls";
         searchControls.innerHTML = `
@@ -91,7 +90,6 @@ class ActionHistoryTable {
         card.appendChild(searchControls);
         card.appendChild(tableContainer);
 
-        // pagination controls (matches sensor-data layout)
         const pagination = document.createElement("div");
         pagination.className = "table-pagination";
         pagination.id = "actionTablePagination";
