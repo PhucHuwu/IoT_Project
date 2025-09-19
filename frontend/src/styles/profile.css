@@ -1,4 +1,3 @@
-/* Styles used by frontend/public/profile.html */
 .profile-container {
     display: grid;
     grid-template-columns: 1fr;
@@ -261,8 +260,8 @@
 }
 
 .profile-info {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px;
     flex: 1;
     position: relative;
@@ -746,5 +745,14 @@
     }
     .upload-area i {
         font-size: 36px;
+    }
+
+    .profile-card {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .profile-info {
+        grid-template-columns: 1fr;
     }
 }

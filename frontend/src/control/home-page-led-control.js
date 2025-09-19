@@ -136,7 +136,6 @@ class LEDController {
         }
       }
 
-      // Update internal states and UI
       Object.keys(this.ledStates).forEach((ledId) => {
         const latest = latestByLed[ledId];
         let isOn = false;
@@ -151,7 +150,6 @@ class LEDController {
         }
         this.ledStates[ledId] = !!isOn;
 
-        // Update UI elements if present
         const normalizedLower = ledId.toLowerCase();
         const card =
           document.querySelector(`.sensor-card.${normalizedLower}`) ||
@@ -172,7 +170,7 @@ class LEDController {
   updateLEDUI(toggleElement, statusElement, isOn) {
     if (isOn) {
       toggleElement.classList.add("active");
-      statusElement.textContent = "BẬT";
+      statusElement.textContent = "BẬT 💡";
       statusElement.style.color = "#34C759";
     } else {
       toggleElement.classList.remove("active");

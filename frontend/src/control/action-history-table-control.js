@@ -9,7 +9,9 @@ class ActionHistoryTableControl {
         this.updateIndicator = new UpdateIndicator();
         this.refreshInterval = null;
         this.searchTerm = "";
-        this.searchCriteria = "time"; // 'time' | 'device' | 'all'
+        this.searchCriteria = "time"; // fixed to 'time'
+        this.selectedDevice = "all";
+        this.selectedState = "all";
         this.latestItems = [];
         this.searchListenersAttached = false;
         this.controlListenersAttached = false;
@@ -26,14 +28,19 @@ class ActionHistoryTableControl {
             else if (Array.isArray(result)) items = result;
 
             this.latestItems = items;
-            const filtered = this._filterItemsByTime(
+
+            const filtered = this._filterItems(
                 this.latestItems,
-                this.searchTerm
+                this.searchTerm,
+                this.selectedDevice,
+                this.selectedState
             );
             // sync search props to view for highlighting
             this.tableView.searchTerm = this.searchTerm;
             this.tableView.searchCriteria = this.searchCriteria;
             this.tableView.render(this.container, filtered);
+            // populate device filter options from latest items (render must run first)
+            this._populateDeviceFilter(items);
             this._attachSearchListeners();
             this._attachControlListeners();
             // Ensure the default page size is applied immediately (e.g. 10 rows)
@@ -54,9 +61,13 @@ class ActionHistoryTableControl {
             else if (Array.isArray(result)) items = result;
 
             this.latestItems = items;
-            const filtered = this._filterItemsByTime(
+            // ensure device select options reflect latest items
+            this._populateDeviceFilter(items);
+            const filtered = this._filterItems(
                 this.latestItems,
-                this.searchTerm
+                this.searchTerm,
+                this.selectedDevice,
+                this.selectedState
             );
 
             // Respect current pagination settings when refreshing silently.
@@ -88,20 +99,46 @@ class ActionHistoryTableControl {
     }
 
     _filterItemsByTime(items, term) {
-        // Generic filter that supports time-based or device-based filtering
-        if (!term) return Array.isArray(items) ? items : [];
-        const t = term.toLowerCase();
+        // BACKWARD COMPAT: keep original function name delegating to new filter
+        return this._filterItems(
+            items,
+            term,
+            this.selectedDevice,
+            this.selectedState
+        );
+    }
+
+    _filterItems(items, term, deviceFilter = "all", stateFilter = "all") {
         const list = Array.isArray(items) ? items : [];
-        if (this.searchCriteria === "device") {
-            return list.filter((it) => {
-                if (!it) return false;
-                const device = (it.led || it.device || "").toString();
-                return device.toLowerCase().includes(t);
+
+        // apply device filter
+        let filtered = list;
+        if (deviceFilter && deviceFilter !== "all") {
+            const dev = deviceFilter.toString().toLowerCase();
+            filtered = filtered.filter((it) => {
+                const device = (it.led || it.device || "")
+                    .toString()
+                    .toLowerCase();
+                return device === dev;
             });
         }
 
-        // default: time-based filtering
-        return list.filter((it) => {
+        // apply state filter
+        if (stateFilter && stateFilter !== "all") {
+            const st = stateFilter.toString().toLowerCase();
+            filtered = filtered.filter((it) => {
+                const s = (it.state || "").toString().toLowerCase();
+                if (st === "on") return s === "on" || s === "1" || s === "true";
+                if (st === "off")
+                    return s === "off" || s === "0" || s === "false";
+                return true;
+            });
+        }
+
+        // apply time search
+        if (!term) return filtered;
+        const t = term.toLowerCase();
+        return filtered.filter((it) => {
             if (!it || !it.timestamp) return false;
             try {
                 const s = new Date(it.timestamp).toLocaleString("vi-VN");
@@ -112,14 +149,37 @@ class ActionHistoryTableControl {
         });
     }
 
+    _populateDeviceFilter(items) {
+        const select = this.container.querySelector("#actionFilterDevice");
+        if (!select) return;
+        const list = Array.isArray(items) ? items : [];
+        const devices = new Set();
+        list.forEach((it) => {
+            const d = (it.led || it.device || "").toString();
+            if (d) devices.add(d);
+        });
+
+        // clear current options and add default 'all' option
+        select.innerHTML = "";
+        const defaultOpt = document.createElement("option");
+        defaultOpt.value = "all";
+        defaultOpt.textContent = "Tất cả";
+        select.appendChild(defaultOpt);
+        // append sorted device options
+        Array.from(devices)
+            .sort()
+            .forEach((d) => {
+                const opt = document.createElement("option");
+                opt.value = d;
+                opt.textContent = d;
+                select.appendChild(opt);
+            });
+    }
+
     _updateSearchPlaceholder(criteria) {
         const input = this.container.querySelector("#actionHistorySearchInput");
         if (!input) return;
-        const map = {
-            time: "Tìm kiếm theo thời gian (VD: 12/09 hoặc 14:30)",
-            device: "Tìm kiếm theo thiết bị (VD: LED1)",
-        };
-        input.placeholder = map[criteria] || map.time;
+        input.placeholder = "Tìm kiếm theo thời gian (VD: 12/09 hoặc 14:30)";
     }
 
     _attachSearchListeners() {
@@ -128,20 +188,15 @@ class ActionHistoryTableControl {
         const clearBtn = this.container.querySelector(
             "#actionHistoryClearSearch"
         );
-        const criteria = this.container.querySelector("#actionSearchCriteria");
+        const deviceSelect = this.container.querySelector(
+            "#actionFilterDevice"
+        );
+        const stateSelect = this.container.querySelector("#actionFilterState");
         if (!input) return;
 
-        // initialize criteria if present
-        if (criteria) {
-            this.searchCriteria = criteria.value || "time";
-            this._updateSearchPlaceholder(this.searchCriteria);
-            criteria.addEventListener("change", (e) => {
-                this.searchCriteria = e.target.value || "time";
-                this.currentPage = 1;
-                this._updateSearchPlaceholder(this.searchCriteria);
-                this._renderCurrentPage();
-            });
-        }
+        // always time-based search
+        this.searchCriteria = "time";
+        this._updateSearchPlaceholder(this.searchCriteria);
 
         input.addEventListener("input", (e) => {
             const v = e.target.value.trim();
@@ -151,6 +206,24 @@ class ActionHistoryTableControl {
             this.currentPage = 1;
             this._renderCurrentPage();
         });
+
+        if (deviceSelect) {
+            deviceSelect.value = this.selectedDevice || "all";
+            deviceSelect.addEventListener("change", (e) => {
+                this.selectedDevice = e.target.value || "all";
+                this.currentPage = 1;
+                this._renderCurrentPage();
+            });
+        }
+
+        if (stateSelect) {
+            stateSelect.value = this.selectedState || "all";
+            stateSelect.addEventListener("change", (e) => {
+                this.selectedState = e.target.value || "all";
+                this.currentPage = 1;
+                this._renderCurrentPage();
+            });
+        }
 
         if (clearBtn) {
             clearBtn.addEventListener("click", () => {
@@ -231,7 +304,12 @@ class ActionHistoryTableControl {
 
     _renderCurrentPage() {
         const all = Array.isArray(this.latestItems) ? this.latestItems : [];
-        const filtered = this._filterItemsByTime(all, this.searchTerm);
+        const filtered = this._filterItems(
+            all,
+            this.searchTerm,
+            this.selectedDevice,
+            this.selectedState
+        );
         const totalItems = filtered.length;
         const totalPages = Math.max(
             1,
@@ -253,7 +331,12 @@ class ActionHistoryTableControl {
 
     renderPagination() {
         const all = Array.isArray(this.latestItems) ? this.latestItems : [];
-        const filtered = this._filterItemsByTime(all, this.searchTerm);
+        const filtered = this._filterItems(
+            all,
+            this.searchTerm,
+            this.selectedDevice,
+            this.selectedState
+        );
         const totalItems = filtered.length;
         const totalPages = Math.max(
             1,
@@ -336,7 +419,12 @@ class ActionHistoryTableControl {
 
     goToPage(page) {
         const all = Array.isArray(this.latestItems) ? this.latestItems : [];
-        const filtered = this._filterItemsByTime(all, this.searchTerm);
+        const filtered = this._filterItems(
+            all,
+            this.searchTerm,
+            this.selectedDevice,
+            this.selectedState
+        );
         const totalPages = Math.max(
             1,
             Math.ceil(filtered.length / this.itemsPerPage)
@@ -349,14 +437,24 @@ class ActionHistoryTableControl {
     _getPagedItems() {
         const all = Array.isArray(this.latestItems) ? this.latestItems : [];
         // apply current search filter first
-        const filtered = this._filterItemsByTime(all, this.searchTerm);
+        const filtered = this._filterItems(
+            all,
+            this.searchTerm,
+            this.selectedDevice,
+            this.selectedState
+        );
         // paginate
         if (!this.itemsPerPage || this.itemsPerPage <= 0) return filtered;
         return filtered.slice(0, this.itemsPerPage);
     }
 
     _exportCSV() {
-        const data = this._filterItemsByTime(this.latestItems, this.searchTerm);
+        const data = this._filterItems(
+            this.latestItems,
+            this.searchTerm,
+            this.selectedDevice,
+            this.selectedState
+        );
         if (!data || data.length === 0) {
             alert("Không có dữ liệu để xuất");
             return;

@@ -63,23 +63,27 @@ class ActionHistoryTable {
 
         card.appendChild(tableHeader);
 
-        // add search controls below header (like sensor-data layout)
+        // add search controls below header: only time-based search (removed criteria selector)
         const searchControls = document.createElement("div");
         searchControls.className = "table-search-controls";
         searchControls.innerHTML = `
       <div class="table-search">
         <div class="search-section">
-          <div class="search-criteria-group">
-            <select id="actionSearchCriteria" class="search-criteria-select">
-              <option value="time">Thời gian</option>
-              <option value="device">Thiết bị</option>
-            </select>
-          </div>
           <div class="search-input-group">
             <i class="fas fa-search"></i>
             <input type="text" id="actionHistorySearchInput" placeholder="Tìm theo thời gian (VD: 12/9/2025 hoặc 15:30)">
             <button id="actionHistoryClearSearch" class="clear-btn" style="display:none;"><i class="fas fa-times"></i></button>
           </div>
+          <label class="filter-label">Thiết bị</label>
+          <select id="actionFilterDevice" class="filter-select">
+            <option value="all">Tất cả</option>
+          </select>
+          <label class="filter-label">Trạng thái</label>
+          <select id="actionFilterState" class="filter-select">
+            <option value="all">Tất cả</option>
+            <option value="on">ON</option>
+            <option value="off">OFF</option>
+          </select>
         </div>
       </div>
     `;
