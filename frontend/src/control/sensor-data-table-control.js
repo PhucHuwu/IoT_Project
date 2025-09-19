@@ -139,7 +139,7 @@ class SensorDataTableController {
                 "all",
                 null,
                 null,
-                3
+                10
             );
 
             if (response.status === "success" && response.data) {
