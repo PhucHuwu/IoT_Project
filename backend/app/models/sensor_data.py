@@ -1,5 +1,7 @@
 from datetime import datetime
 from typing import Optional, Dict, Any
+from app.core.timezone_utils import get_current_vietnam_time
+from app.services.status_service import StatusService
 
 
 class SensorData:
@@ -9,15 +11,21 @@ class SensorData:
         self.temperature = temperature
         self.humidity = humidity
         self.light = light
-        self.timestamp = timestamp or datetime.now()
+        self.timestamp = timestamp or get_current_vietnam_time()
         self.additional_data = kwargs
 
     def to_dict(self) -> Dict[str, Any]:
+        # Lấy trạng thái cho tất cả sensor
+        sensor_statuses = StatusService.get_sensor_statuses(
+            self.temperature, self.humidity, self.light
+        )
+
         return {
             "temperature": self.temperature,
             "humidity": self.humidity,
             "light": self.light,
             "timestamp": self.timestamp,
+            "sensor_statuses": sensor_statuses,
             **self.additional_data
         }
 

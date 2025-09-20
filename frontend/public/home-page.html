@@ -106,10 +106,17 @@
                             <h3 id="chartTitle">Dữ liệu cảm biến theo thời gian</h3>
                             <div class="chart-controls">
                                 <select id="sensorTypeSelector">
+                                    <option value="all" selected>Tất cả cảm biến</option>
                                     <option value="temperature">Nhiệt độ</option>
                                     <option value="light">Ánh sáng</option>
                                     <option value="humidity">Độ ẩm</option>
-                                    <option value="all">Tất cả cảm biến</option>
+                                </select>
+                                <select id="dataLimitSelector">
+                                    <option value="50" selected>50 dữ liệu gần nhất</option>
+                                    <option value="100">100 dữ liệu gần nhất</option>
+                                    <option value="200">200 dữ liệu gần nhất</option>
+                                    <option value="500">500 dữ liệu gần nhất</option>
+                                    <option value="all">Tất cả dữ liệu</option>
                                 </select>
                                 <input type="date" id="datePicker" class="date-picker">
                             </div>

@@ -2,104 +2,105 @@ import SensorDataService from "../services/api.js";
 import SensorCardView from "../view/sensors/home-page-sensor-card.js";
 
 class SensorCardController {
-  constructor() {
-    this.view = new SensorCardView();
-    this.isLoading = false;
-    this.retryCount = 0;
-    this.maxRetries = 3;
-    this.updateInterval = null;
-    this.isInitialLoad = true;
-    this.lastData = {};
-  }
-
-  async init() {
-    await this.loadSensorData();
-    this.startAutoUpdate();
-  }
-
-  async loadSensorData() {
-    if (this.isLoading) return;
-
-    this.isLoading = true;
-
-    if (this.isInitialLoad) {
-      this.view.showLoadingState();
-    }
-
-    try {
-      const data = await SensorDataService.getLatestSensorData();
-
-      if (data && Object.keys(data).length > 0) {
-        this.updateSensorCards(data);
+    constructor() {
+        this.view = new SensorCardView();
+        this.isLoading = false;
         this.retryCount = 0;
-        this.isInitialLoad = false;
-      } else {
-        console.warn("Không có dữ liệu cảm biến");
-        this.handleError();
-      }
-    } catch (error) {
-      console.error("Lỗi khi load dữ liệu cảm biến:", error);
-      this.handleError();
-    } finally {
-      this.isLoading = false;
-    }
-  }
-
-  updateSensorCards(data) {
-    if (
-      data.temperature !== undefined &&
-      data.temperature !== this.lastData.temperature
-    ) {
-      this.view.updateTemperatureCard(data.temperature);
-      this.lastData.temperature = data.temperature;
+        this.maxRetries = 3;
+        this.updateInterval = null;
+        this.isInitialLoad = true;
+        this.lastData = {};
     }
 
-    if (data.light !== undefined && data.light !== this.lastData.light) {
-      this.view.updateLightCard(data.light);
-      this.lastData.light = data.light;
+    async init() {
+        await this.loadSensorData();
+        this.startAutoUpdate();
     }
 
-    if (
-      data.humidity !== undefined &&
-      data.humidity !== this.lastData.humidity
-    ) {
-      this.view.updateHumidityCard(data.humidity);
-      this.lastData.humidity = data.humidity;
+    async loadSensorData() {
+        if (this.isLoading) return;
+
+        this.isLoading = true;
+
+        if (this.isInitialLoad) {
+            this.view.showLoadingState();
+        }
+
+        try {
+            const data = await SensorDataService.getLatestSensorData();
+
+            if (data && Object.keys(data).length > 0) {
+                this.updateSensorCards(data);
+                this.retryCount = 0;
+                this.isInitialLoad = false;
+            } else {
+                console.warn("Không có dữ liệu cảm biến");
+                this.handleError();
+            }
+        } catch (error) {
+            console.error("Lỗi khi load dữ liệu cảm biến:", error);
+            this.handleError();
+        } finally {
+            this.isLoading = false;
+        }
     }
-  }
 
-  handleError() {
-    this.retryCount++;
+    updateSensorCards(data) {
+        // Kiểm tra xem có dữ liệu mới không
+        const hasNewData =
+            data.temperature !== this.lastData.temperature ||
+            data.light !== this.lastData.light ||
+            data.humidity !== this.lastData.humidity ||
+            (data.sensor_statuses &&
+                JSON.stringify(data.sensor_statuses) !==
+                    JSON.stringify(this.lastData.sensor_statuses));
 
-    if (this.retryCount <= this.maxRetries) {
-      console.log(
-        `Thử lại lần ${this.retryCount}/${this.maxRetries} sau 5 giây...`
-      );
-      setTimeout(() => {
-        this.loadSensorData();
-      }, 5000);
-    } else {
-      console.error("Đã thử lại tối đa, hiển thị trạng thái lỗi");
-      this.view.showErrorState();
+        if (hasNewData) {
+            // Sử dụng method mới để cập nhật với thông tin trạng thái từ backend
+            this.view.updateFromBackendData(data);
+
+            // Cập nhật lastData
+            this.lastData = {
+                temperature: data.temperature,
+                light: data.light,
+                humidity: data.humidity,
+                sensor_statuses: data.sensor_statuses,
+            };
+        }
     }
-  }
 
-  startAutoUpdate() {
-    this.updateInterval = setInterval(() => {
-      this.loadSensorData();
-    }, 1000);
-  }
+    handleError() {
+        this.retryCount++;
 
-  stopAutoUpdate() {
-    if (this.updateInterval) {
-      clearInterval(this.updateInterval);
-      this.updateInterval = null;
+        if (this.retryCount <= this.maxRetries) {
+            console.log(
+                `Thử lại lần ${this.retryCount}/${this.maxRetries} sau 5 giây...`
+            );
+            setTimeout(() => {
+                this.loadSensorData();
+            }, 5000);
+        } else {
+            console.error("Đã thử lại tối đa, hiển thị trạng thái lỗi");
+            this.view.showErrorState();
+        }
     }
-  }
 
-  destroy() {
-    this.stopAutoUpdate();
-  }
+    startAutoUpdate() {
+        this.updateInterval = setInterval(() => {
+            this.loadSensorData();
+        }, 1000);
+    }
+
+    stopAutoUpdate() {
+        if (this.updateInterval) {
+            clearInterval(this.updateInterval);
+            this.updateInterval = null;
+        }
+    }
+
+    destroy() {
+        this.stopAutoUpdate();
+    }
 }
 
 export default SensorCardController;

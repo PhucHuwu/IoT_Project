@@ -150,11 +150,8 @@ class HomePageChart {
             return { labels: [], values: [] };
         }
 
-        const sortedData = data.sort(
-            (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
-        );
-
-        const labels = sortedData.map((item) => {
+        // Data should already be sorted by backend
+        const labels = data.map((item) => {
             const date = new Date(item.timestamp);
             return date.toLocaleTimeString("vi-VN", {
                 hour: "2-digit",
@@ -162,7 +159,7 @@ class HomePageChart {
             });
         });
 
-        const values = sortedData.map((item) => {
+        const values = data.map((item) => {
             const value = item[sensorType];
             return typeof value === "number" ? parseFloat(value.toFixed(1)) : 0;
         });

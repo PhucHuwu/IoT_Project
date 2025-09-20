@@ -1,0 +1,35 @@
+from datetime import datetime, timedelta, timezone
+from typing import Tuple
+
+
+def get_vietnam_timezone() -> timezone:
+    """Trả về đối tượng timezone cho múi giờ Việt Nam (UTC+7)."""
+    return timezone(timedelta(hours=7))
+
+
+def get_current_vietnam_time() -> datetime:
+    """Lấy thời gian hiện tại theo múi giờ Việt Nam."""
+    return datetime.now(get_vietnam_timezone())
+
+
+def convert_to_vietnam_time(dt: datetime) -> datetime:
+    """Chuyển đổi một datetime object sang múi giờ Việt Nam."""
+    if dt.tzinfo is None:
+        # Nếu không có timezone, giả định là UTC và chuyển đổi
+        return dt.replace(tzinfo=timezone.utc).astimezone(get_vietnam_timezone())
+    return dt.astimezone(get_vietnam_timezone())
+
+
+def convert_from_vietnam_time(dt: datetime) -> datetime:
+    """Chuyển đổi một datetime object từ múi giờ Việt Nam sang UTC."""
+    if dt.tzinfo is None:
+        # Nếu không có timezone, giả định là múi giờ Việt Nam và chuyển đổi sang UTC
+        return dt.replace(tzinfo=get_vietnam_timezone()).astimezone(timezone.utc)
+    return dt.astimezone(timezone.utc)
+
+
+def create_vietnam_datetime(year: int, month: int, day: int,
+                            hour: int = 0, minute: int = 0, second: int = 0,
+                            microsecond: int = 0) -> datetime:
+    """Tạo một datetime object với múi giờ Việt Nam."""
+    return datetime(year, month, day, hour, minute, second, microsecond, tzinfo=get_vietnam_timezone())

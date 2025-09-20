@@ -7,223 +7,120 @@ class SensorDataTable {
         this.loadingElement = document.getElementById("tableLoading");
 
         this.currentData = [];
-        this.filteredData = [];
-        this.currentPage = 1;
-        this.itemsPerPage = 10;
-        this.searchTerm = "";
-        this.searchCriteria = "all";
-        this.sortField = null; // 'timestamp' | 'temperature' | 'light' | 'humidity'
-        this.sortOrder = "asc"; // 'asc' or 'desc'
-
-        // Attach clickable headers for sorting (map column index -> field)
-        if (this.container) {
-            const ths = this.container.querySelectorAll("thead th");
-            const fieldMap = ["timestamp", "temperature", "light", "humidity"];
-            ths.forEach((th, idx) => {
-                // store original label so we can toggle indicator without losing text
-                th.dataset.original = th.textContent.trim();
-                th.style.cursor = "pointer";
-                th.addEventListener("click", () => {
-                    const field = fieldMap[idx];
-                    if (!field) return;
-                    this.setSort(field);
-                });
-            });
-        }
+        this.paginationData = null;
+        this.sortData = null;
+        this.searchData = null;
     }
 
-    renderTable(data = null) {
+    renderTable(
+        data = null,
+        paginationInfo = null,
+        sortInfo = null,
+        searchInfo = null
+    ) {
+        console.log("renderTable called with:", {
+            data,
+            paginationInfo,
+            sortInfo,
+            searchInfo,
+        });
+
         if (data) {
             this.currentData = Array.isArray(data) ? data : [];
+            console.log("Set currentData to:", this.currentData);
+        }
+        if (paginationInfo) {
+            this.paginationData = paginationInfo;
+        }
+        if (sortInfo) {
+            this.sortData = sortInfo;
+        }
+        if (searchInfo) {
+            this.searchData = searchInfo;
         }
 
-        this.applyFiltersAndSearch();
         this.renderTableBody();
         this.renderPagination();
-    }
-
-    applyFiltersAndSearch() {
-        let filtered = [...this.currentData];
-
-        if (this.searchTerm) {
-            const searchLower = this.searchTerm.toLowerCase();
-            filtered = filtered.filter((item) => {
-                if (this.searchCriteria === "all") {
-                    const dateStr = this.formatDateTime(
-                        item.timestamp
-                    ).toLowerCase();
-                    const tempStr = item.temperature?.toString() || "";
-                    const lightStr = item.light?.toString() || "";
-                    const humidityStr = item.humidity?.toString() || "";
-
-                    return (
-                        dateStr.includes(searchLower) ||
-                        tempStr.includes(searchLower) ||
-                        lightStr.includes(searchLower) ||
-                        humidityStr.includes(searchLower)
-                    );
-                } else if (this.searchCriteria === "temperature") {
-                    const tempStr = item.temperature?.toString() || "";
-                    return tempStr.includes(searchLower);
-                } else if (this.searchCriteria === "light") {
-                    const lightStr = item.light?.toString() || "";
-                    return lightStr.includes(searchLower);
-                } else if (this.searchCriteria === "humidity") {
-                    const humidityStr = item.humidity?.toString() || "";
-                    return humidityStr.includes(searchLower);
-                } else if (this.searchCriteria === "time") {
-                    const dateStr = this.formatDateTime(
-                        item.timestamp
-                    ).toLowerCase();
-                    return dateStr.includes(searchLower);
-                }
-
-                return false;
-            });
-        }
-
-        this.filteredData = filtered;
-        // apply sorting if requested
-        if (this.sortField) {
-            const field = this.sortField;
-            const dir = this.sortOrder === "asc" ? 1 : -1;
-            this.filteredData.sort((a, b) => {
-                const aVal = a[field];
-                const bVal = b[field];
-
-                // handle timestamp separately
-                if (field === "timestamp") {
-                    const aTime = aVal ? new Date(aVal).getTime() : 0;
-                    const bTime = bVal ? new Date(bVal).getTime() : 0;
-                    return (aTime - bTime) * dir;
-                }
-
-                const aNum =
-                    aVal == null ? Number.NEGATIVE_INFINITY : Number(aVal);
-                const bNum =
-                    bVal == null ? Number.NEGATIVE_INFINITY : Number(bVal);
-                if (aNum < bNum) return -1 * dir;
-                if (aNum > bNum) return 1 * dir;
-                return 0;
-            });
-        }
-    }
-
-    hasSearchMatch(item) {
-        if (!this.searchTerm) return false;
-
-        const searchLower = this.searchTerm.toLowerCase();
-
-        if (this.searchCriteria === "all") {
-            const dateStr = this.formatDateTime(item.timestamp).toLowerCase();
-            const tempStr = item.temperature?.toString() || "";
-            const lightStr = item.light?.toString() || "";
-            const humidityStr = item.humidity?.toString() || "";
-
-            return (
-                dateStr.includes(searchLower) ||
-                tempStr.includes(searchLower) ||
-                lightStr.includes(searchLower) ||
-                humidityStr.includes(searchLower)
-            );
-        } else if (this.searchCriteria === "temperature") {
-            const tempStr = item.temperature?.toString() || "";
-            return tempStr.includes(searchLower);
-        } else if (this.searchCriteria === "light") {
-            const lightStr = item.light?.toString() || "";
-            return lightStr.includes(searchLower);
-        } else if (this.searchCriteria === "humidity") {
-            const humidityStr = item.humidity?.toString() || "";
-            return humidityStr.includes(searchLower);
-        } else if (this.searchCriteria === "time") {
-            const dateStr = this.formatDateTime(item.timestamp).toLowerCase();
-            return dateStr.includes(searchLower);
-        }
-
-        return false;
+        this.updateSortHeaders();
     }
 
     renderTableBody() {
-        if (!this.tableBody) return;
+        if (!this.tableBody) {
+            console.error("Table body element not found!");
+            return;
+        }
 
-        // update header indicators each time we render body
-        this.updateHeaderSortIndicators();
+        console.log("Rendering table body with data:", this.currentData);
+        console.log("Data length:", this.currentData.length);
 
-        const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-        const endIndex = startIndex + this.itemsPerPage;
-        const pageData = this.filteredData.slice(startIndex, endIndex);
-
-        if (pageData.length === 0) {
+        if (this.currentData.length === 0) {
+            console.log("No data to display, showing 'no data' message");
             this.tableBody.innerHTML = `
                 <tr>
-                    <td colspan="4" class="no-data">
-                        <div class="no-data-message">
-                            <i class="fas fa-search"></i>
-                            <p>Không tìm thấy dữ liệu phù hợp</p>
-                        </div>
-                    </td>
+                    <td colspan="4" class="no-data">Không có dữ liệu để hiển thị</td>
                 </tr>
             `;
             return;
         }
 
-        this.tableBody.innerHTML = pageData
-            .map((item) => {
-                const hasMatch = this.hasSearchMatch(item);
+        this.tableBody.innerHTML = this.currentData
+            .map((item, index) => {
+                const timestamp = this.formatDateTime(item.timestamp);
+                const temperature = item.temperature?.toFixed(1) || "N/A";
+                const light = item.light?.toFixed(1) || "N/A";
+                const humidity = item.humidity?.toFixed(1) || "N/A";
+
                 return `
-            <tr${hasMatch ? ' class="search-match"' : ""}>
-                <td>${this.highlightText(
-                    this.formatDateTime(item.timestamp),
-                    "time"
-                )}</td>
-                <td class="sensor-value temp-value">
-                    <span class="value">${this.highlightText(
-                        this.formatValue(item.temperature, 1),
-                        "temperature"
-                    )}</span>
-                    <span class="unit">°C</span>
-                </td>
-                <td class="sensor-value light-value">
-                    <span class="value">${this.highlightText(
-                        this.formatValue(item.light, 1),
-                        "light"
-                    )}</span>
-                    <span class="unit">%</span>
-                </td>
-                <td class="sensor-value humidity-value">
-                    <span class="value">${this.highlightText(
-                        this.formatValue(item.humidity, 1),
-                        "humidity"
-                    )}</span>
-                    <span class="unit">%</span>
-                </td>
-            </tr>
-        `;
+                    <tr>
+                        <td>${timestamp}</td>
+                        <td>${temperature}°C</td>
+                        <td>${light}%</td>
+                        <td>${humidity}%</td>
+                    </tr>
+                `;
             })
             .join("");
     }
 
+    updateSortHeaders() {
+        if (!this.container || !this.sortData) return;
+
+        const ths = this.container.querySelectorAll("thead th");
+        const fieldMap = ["timestamp", "temperature", "light", "humidity"];
+
+        ths.forEach((th, idx) => {
+            const field = fieldMap[idx];
+            if (!field) return;
+
+            // Reset all headers
+            th.textContent = th.textContent.replace(/ ↑| ↓/, "");
+
+            // Add sort indicator if this is the current sort field
+            if (field === this.sortData.field) {
+                const indicator = this.sortData.order === "asc" ? " ↑" : " ↓";
+                th.textContent += indicator;
+            }
+        });
+    }
+
     renderPagination() {
-        if (!this.paginationInfo || !this.pageNumbers) return;
+        if (!this.paginationInfo || !this.pageNumbers || !this.paginationData)
+            return;
 
-        const totalItems = this.filteredData.length;
-        const totalPages = Math.ceil(totalItems / this.itemsPerPage);
-        const startIndex = (this.currentPage - 1) * this.itemsPerPage + 1;
-        const endIndex = Math.min(
-            startIndex + this.itemsPerPage - 1,
-            totalItems
-        );
+        const { page, per_page, total_count, total_pages, has_prev, has_next } =
+            this.paginationData;
 
-        this.paginationInfo.textContent = `Hiển thị ${
-            totalItems > 0 ? startIndex : 0
-        } - ${totalItems > 0 ? endIndex : 0} của ${totalItems} bản ghi`;
+        const startIndex = total_count === 0 ? 0 : (page - 1) * per_page + 1;
+        const endIndex = Math.min(page * per_page, total_count);
+
+        this.paginationInfo.textContent = `Hiển thị ${startIndex} - ${endIndex} của ${total_count} bản ghi`;
 
         this.pageNumbers.innerHTML = "";
 
-        if (totalPages <= 1) return;
+        if (total_pages <= 1) return;
 
-        let startPage = Math.max(1, this.currentPage - 2);
-        let endPage = Math.min(totalPages, this.currentPage + 2);
+        let startPage = Math.max(1, page - 2);
+        let endPage = Math.min(total_pages, page + 2);
 
         if (startPage > 1) {
             this.pageNumbers.appendChild(this.createPageButton(1, "1"));
@@ -236,23 +133,18 @@ class SensorDataTable {
 
         for (let i = startPage; i <= endPage; i++) {
             this.pageNumbers.appendChild(
-                this.createPageButton(
-                    i,
-                    i.toString(),
-                    false,
-                    i === this.currentPage
-                )
+                this.createPageButton(i, i.toString(), false, i === page)
             );
         }
 
-        if (endPage < totalPages) {
-            if (endPage < totalPages - 1) {
+        if (endPage < total_pages) {
+            if (endPage < total_pages - 1) {
                 this.pageNumbers.appendChild(
                     this.createPageButton(null, "...", true)
                 );
             }
             this.pageNumbers.appendChild(
-                this.createPageButton(totalPages, totalPages.toString())
+                this.createPageButton(total_pages, total_pages.toString())
             );
         }
 
@@ -260,10 +152,10 @@ class SensorDataTable {
         const nextBtn = document.getElementById("nextPage");
 
         if (prevBtn) {
-            prevBtn.disabled = this.currentPage <= 1;
+            prevBtn.disabled = !has_prev;
         }
         if (nextBtn) {
-            nextBtn.disabled = this.currentPage >= totalPages;
+            nextBtn.disabled = !has_next;
         }
     }
 
@@ -277,85 +169,21 @@ class SensorDataTable {
 
         if (pageNum && !isDisabled) {
             button.addEventListener("click", () => {
-                this.goToPage(pageNum);
+                // Emit custom event for page change
+                this.container.dispatchEvent(
+                    new CustomEvent("pageChange", {
+                        detail: { page: pageNum },
+                    })
+                );
             });
         }
 
         return button;
     }
 
-    goToPage(page) {
-        const totalPages = Math.ceil(
-            this.filteredData.length / this.itemsPerPage
-        );
-        if (page < 1 || page > totalPages) return;
-
-        this.currentPage = page;
-        this.renderTableBody();
-        this.renderPagination();
-    }
-
-    setItemsPerPage(items) {
-        this.itemsPerPage = parseInt(items);
-        this.currentPage = 1;
-        this.renderTable();
-    }
-
-    setSort(field, order = null) {
-        if (!field) return;
-        if (this.sortField === field) {
-            // toggle or set explicit order
-            if (order) this.sortOrder = order;
-            else this.sortOrder = this.sortOrder === "asc" ? "desc" : "asc";
-        } else {
-            this.sortField = field;
-            this.sortOrder = order || "asc";
-        }
-        this.currentPage = 1;
-        this.renderTable();
-    }
-
-    getSort() {
-        return { field: this.sortField, order: this.sortOrder };
-    }
-
-    updateHeaderSortIndicators() {
-        if (!this.container) return;
-        const ths = this.container.querySelectorAll("thead th");
-        const fieldMap = ["timestamp", "temperature", "light", "humidity"];
-        ths.forEach((th, idx) => {
-            const field = fieldMap[idx];
-            const original = th.dataset.original || th.textContent.trim();
-            th.textContent = original;
-            if (field && this.sortField === field) {
-                const arrow = this.sortOrder === "asc" ? " ▲" : " ▼";
-                th.textContent = original + arrow;
-            }
-        });
-    }
-
-    setSearchTerm(term) {
-        this.searchTerm = term;
-        this.currentPage = 1;
-        this.renderTable();
-    }
-
-    setSearchCriteria(criteria) {
-        this.searchCriteria = criteria;
-        this.currentPage = 1;
-        this.renderTable();
-    }
-
-    clearAllFilters() {
-        this.searchTerm = "";
-        this.searchCriteria = "all";
-        this.currentPage = 1;
-        this.renderTable();
-    }
-
     showLoading() {
         if (this.loadingElement) {
-            this.loadingElement.style.display = "flex";
+            this.loadingElement.style.display = "block";
         }
     }
 
@@ -365,25 +193,38 @@ class SensorDataTable {
         }
     }
 
-    formatDateTime(timestamp) {
-        const date = new Date(timestamp);
-        return date.toLocaleString("vi-VN", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-        });
+    updateData(
+        newData,
+        paginationInfo = null,
+        sortInfo = null,
+        searchInfo = null
+    ) {
+        this.renderTable(newData, paginationInfo, sortInfo, searchInfo);
     }
 
-    formatValue(value, decimals = 1) {
-        if (value == null) return "N/A";
-        return Number(value).toFixed(decimals);
+    getData() {
+        return this.currentData;
+    }
+
+    formatDateTime(timestamp) {
+        if (!timestamp) return "N/A";
+        try {
+            const date = new Date(timestamp);
+            return date.toLocaleString("vi-VN", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+            });
+        } catch (e) {
+            return timestamp.toString();
+        }
     }
 
     exportToCSV() {
-        if (this.filteredData.length === 0) {
+        if (!this.currentData || this.currentData.length === 0) {
             alert("Không có dữ liệu để xuất");
             return;
         }
@@ -394,18 +235,21 @@ class SensorDataTable {
             "Ánh sáng (%)",
             "Độ ẩm (%)",
         ];
-        const csvContent = [
-            headers.join(","),
-            ...this.filteredData.map((item) =>
-                [
-                    `"${this.formatDateTime(item.timestamp)}"`,
-                    this.formatValue(item.temperature, 1),
-                    this.formatValue(item.light, 1),
-                    this.formatValue(item.humidity, 1),
-                ].join(",")
-            ),
-        ].join("\n");
+        const rows = this.currentData.map((item) => {
+            const timestamp = this.formatDateTime(item.timestamp);
+            const temperature = item.temperature?.toFixed(1) || "N/A";
+            const light = item.light?.toFixed(1) || "N/A";
+            const humidity = item.humidity?.toFixed(1) || "N/A";
 
+            return [
+                `"${timestamp}"`,
+                `"${temperature}"`,
+                `"${light}"`,
+                `"${humidity}"`,
+            ].join(",");
+        });
+
+        const csvContent = [headers.join(",")].concat(rows).join("\n");
         const blob = new Blob([csvContent], {
             type: "text/csv;charset=utf-8;",
         });
@@ -422,52 +266,14 @@ class SensorDataTable {
         document.body.removeChild(link);
     }
 
-    highlightText(text, columnType) {
-        if (!this.searchTerm || !text) {
-            return text;
+    destroy() {
+        // Clean up event listeners if any
+        if (this.container) {
+            this.container.removeEventListener(
+                "pageChange",
+                this.handlePageChange
+            );
         }
-
-        // Chỉ highlight nếu search criteria là "all" hoặc match với column hiện tại
-        const shouldHighlight =
-            this.searchCriteria === "all" || this.searchCriteria === columnType;
-
-        if (!shouldHighlight) {
-            return text;
-        }
-
-        const searchLower = this.searchTerm.toLowerCase();
-        const textLower = text.toString().toLowerCase();
-
-        if (!textLower.includes(searchLower)) {
-            return text;
-        }
-
-        const regex = new RegExp(
-            `(${this.escapeRegex(this.searchTerm)})`,
-            "gi"
-        );
-        return text
-            .toString()
-            .replace(regex, '<mark class="search-highlight">$1</mark>');
-    }
-
-    escapeRegex(string) {
-        return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    }
-
-    getData() {
-        return this.currentData;
-    }
-
-    updateData(newData) {
-        const oldScrollPosition = window.pageYOffset;
-
-        this.currentData = Array.isArray(newData) ? newData : [];
-        this.applyFiltersAndSearch();
-        this.renderTableBody();
-        this.renderPagination();
-
-        window.scrollTo(0, oldScrollPosition);
     }
 }
 

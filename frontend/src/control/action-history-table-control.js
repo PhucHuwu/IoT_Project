@@ -8,181 +8,288 @@ class ActionHistoryTableControl {
         this.tableView = new ActionHistoryTable();
         this.updateIndicator = new UpdateIndicator();
         this.refreshInterval = null;
+
+        // CRUD state - managed by backend
+        this.currentPage = 1;
+        this.itemsPerPage = 10;
         this.searchTerm = "";
-        this.searchCriteria = "time"; // fixed to 'time'
         this.selectedDevice = "all";
         this.selectedState = "all";
-        this.latestItems = [];
+        this.sortField = "timestamp";
+        this.sortOrder = "desc";
+        this.allDevices = new Set(); // Lưu trữ tất cả devices
+
         this.searchListenersAttached = false;
         this.controlListenersAttached = false;
-        this.itemsPerPage = 10;
-        this.currentPage = 1;
+
+        console.log(
+            "ActionHistoryTableControl constructor - container:",
+            container
+        );
     }
 
     async load(limit = 50) {
         try {
-            const result = await SensorDataService.getActionHistory(limit);
-            let items = [];
-            if (result && result.status === "success")
-                items = result.data || [];
-            else if (Array.isArray(result)) items = result;
+            // Show loading state using table view method (same as sensor-data)
+            this.tableView.showLoading();
 
-            this.latestItems = items;
+            // Prepare CRUD parameters for backend
+            const crudParams = {
+                page: this.currentPage,
+                per_page: this.itemsPerPage,
+                sort_field: this.sortField,
+                sort_order: this.sortOrder,
+                search: this.searchTerm,
+                device_filter: this.selectedDevice,
+                state_filter: this.selectedState,
+            };
 
-            const filtered = this._filterItems(
-                this.latestItems,
-                this.searchTerm,
-                this.selectedDevice,
-                this.selectedState
+            const result = await SensorDataService.getActionHistory(
+                limit,
+                crudParams
             );
-            this.tableView.searchTerm = this.searchTerm;
-            this.tableView.searchCriteria = this.searchCriteria;
-            this.tableView.render(this.container, filtered);
-            this._populateDeviceFilter(items);
-            this.searchListenersAttached = false;
-            this.controlListenersAttached = false;
-            this._attachSearchListeners();
-            this._attachControlListeners();
-            this._renderCurrentPage();
+
+            // Hide loading state using table view method
+            this.tableView.hideLoading();
+
+            if (result && result.status === "success") {
+                this.tableView.render(
+                    this.container,
+                    result.data,
+                    result.pagination,
+                    result.filters,
+                    result.sort
+                );
+                this.renderPagination(result.pagination);
+                this.populateDeviceFilter(result.data);
+
+                this.searchListenersAttached = false;
+                this.controlListenersAttached = false;
+                this._attachSearchListeners();
+                this._attachControlListeners();
+            } else {
+                console.error(
+                    "Lỗi khi lấy lịch sử hành động:",
+                    result?.message
+                );
+                this.showError("Lỗi khi tải dữ liệu.");
+            }
         } catch (err) {
             console.error("Lỗi khi lấy lịch sử hành động:", err);
-            this.container.innerHTML =
-                '<div class="error">Lỗi khi tải dữ liệu.</div>';
+            this.tableView.hideLoading();
+            this.showError("Lỗi khi tải dữ liệu.");
         }
     }
 
     async refreshSilently(limit = 50) {
         try {
-            const result = await SensorDataService.getActionHistory(limit);
-            let items = [];
-            if (result && result.status === "success")
-                items = result.data || [];
-            else if (Array.isArray(result)) items = result;
+            // Only refresh if we're on page 1 and no search/filters active
+            // This prevents disrupting user's search/filter state
+            if (
+                this.currentPage === 1 &&
+                !this.searchTerm &&
+                this.selectedDevice === "all" &&
+                this.selectedState === "all"
+            ) {
+                const crudParams = {
+                    page: 1,
+                    per_page: Math.min(limit, 10),
+                    sort_field: this.sortField,
+                    sort_order: this.sortOrder,
+                    search: "",
+                    device_filter: "all",
+                    state_filter: "all",
+                };
 
-            this.latestItems = items;
-            // ensure device select options reflect latest items
-            this._populateDeviceFilter(items);
-            const filtered = this._filterItems(
-                this.latestItems,
-                this.searchTerm,
-                this.selectedDevice,
-                this.selectedState
-            );
+                const result = await SensorDataService.getActionHistory(
+                    limit,
+                    crudParams
+                );
 
-            // Respect current pagination settings when refreshing silently.
-            const totalItems = filtered.length;
-            const totalPages = Math.max(
-                1,
-                Math.ceil(totalItems / this.itemsPerPage)
-            );
-            if (this.currentPage < 1) this.currentPage = 1;
-            if (this.currentPage > totalPages) this.currentPage = totalPages;
+                if (result && result.status === "success") {
+                    const prevData = this.tableView.currentItems || [];
+                    const newData = result.data || [];
 
-            const start = (this.currentPage - 1) * this.itemsPerPage;
-            const end = Math.min(start + this.itemsPerPage, totalItems);
-            const pageData = filtered.slice(start, end);
-
-            // sync search props to view for highlighting
-            this.tableView.searchTerm = this.searchTerm;
-            this.tableView.searchCriteria = this.searchCriteria;
-            const prev = this.tableView.currentItems || [];
-            const changed = JSON.stringify(prev) !== JSON.stringify(pageData);
-            if (changed) {
-                this.tableView.updateData(pageData, this.container);
-                this.updateIndicator.show();
-                this.renderPagination();
+                    if (
+                        JSON.stringify(prevData.slice(0, 3)) !==
+                        JSON.stringify(newData.slice(0, 3))
+                    ) {
+                        this.updateIndicator.show();
+                        this.tableView.updateData(
+                            newData,
+                            result.pagination,
+                            result.filters,
+                            result.sort,
+                            this.container
+                        );
+                        this.renderPagination(result.pagination);
+                    }
+                }
             }
+            // If user has active search/filters, don't auto-refresh to preserve their state
         } catch (err) {
             console.error("Lỗi khi refresh lịch sử hành động:", err);
         }
     }
 
-    _filterItemsByTime(items, term) {
-        // BACKWARD COMPAT: keep original function name delegating to new filter
-        return this._filterItems(
-            items,
-            term,
-            this.selectedDevice,
-            this.selectedState
-        );
-    }
-
-    _filterItems(items, term, deviceFilter = "all", stateFilter = "all") {
-        const list = Array.isArray(items) ? items : [];
-
-        // apply device filter
-        let filtered = list;
-        if (deviceFilter && deviceFilter !== "all") {
-            const dev = deviceFilter.toString().toLowerCase();
-            filtered = filtered.filter((it) => {
-                const device = (it.led || it.device || "")
-                    .toString()
-                    .toLowerCase();
-                return device === dev;
-            });
-        }
-
-        // apply state filter
-        if (stateFilter && stateFilter !== "all") {
-            const st = stateFilter.toString().toLowerCase();
-            filtered = filtered.filter((it) => {
-                const s = (it.state || "").toString().toLowerCase();
-                if (st === "on") return s === "on" || s === "1" || s === "true";
-                if (st === "off")
-                    return s === "off" || s === "0" || s === "false";
-                return true;
-            });
-        }
-
-        // apply time search
-        if (!term) return filtered;
-        const t = term.toLowerCase();
-        return filtered.filter((it) => {
-            if (!it || !it.timestamp) return false;
-            try {
-                const s = new Date(it.timestamp).toLocaleString("vi-VN");
-                return s.toLowerCase().includes(t);
-            } catch (e) {
-                return String(it.timestamp).toLowerCase().includes(t);
-            }
+    updateAllDevices(items) {
+        // Cập nhật danh sách tất cả devices từ dữ liệu mới
+        items.forEach((item) => {
+            const device = (item.led || item.device || "").toString();
+            if (device) this.allDevices.add(device);
         });
     }
 
-    _populateDeviceFilter(items) {
+    populateDeviceFilter(items) {
         const select = this.container.querySelector("#actionFilterDevice");
         if (!select) return;
-        const list = Array.isArray(items) ? items : [];
-        const devices = new Set();
-        list.forEach((it) => {
-            const d = (it.led || it.device || "").toString();
-            if (d) devices.add(d);
-        });
 
-        // clear current options and add default 'all' option
+        // Cập nhật danh sách tất cả devices
+        const oldDeviceCount = this.allDevices.size;
+        this.updateAllDevices(items);
+        const newDeviceCount = this.allDevices.size;
+
+        // Chỉ tạo lại dropdown nếu chưa có options hoặc có device mới
+        if (select.children.length <= 1 || newDeviceCount > oldDeviceCount) {
+            this.renderDeviceFilter();
+        }
+    }
+
+    renderDeviceFilter() {
+        const select = this.container.querySelector("#actionFilterDevice");
+        if (!select) return;
+
+        // Clear current options and add default 'all' option
         select.innerHTML = "";
         const defaultOpt = document.createElement("option");
         defaultOpt.value = "all";
         defaultOpt.textContent = "Tất cả";
         select.appendChild(defaultOpt);
-        // append sorted device options
-        Array.from(devices)
-            .sort()
-            .forEach((d) => {
-                const opt = document.createElement("option");
-                opt.value = d;
-                opt.textContent = d;
-                select.appendChild(opt);
+
+        // Sort devices and append options từ allDevices
+        const sortedDevices = Array.from(this.allDevices).sort((a, b) => {
+            // Extract number from device name (e.g., "LED1" -> 1, "LED2" -> 2)
+            const getDeviceNumber = (deviceName) => {
+                const match = deviceName.match(/(\d+)/);
+                return match ? parseInt(match[1]) : 999;
+            };
+
+            const numA = getDeviceNumber(a);
+            const numB = getDeviceNumber(b);
+
+            // Sort by number first, then by name
+            if (numA !== numB) {
+                return numA - numB;
+            }
+            return a.localeCompare(b);
+        });
+
+        sortedDevices.forEach((device) => {
+            const opt = document.createElement("option");
+            opt.value = device;
+            opt.textContent = device;
+            select.appendChild(opt);
+        });
+
+        // Khôi phục giá trị đã chọn
+        select.value = this.selectedDevice || "all";
+    }
+
+    renderPagination(paginationInfo) {
+        if (!paginationInfo) return;
+
+        const { page, per_page, total_count, total_pages, has_prev, has_next } =
+            paginationInfo;
+
+        const pageNumbers = this.container.querySelector("#actionPageNumbers");
+        const prevBtn = this.container.querySelector("#actionPrevPage");
+        const nextBtn = this.container.querySelector("#actionNextPage");
+        const paginationInfoEl = this.container.querySelector(
+            "#actionPaginationInfo"
+        );
+
+        if (!paginationInfoEl) return;
+
+        const startIndex = total_count === 0 ? 0 : (page - 1) * per_page + 1;
+        const endIndex = Math.min(page * per_page, total_count);
+        paginationInfoEl.textContent = `Hiển thị ${startIndex} - ${endIndex} của ${total_count} bản ghi`;
+
+        if (pageNumbers) {
+            pageNumbers.innerHTML = "";
+            if (total_pages > 1) {
+                let startPage = Math.max(1, page - 2);
+                let endPage = Math.min(total_pages, page + 2);
+
+                if (startPage > 1) {
+                    pageNumbers.appendChild(this.createPageButton(1, "1"));
+                    if (startPage > 2)
+                        pageNumbers.appendChild(
+                            this.createPageButton(null, "...", true)
+                        );
+                }
+
+                for (let i = startPage; i <= endPage; i++) {
+                    pageNumbers.appendChild(
+                        this.createPageButton(
+                            i,
+                            i.toString(),
+                            false,
+                            i === page
+                        )
+                    );
+                }
+
+                if (endPage < total_pages) {
+                    if (endPage < total_pages - 1)
+                        pageNumbers.appendChild(
+                            this.createPageButton(null, "...", true)
+                        );
+                    pageNumbers.appendChild(
+                        this.createPageButton(
+                            total_pages,
+                            total_pages.toString()
+                        )
+                    );
+                }
+            }
+        }
+
+        if (prevBtn) prevBtn.disabled = !has_prev;
+        if (nextBtn) nextBtn.disabled = !has_next;
+    }
+
+    createPageButton(pageNum, text, isDisabled = false, isActive = false) {
+        const button = document.createElement("button");
+        button.className = `page-number-btn ${isActive ? "active" : ""} ${
+            isDisabled ? "disabled" : ""
+        }`;
+        button.textContent = text;
+        button.disabled = isDisabled;
+
+        if (pageNum && !isDisabled) {
+            button.addEventListener("click", () => {
+                this.goToPage(pageNum);
             });
+        }
+
+        return button;
+    }
+
+    async goToPage(page) {
+        this.currentPage = page;
+        await this.load(this.itemsPerPage);
     }
 
     _updateSearchPlaceholder(criteria) {
         const input = this.container.querySelector("#actionHistorySearchInput");
         if (!input) return;
-        input.placeholder = "Tìm kiếm theo thời gian (VD: 12/09 hoặc 14:30)";
+        input.placeholder =
+            "Tìm kiếm theo thời gian (VD: 00:17:07 21/09/2025, 00:17 21/09/2025, 21/09/2025)";
     }
 
     _attachSearchListeners() {
         if (this.searchListenersAttached) return;
+
         const input = this.container.querySelector("#actionHistorySearchInput");
         const clearBtn = this.container.querySelector(
             "#actionHistoryClearSearch"
@@ -191,46 +298,59 @@ class ActionHistoryTableControl {
             "#actionFilterDevice"
         );
         const stateSelect = this.container.querySelector("#actionFilterState");
-        if (!input) return;
 
-        // always time-based search
-        this.searchCriteria = "time";
-        this._updateSearchPlaceholder(this.searchCriteria);
+        if (!input) {
+            console.error("Action history search input not found!");
+            return;
+        }
+
+        // Always time-based search
+        this._updateSearchPlaceholder("time");
+
+        // Restore search input value and clear button state
+        if (this.searchTerm) {
+            input.value = this.searchTerm;
+            if (clearBtn) clearBtn.style.display = "block";
+        }
 
         input.addEventListener("input", (e) => {
-            const v = e.target.value.trim();
-            this.searchTerm = v;
-            if (clearBtn) clearBtn.style.display = v ? "block" : "none";
-            // Reset to first page and re-render using controller pagination
-            this.currentPage = 1;
-            this._renderCurrentPage();
+            const value = e.target.value.trim();
+            this.searchTerm = value;
+            if (clearBtn) clearBtn.style.display = value ? "block" : "none";
+
+            // Debounce search
+            clearTimeout(this.searchTimeout);
+            this.searchTimeout = setTimeout(() => {
+                this.currentPage = 1;
+                this.load(this.itemsPerPage);
+            }, 500);
         });
 
         if (deviceSelect) {
             deviceSelect.value = this.selectedDevice || "all";
-            deviceSelect.addEventListener("change", (e) => {
+            deviceSelect.addEventListener("change", async (e) => {
                 this.selectedDevice = e.target.value || "all";
                 this.currentPage = 1;
-                this._renderCurrentPage();
+                await this.load(this.itemsPerPage);
             });
         }
 
         if (stateSelect) {
             stateSelect.value = this.selectedState || "all";
-            stateSelect.addEventListener("change", (e) => {
+            stateSelect.addEventListener("change", async (e) => {
                 this.selectedState = e.target.value || "all";
                 this.currentPage = 1;
-                this._renderCurrentPage();
+                await this.load(this.itemsPerPage);
             });
         }
 
         if (clearBtn) {
-            clearBtn.addEventListener("click", () => {
+            clearBtn.addEventListener("click", async () => {
                 if (input) input.value = "";
                 this.searchTerm = "";
                 clearBtn.style.display = "none";
                 this.currentPage = 1;
-                this._renderCurrentPage();
+                await this.load(this.itemsPerPage);
                 if (input) input.focus();
             });
         }
@@ -240,6 +360,7 @@ class ActionHistoryTableControl {
 
     _attachControlListeners() {
         if (this.controlListenersAttached) return;
+
         const pageSize = this.container.querySelector("#actionTablePageSize");
         const manualRefresh = this.container.querySelector(
             "#actionManualRefresh"
@@ -247,17 +368,20 @@ class ActionHistoryTableControl {
         const exportBtn = this.container.querySelector("#actionExportCSV");
         const prevBtn = this.container.querySelector("#actionPrevPage");
         const nextBtn = this.container.querySelector("#actionNextPage");
-        const pageNumbers = this.container.querySelector("#actionPageNumbers");
-        const paginationInfo = this.container.querySelector(
-            "#actionPaginationInfo"
-        );
 
         if (pageSize) {
+            // Set initial value
             pageSize.value = String(this.itemsPerPage);
-            pageSize.addEventListener("change", (e) => {
-                this.itemsPerPage = parseInt(e.target.value, 10) || 10;
-                this.currentPage = 1;
-                this._renderCurrentPage();
+
+            pageSize.addEventListener("change", async (e) => {
+                const newPageSize = parseInt(e.target.value, 10);
+                if (newPageSize && newPageSize > 0 && newPageSize <= 100) {
+                    this.itemsPerPage = newPageSize;
+                    this.currentPage = 1;
+                    await this.load(this.itemsPerPage);
+                } else {
+                    e.target.value = this.itemsPerPage; // Reset to current value
+                }
             });
         }
 
@@ -284,193 +408,41 @@ class ActionHistoryTableControl {
         }
 
         if (prevBtn) {
-            prevBtn.addEventListener("click", () => {
-                this.goToPage(this.currentPage - 1);
+            prevBtn.addEventListener("click", async () => {
+                await this.goToPage(this.currentPage - 1);
             });
         }
 
         if (nextBtn) {
-            nextBtn.addEventListener("click", () => {
-                this.goToPage(this.currentPage + 1);
+            nextBtn.addEventListener("click", async () => {
+                await this.goToPage(this.currentPage + 1);
             });
         }
-
-        // render pagination initially
-        this.renderPagination();
 
         this.controlListenersAttached = true;
     }
 
-    _renderCurrentPage() {
-        const all = Array.isArray(this.latestItems) ? this.latestItems : [];
-        const filtered = this._filterItems(
-            all,
-            this.searchTerm,
-            this.selectedDevice,
-            this.selectedState
-        );
-        const totalItems = filtered.length;
-        const totalPages = Math.max(
-            1,
-            Math.ceil(totalItems / this.itemsPerPage)
-        );
-
-        if (this.currentPage < 1) this.currentPage = 1;
-        if (this.currentPage > totalPages) this.currentPage = totalPages;
-
-        const start = (this.currentPage - 1) * this.itemsPerPage;
-        const end = Math.min(start + this.itemsPerPage, totalItems);
-        const pageData = filtered.slice(start, end);
-
-        this.tableView.searchTerm = this.searchTerm;
-        this.tableView.searchCriteria = this.searchCriteria;
-        this.tableView.updateData(pageData, this.container);
-        this.renderPagination();
-    }
-
-    renderPagination() {
-        const all = Array.isArray(this.latestItems) ? this.latestItems : [];
-        const filtered = this._filterItems(
-            all,
-            this.searchTerm,
-            this.selectedDevice,
-            this.selectedState
-        );
-        const totalItems = filtered.length;
-        const totalPages = Math.max(
-            1,
-            Math.ceil(totalItems / this.itemsPerPage)
-        );
-
-        const pageNumbers = this.container.querySelector("#actionPageNumbers");
-        const prevBtn = this.container.querySelector("#actionPrevPage");
-        const nextBtn = this.container.querySelector("#actionNextPage");
-        const paginationInfo = this.container.querySelector(
-            "#actionPaginationInfo"
-        );
-
-        if (!paginationInfo) return;
-        const startIndex =
-            totalItems === 0
-                ? 0
-                : (this.currentPage - 1) * this.itemsPerPage + 1;
-        const endIndex = Math.min(
-            this.currentPage * this.itemsPerPage,
-            totalItems
-        );
-        paginationInfo.textContent = `Hiển thị ${startIndex} - ${endIndex} của ${totalItems} bản ghi`;
-
-        if (pageNumbers) {
-            pageNumbers.innerHTML = "";
-            if (totalPages > 1) {
-                let startPage = Math.max(1, this.currentPage - 2);
-                let endPage = Math.min(totalPages, this.currentPage + 2);
-
-                if (startPage > 1) {
-                    pageNumbers.appendChild(this.createPageButton(1, "1"));
-                    if (startPage > 2)
-                        pageNumbers.appendChild(
-                            this.createPageButton(null, "...", true)
-                        );
-                }
-
-                for (let i = startPage; i <= endPage; i++) {
-                    pageNumbers.appendChild(
-                        this.createPageButton(
-                            i,
-                            i.toString(),
-                            false,
-                            i === this.currentPage
-                        )
-                    );
-                }
-
-                if (endPage < totalPages) {
-                    if (endPage < totalPages - 1)
-                        pageNumbers.appendChild(
-                            this.createPageButton(null, "...", true)
-                        );
-                    pageNumbers.appendChild(
-                        this.createPageButton(totalPages, totalPages.toString())
-                    );
-                }
-            }
-        }
-
-        if (prevBtn) prevBtn.disabled = this.currentPage <= 1;
-        if (nextBtn) nextBtn.disabled = this.currentPage >= totalPages;
-    }
-
-    createPageButton(pageNum, text, isDisabled = false, isActive = false) {
-        const button = document.createElement("button");
-        button.className = `page-number-btn ${isActive ? "active" : ""} ${
-            isDisabled ? "disabled" : ""
-        }`;
-        button.textContent = text;
-        button.disabled = isDisabled;
-        if (pageNum && !isDisabled) {
-            button.addEventListener("click", () => {
-                this.goToPage(pageNum);
-            });
-        }
-        return button;
-    }
-
-    goToPage(page) {
-        const all = Array.isArray(this.latestItems) ? this.latestItems : [];
-        const filtered = this._filterItems(
-            all,
-            this.searchTerm,
-            this.selectedDevice,
-            this.selectedState
-        );
-        const totalPages = Math.max(
-            1,
-            Math.ceil(filtered.length / this.itemsPerPage)
-        );
-        if (page < 1 || page > totalPages) return;
-        this.currentPage = page;
-        this._renderCurrentPage();
-    }
-
-    _getPagedItems() {
-        const all = Array.isArray(this.latestItems) ? this.latestItems : [];
-        // apply current search filter first
-        const filtered = this._filterItems(
-            all,
-            this.searchTerm,
-            this.selectedDevice,
-            this.selectedState
-        );
-        // paginate
-        if (!this.itemsPerPage || this.itemsPerPage <= 0) return filtered;
-        return filtered.slice(0, this.itemsPerPage);
-    }
-
     _exportCSV() {
-        const data = this._filterItems(
-            this.latestItems,
-            this.searchTerm,
-            this.selectedDevice,
-            this.selectedState
-        );
+        const data = this.tableView.currentItems || [];
         if (!data || data.length === 0) {
             alert("Không có dữ liệu để xuất");
             return;
         }
 
         const headers = ["Thiết bị", "Trạng thái", "Thời gian"];
-        const rows = data.map((it) => {
-            const ts = (() => {
+        const rows = data.map((item) => {
+            const timestamp = (() => {
                 try {
-                    return new Date(it.timestamp).toLocaleString("vi-VN");
+                    return new Date(item.timestamp).toLocaleString("vi-VN");
                 } catch (e) {
-                    return it.timestamp || "";
+                    return item.timestamp || "";
                 }
             })();
-            return [`"${it.led || ""}"`, `"${it.state || ""}"`, `"${ts}"`].join(
-                ","
-            );
+            return [
+                `"${item.led || ""}"`,
+                `"${item.state || ""}"`,
+                `"${timestamp}"`,
+            ].join(",");
         });
 
         const csvContent = [headers.join(",")].concat(rows).join("\n");
@@ -504,9 +476,16 @@ class ActionHistoryTableControl {
         }
     }
 
+    showError(message) {
+        // Simple error handling - just log for now
+        // Could be enhanced with a toast notification or modal
+        console.error("Action History Error:", message);
+    }
+
     destroy() {
         this.stopAutoRefresh();
         if (this.updateIndicator) this.updateIndicator.destroy();
+        if (this.searchTimeout) clearTimeout(this.searchTimeout);
     }
 }
 

@@ -4,13 +4,15 @@ import SensorDataChart from "../view/charts/sensor-data-chart.js";
 class SensorDataChartController {
     constructor() {
         this.chartView = new SensorDataChart();
-        this.currentSensorType = "temperature";
+        this.currentSensorType = "all";
+        this.dataLimit = "50";
         this.selectedDate = this.getLocalDateString();
         this.isLoading = false;
         this.refreshInterval = null;
 
         this.datePicker = document.getElementById("datePicker");
         this.sensorTypeSelector = document.getElementById("sensorTypeSelector");
+        this.dataLimitSelector = document.getElementById("dataLimitSelector");
     }
 
     async init() {
@@ -39,13 +41,23 @@ class SensorDataChartController {
             });
         }
 
+        if (this.dataLimitSelector) {
+            this.dataLimitSelector.addEventListener("change", (e) => {
+                this.dataLimit = e.target.value;
+                console.log("Data limit changed to:", this.dataLimit);
+                this.loadChart();
+                // Cập nhật auto refresh interval khi thay đổi data limit
+                this.checkAndUpdateAutoRefresh();
+            });
+        }
+
         if (this.datePicker) {
             this.datePicker.addEventListener("change", (e) => {
                 this.selectedDate = e.target.value;
                 console.log("Selected date changed to:", this.selectedDate);
                 this.stopAutoRefresh();
                 this.loadChart();
-                this.startAutoRefresh();
+                this.startAutoRefresh(); // Sẽ tự động kiểm tra xem có nên bật realtime hay không
             });
         }
     }
@@ -80,15 +92,90 @@ class SensorDataChartController {
 
     async getSensorData() {
         try {
-            const response = await fetch(
-                `http://localhost:5001/api/v1/sensors/sensor-data/chart?date=${this.selectedDate}`
-            );
+            const today = this.getLocalDateString();
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            console.log("Debug - selectedDate:", this.selectedDate);
+            console.log("Debug - today:", today);
+            console.log("Debug - isToday:", this.selectedDate === today);
+            console.log("Debug - dataLimit:", this.dataLimit);
+
+            // Nếu chọn "Tất cả dữ liệu", luôn lấy theo ngày (từ 00:00h đến 23:59h)
+            if (this.dataLimit === "all") {
+                console.log(
+                    "Getting ALL data for date:",
+                    this.selectedDate,
+                    "(from 00:00h to 23:59h)"
+                );
+                console.log(
+                    "Calling getSensorDataByDate with params:",
+                    this.selectedDate,
+                    "all"
+                );
+                const result = await SensorDataService.getSensorDataByDate(
+                    this.selectedDate,
+                    "all"
+                );
+                console.log("getSensorDataByDate result:", result);
+
+                if (result && Array.isArray(result)) {
+                    return result;
+                } else if (
+                    result &&
+                    result.status === "success" &&
+                    result.data
+                ) {
+                    return result.data;
+                } else {
+                    throw new Error("Không có dữ liệu từ API");
+                }
             }
+            // Nếu đang xem ngày hiện tại và có limit cụ thể, lấy dữ liệu gần nhất (realtime)
+            else if (this.selectedDate === today) {
+                console.log(
+                    "Getting realtime data with limit:",
+                    this.dataLimit,
+                    "(no date parameter)"
+                );
+                const result = await SensorDataService.getChartData(
+                    this.dataLimit
+                );
 
-            return await response.json();
+                if (result && Array.isArray(result)) {
+                    return result;
+                } else if (
+                    result &&
+                    result.status === "success" &&
+                    result.data
+                ) {
+                    return result.data;
+                } else {
+                    throw new Error("Không có dữ liệu từ API");
+                }
+            } else {
+                // Nếu xem ngày khác và có limit cụ thể, lấy dữ liệu theo ngày cụ thể
+                console.log(
+                    "Getting historical data for date:",
+                    this.selectedDate,
+                    "with limit:",
+                    this.dataLimit
+                );
+                const result = await SensorDataService.getSensorDataByDate(
+                    this.selectedDate,
+                    this.dataLimit
+                );
+
+                if (result && Array.isArray(result)) {
+                    return result;
+                } else if (
+                    result &&
+                    result.status === "success" &&
+                    result.data
+                ) {
+                    return result.data;
+                } else {
+                    throw new Error("Không có dữ liệu từ API");
+                }
+            }
         } catch (error) {
             console.error("Lỗi khi lấy dữ liệu:", error);
             throw error;
@@ -110,10 +197,18 @@ class SensorDataChartController {
         if (this.isLoading) return;
 
         try {
+            // Kiểm tra xem có cần cập nhật auto refresh không
+            this.checkAndUpdateAutoRefresh();
+
             const data = await this.getSensorData();
             if (data && data.length > 0) {
                 this.chartView.updateChart(data, this.currentSensorType);
                 this.updateScrollIndicator(data.length);
+                console.log(
+                    "Chart refreshed silently with",
+                    data.length,
+                    "records"
+                );
             }
         } catch (error) {
             console.error("Lỗi khi refresh biểu đồ:", error);
@@ -122,10 +217,30 @@ class SensorDataChartController {
 
     startAutoRefresh() {
         const today = this.getLocalDateString();
+        // Chỉ auto refresh khi xem ngày hiện tại
         if (this.selectedDate === today) {
+            let refreshInterval = 0;
+
+            if (this.dataLimit === "all") {
+                // "Tất cả dữ liệu" - refresh mỗi 10 giây
+                refreshInterval = 10000;
+                console.log(
+                    "Starting auto refresh for ALL data (10s interval)..."
+                );
+            } else {
+                // "Dữ liệu gần nhất" - refresh mỗi 1 giây
+                refreshInterval = 1000;
+                console.log(
+                    "Starting auto refresh for recent data (1s interval)..."
+                );
+            }
+
             this.refreshInterval = setInterval(() => {
+                console.log("Auto refreshing chart...");
                 this.refreshChartSilently();
-            }, 30000);
+            }, refreshInterval);
+        } else {
+            console.log("Auto refresh disabled - viewing historical data");
         }
     }
 
@@ -140,6 +255,25 @@ class SensorDataChartController {
         if (this.refreshInterval) {
             clearInterval(this.refreshInterval);
             this.refreshInterval = null;
+            console.log("Auto refresh stopped");
+        }
+    }
+
+    checkAndUpdateAutoRefresh() {
+        const today = this.getLocalDateString();
+        const isToday = this.selectedDate === today;
+
+        if (isToday && !this.refreshInterval) {
+            console.log("Switching to realtime mode - starting auto refresh");
+            this.startAutoRefresh();
+        } else if (isToday && this.refreshInterval) {
+            // Đang xem ngày hiện tại và có refresh interval, kiểm tra xem có cần thay đổi interval không
+            console.log("Updating auto refresh interval for current mode");
+            this.stopAutoRefresh();
+            this.startAutoRefresh();
+        } else if (!isToday && this.refreshInterval) {
+            console.log("Switching to historical mode - stopping auto refresh");
+            this.stopAutoRefresh();
         }
     }
 

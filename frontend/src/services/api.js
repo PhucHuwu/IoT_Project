@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:5001/api/v1/sensors";
+const API_BASE_URL = "http://localhost:5000/api/v1/sensors";
 
 class SensorDataService {
     static async getLatestSensorData() {
@@ -18,14 +18,29 @@ class SensorDataService {
         limit = 5,
         timePeriod = null,
         filters = null,
-        sample = 1
+        sample = 1,
+        crudParams = {}
     ) {
         try {
             const limitParam =
                 typeof limit === "string" && limit.toLowerCase() === "all"
                     ? "all"
                     : Number(limit);
+
             let url = `${API_BASE_URL}/sensor-data-list?limit=${limitParam}&sample=${sample}`;
+
+            // Add CRUD parameters
+            if (crudParams.page) url += `&page=${crudParams.page}`;
+            if (crudParams.per_page) url += `&per_page=${crudParams.per_page}`;
+            if (crudParams.sort_field)
+                url += `&sort_field=${crudParams.sort_field}`;
+            if (crudParams.sort_order)
+                url += `&sort_order=${crudParams.sort_order}`;
+            if (crudParams.search)
+                url += `&search=${encodeURIComponent(crudParams.search)}`;
+            if (crudParams.search_criteria)
+                url += `&search_criteria=${crudParams.search_criteria}`;
+
             if (timePeriod) {
                 url += `&timePeriod=${timePeriod}`;
             }
@@ -58,15 +73,17 @@ class SensorDataService {
         }
     }
 
-    static async getChartData(timePeriod = "latest5") {
+    static async getChartData(limit = "50") {
         try {
-            console.log("Getting chart data for period:", timePeriod);
-            let limit = 5;
-            if (timePeriod === "latest10") limit = 10;
-            else if (timePeriod === "latest20") limit = 20;
-            else if (timePeriod === "latest5") limit = 5;
+            console.log("Getting chart data with limit:", limit);
 
-            const url = `${API_BASE_URL}/sensor-data-list?limit=${limit}`;
+            // Chuyển đổi limit thành số nếu cần
+            let limitParam = limit;
+            if (typeof limit === "string" && limit !== "all") {
+                limitParam = parseInt(limit);
+            }
+
+            const url = `${API_BASE_URL}/sensor-data/chart?limit=${limitParam}`;
             console.log("API URL:", url);
 
             const response = await fetch(url);
@@ -101,6 +118,25 @@ class SensorDataService {
         }
     }
 
+    static async getSensorDataByDate(date, limit = "50") {
+        try {
+            let url = `${API_BASE_URL}/sensor-data/chart?date=${date}`;
+            if (limit) {
+                url += `&limit=${limit}`;
+            }
+
+            console.log("API URL for getSensorDataByDate:", url);
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error("Lỗi khi lấy dữ liệu theo ngày:", error);
+            throw error;
+        }
+    }
+
     static async controlLED(ledId, action) {
         try {
             const response = await fetch(`${API_BASE_URL}/led-control`, {
@@ -125,9 +161,52 @@ class SensorDataService {
         }
     }
 
-    static async getActionHistory(limit = 50) {
+    static async getSensorDataById(sensorId) {
         try {
-            const url = `${API_BASE_URL}/action-history?limit=${limit}`;
+            const response = await fetch(
+                `${API_BASE_URL}/sensor-data/${sensorId}`
+            );
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error("Lỗi khi lấy dữ liệu cảm biến theo ID:", error);
+            throw error;
+        }
+    }
+
+    static async getLEDStatus() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/led-status`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error("Lỗi khi lấy trạng thái LED:", error);
+            throw error;
+        }
+    }
+
+    static async getActionHistory(limit = 50, crudParams = {}) {
+        try {
+            let url = `${API_BASE_URL}/action-history?limit=${limit}`;
+
+            // Add CRUD parameters
+            if (crudParams.page) url += `&page=${crudParams.page}`;
+            if (crudParams.per_page) url += `&per_page=${crudParams.per_page}`;
+            if (crudParams.sort_field)
+                url += `&sort_field=${crudParams.sort_field}`;
+            if (crudParams.sort_order)
+                url += `&sort_order=${crudParams.sort_order}`;
+            if (crudParams.search)
+                url += `&search=${encodeURIComponent(crudParams.search)}`;
+            if (crudParams.device_filter)
+                url += `&device_filter=${crudParams.device_filter}`;
+            if (crudParams.state_filter)
+                url += `&state_filter=${crudParams.state_filter}`;
+
             const response = await fetch(url);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);

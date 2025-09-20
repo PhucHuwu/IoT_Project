@@ -15,11 +15,23 @@ MQTT_ACTION_HISTORY_TOPIC = os.getenv('MQTT_ACTION_HISTORY_TOPIC', 'esp32/iot/ac
 MQTT_USERNAME = os.getenv('MQTT_USERNAME')
 MQTT_PASSWORD = os.getenv('MQTT_PASSWORD')
 
-TEMP_HIGH_THRESHOLD = float(os.getenv('TEMP_HIGH_THRESHOLD', 35.0))
-TEMP_LOW_THRESHOLD = float(os.getenv('TEMP_LOW_THRESHOLD', 0.0))
-HUMIDITY_HIGH_THRESHOLD = float(os.getenv('HUMIDITY_HIGH_THRESHOLD', 80.0))
-HUMIDITY_LOW_THRESHOLD = float(os.getenv('HUMIDITY_LOW_THRESHOLD', 20.0))
-LIGHT_LOW_THRESHOLD = float(os.getenv('LIGHT_LOW_THRESHOLD', 100.0))
+# Ngưỡng cảnh báo cho nhiệt độ (trung bình 30°C)
+TEMP_NORMAL_MIN = float(os.getenv('TEMP_NORMAL_MIN', 25.0))
+TEMP_NORMAL_MAX = float(os.getenv('TEMP_NORMAL_MAX', 35.0))
+TEMP_WARNING_MIN = float(os.getenv('TEMP_WARNING_MIN', 15.0))
+TEMP_WARNING_MAX = float(os.getenv('TEMP_WARNING_MAX', 40.0))
+
+# Ngưỡng cảnh báo cho độ ẩm (trung bình 50%)
+HUMIDITY_NORMAL_MIN = float(os.getenv('HUMIDITY_NORMAL_MIN', 40.0))
+HUMIDITY_NORMAL_MAX = float(os.getenv('HUMIDITY_NORMAL_MAX', 60.0))
+HUMIDITY_WARNING_MIN = float(os.getenv('HUMIDITY_WARNING_MIN', 30.0))
+HUMIDITY_WARNING_MAX = float(os.getenv('HUMIDITY_WARNING_MAX', 70.0))
+
+# Ngưỡng cảnh báo cho ánh sáng (trung bình 50%)
+LIGHT_NORMAL_MIN = float(os.getenv('LIGHT_NORMAL_MIN', 40.0))
+LIGHT_NORMAL_MAX = float(os.getenv('LIGHT_NORMAL_MAX', 60.0))
+LIGHT_WARNING_MIN = float(os.getenv('LIGHT_WARNING_MIN', 20.0))
+LIGHT_WARNING_MAX = float(os.getenv('LIGHT_WARNING_MAX', 80.0))
 
 API_HOST = os.getenv('API_HOST', '0.0.0.0')
 API_PORT = int(os.getenv('API_PORT', 5000))

@@ -7,84 +7,97 @@ class SensorDataTableController {
         this.table = null;
         this.refreshInterval = null;
         this.updateIndicator = new UpdateIndicator();
+
+        // CRUD state - managed by backend
+        this.currentPage = 1;
+        this.itemsPerPage = 10;
+        this.searchTerm = "";
+        this.searchCriteria = "all";
+        this.sortField = "timestamp";
+        this.sortOrder = "desc";
+
         this.init();
     }
 
     init() {
         this.table = new SensorDataTable("sensorDataTable");
-        // Default: show most recent entries first
-        if (this.table && typeof this.table.setSort === "function") {
-            this.table.setSort("timestamp", "desc");
-        }
         this.setupEventListeners();
-        this.initializeSearchCriteria();
         this.loadData();
         this.startAutoRefresh();
     }
 
-    initializeSearchCriteria() {
-        const searchCriteria = document.getElementById("searchCriteria");
-        if (searchCriteria) {
-            // Sync dropdown value với table
-            this.table.setSearchCriteria(searchCriteria.value);
-            this.updateSearchPlaceholder(searchCriteria.value);
-        }
-    }
-
     setupEventListeners() {
+        // Page size change
         const pageSize = document.getElementById("tablePageSize");
+
         if (pageSize) {
+            // Set initial value
+            pageSize.value = this.itemsPerPage;
+
             pageSize.addEventListener("change", (e) => {
-                this.table.setItemsPerPage(e.target.value);
+                const newPageSize = parseInt(e.target.value, 10);
+
+                if (newPageSize && newPageSize > 0 && newPageSize <= 100) {
+                    this.itemsPerPage = newPageSize;
+                    this.currentPage = 1;
+                    this.loadData();
+                } else {
+                    e.target.value = this.itemsPerPage; // Reset to current value
+                }
             });
         }
 
+        // Search input
         const searchInput = document.getElementById("tableSearchInput");
         const clearSearch = document.getElementById("clearSearch");
         const searchCriteria = document.getElementById("searchCriteria");
 
         if (searchCriteria) {
             searchCriteria.addEventListener("change", (e) => {
-                this.table.setSearchCriteria(e.target.value);
+                this.searchCriteria = e.target.value;
                 this.updateSearchPlaceholder(e.target.value);
+                this.currentPage = 1;
+                this.loadData();
             });
         }
 
         if (searchInput) {
             searchInput.addEventListener("input", (e) => {
-                const searchTerm = e.target.value.trim();
-                // Ensure search criteria is current before setting search term
-                const currentCriteria =
-                    document.getElementById("searchCriteria");
-                if (currentCriteria) {
-                    this.table.setSearchCriteria(currentCriteria.value);
-                }
-                this.table.setSearchTerm(searchTerm);
-
+                const newSearchTerm = e.target.value.trim();
+                this.searchTerm = newSearchTerm;
                 if (clearSearch) {
-                    clearSearch.style.display = searchTerm ? "block" : "none";
+                    clearSearch.style.display = this.searchTerm
+                        ? "block"
+                        : "none";
                 }
+                // Debounce search
+                clearTimeout(this.searchTimeout);
+                this.searchTimeout = setTimeout(() => {
+                    this.currentPage = 1;
+                    this.loadData();
+                }, 500);
             });
         }
 
         if (clearSearch) {
             clearSearch.addEventListener("click", () => {
-                const searchCriteria =
-                    document.getElementById("searchCriteria");
                 if (searchInput) {
                     searchInput.value = "";
-                    this.table.setSearchTerm("");
+                    this.searchTerm = "";
                     clearSearch.style.display = "none";
                     searchInput.focus();
                 }
                 if (searchCriteria) {
                     searchCriteria.value = "all";
-                    this.table.setSearchCriteria("all");
+                    this.searchCriteria = "all";
                     this.updateSearchPlaceholder("all");
                 }
+                this.currentPage = 1;
+                this.loadData();
             });
         }
 
+        // Export CSV
         const exportCSV = document.getElementById("exportCSV");
         if (exportCSV) {
             exportCSV.addEventListener("click", () => {
@@ -92,6 +105,7 @@ class SensorDataTableController {
             });
         }
 
+        // Manual refresh
         const manualRefresh = document.getElementById("manualRefresh");
         if (manualRefresh) {
             manualRefresh.addEventListener("click", () => {
@@ -99,18 +113,45 @@ class SensorDataTableController {
             });
         }
 
+        // Pagination controls
         const prevPage = document.getElementById("prevPage");
         const nextPage = document.getElementById("nextPage");
 
         if (prevPage) {
             prevPage.addEventListener("click", () => {
-                this.table.goToPage(this.table.currentPage - 1);
+                if (this.currentPage > 1) {
+                    this.currentPage--;
+                    this.loadData();
+                }
             });
         }
 
         if (nextPage) {
             nextPage.addEventListener("click", () => {
-                this.table.goToPage(this.table.currentPage + 1);
+                this.currentPage++;
+                this.loadData();
+            });
+        }
+
+        // Table header clicks for sorting
+        if (this.table.container) {
+            const ths = this.table.container.querySelectorAll("thead th");
+            const fieldMap = ["timestamp", "temperature", "light", "humidity"];
+
+            ths.forEach((th, idx) => {
+                const field = fieldMap[idx];
+                if (!field) return;
+
+                th.style.cursor = "pointer";
+                th.addEventListener("click", () => {
+                    this.handleSort(field);
+                });
+            });
+
+            // Listen for page change events from table
+            this.table.container.addEventListener("pageChange", (e) => {
+                this.currentPage = e.detail.page;
+                this.loadData();
             });
         }
     }
@@ -120,14 +161,27 @@ class SensorDataTableController {
         if (!searchInput) return;
 
         const placeholders = {
-            all: "Tìm kiếm dữ liệu",
-            temperature: "Tìm kiếm theo nhiệt độ (VD: 25.5)",
-            light: "Tìm kiếm theo ánh sáng (VD: 75.2)",
-            humidity: "Tìm kiếm theo độ ẩm (VD: 60.8)",
-            time: "Tìm kiếm theo thời gian (VD: 12/09 hoặc 14:30)",
+            all: "Tìm kiếm dữ liệu (VD: 32.5, 00:17:07 21/09/2025)",
+            temperature: "Tìm kiếm theo nhiệt độ (VD: 32.5 hoặc 32)",
+            light: "Tìm kiếm theo ánh sáng (VD: 75.2 hoặc 75)",
+            humidity: "Tìm kiếm theo độ ẩm (VD: 60.8 hoặc 60)",
+            time: "Tìm kiếm theo thời gian (VD: 00:17:07 21/09/2025, 00:17 21/09/2025, 21/09/2025)",
         };
 
         searchInput.placeholder = placeholders[criteria] || placeholders.all;
+    }
+
+    handleSort(field) {
+        if (this.sortField === field) {
+            // Toggle sort order if same field
+            this.sortOrder = this.sortOrder === "asc" ? "desc" : "asc";
+        } else {
+            // New field, default to desc
+            this.sortField = field;
+            this.sortOrder = "desc";
+        }
+        this.currentPage = 1;
+        this.loadData();
     }
 
     async loadData(showLoading = true) {
@@ -135,15 +189,32 @@ class SensorDataTableController {
             if (showLoading) {
                 this.table.showLoading();
             }
+
+            // Prepare CRUD parameters for backend
+            const crudParams = {
+                page: this.currentPage,
+                per_page: this.itemsPerPage,
+                sort_field: this.sortField,
+                sort_order: this.sortOrder,
+                search: this.searchTerm,
+                search_criteria: this.searchCriteria,
+            };
+
             const response = await SensorDataService.getSensorDataList(
-                "all",
-                null,
-                null,
-                10
+                "all", // limit
+                null, // timePeriod
+                null, // filters
+                10, // sample - lấy mẫu 1:10 để giảm tải dữ liệu
+                crudParams
             );
 
             if (response.status === "success" && response.data) {
-                this.table.renderTable(response.data);
+                this.table.renderTable(
+                    response.data,
+                    response.pagination,
+                    response.sort,
+                    response.search
+                );
             } else {
                 console.error("Lỗi khi tải dữ liệu bảng:", response.message);
                 this.table.renderTable([]);
@@ -180,23 +251,41 @@ class SensorDataTableController {
 
     async refreshDataSilently() {
         try {
-            const response = await SensorDataService.getSensorDataList(
-                "all",
-                null,
-                null,
-                3
-            );
+            // Only refresh if we're on page 1 and no search/filter active
+            if (
+                this.currentPage === 1 &&
+                !this.searchTerm &&
+                this.searchCriteria === "all"
+            ) {
+                const crudParams = {
+                    page: 1,
+                    per_page: 3, // Get fewer records for silent refresh
+                    sort_field: this.sortField,
+                    sort_order: this.sortOrder,
+                    search: "",
+                    search_criteria: "all",
+                };
 
-            if (response.status === "success" && response.data) {
-                const currentData = this.table.getData();
+                const response = await SensorDataService.getSensorDataList(
+                    "all",
+                    null,
+                    null,
+                    10, // sample - lấy mẫu 1:10 để giảm tải dữ liệu
+                    crudParams
+                );
 
-                if (
-                    JSON.stringify(currentData) !==
-                    JSON.stringify(response.data)
-                ) {
-                    this.updateIndicator.show();
-                    this.table.updateData(response.data);
-                    console.log("Dữ liệu đã được cập nhật");
+                if (response.status === "success" && response.data) {
+                    const currentData = this.table.getData();
+                    if (
+                        JSON.stringify(currentData.slice(0, 3)) !==
+                        JSON.stringify(response.data)
+                    ) {
+                        this.updateIndicator.show();
+                        // Only update if user is not actively searching/filtering
+                        if (!this.searchTerm && this.searchCriteria === "all") {
+                            this.loadData(false);
+                        }
+                    }
                 }
             }
         } catch (error) {
@@ -225,6 +314,12 @@ class SensorDataTableController {
         this.stopAutoRefresh();
         if (this.updateIndicator) {
             this.updateIndicator.destroy();
+        }
+        if (this.table) {
+            this.table.destroy();
+        }
+        if (this.searchTimeout) {
+            clearTimeout(this.searchTimeout);
         }
     }
 }

@@ -1,7 +1,7 @@
 from app.api.routes import api_bp
 from app.services.data_service import IoTMQTTReceiver
 from app.core.config import Config
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_cors import CORS
 import threading
 import sys
@@ -20,6 +20,19 @@ def create_app():
     CORS(app, origins=["*"], methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 
     app.register_blueprint(api_bp)
+
+    # Serve static files from frontend
+    @app.route('/')
+    def serve_frontend():
+        return send_from_directory('../frontend/public', 'home-page.html')
+
+    @app.route('/<path:filename>')
+    def serve_static(filename):
+        return send_from_directory('../frontend/public', filename)
+
+    @app.route('/src/<path:filename>')
+    def serve_src(filename):
+        return send_from_directory('../frontend/src', filename)
 
     return app
 
@@ -48,7 +61,7 @@ def main():
         mqtt_thread = threading.Thread(target=start_mqtt_receiver, daemon=True)
         mqtt_thread.start()
 
-    app.run(host="0.0.0.0", port=5001, debug=debug_mode)
+    app.run(host="0.0.0.0", port=5000, debug=debug_mode)
 
 
 if __name__ == "__main__":

@@ -1,12 +1,16 @@
 class ActionHistoryTable {
     constructor() {
         this.currentItems = [];
-        this.searchTerm = "";
-        this.searchCriteria = "time"; // 'time' or 'device'
+        this.pagination = {};
+        this.filters = {};
+        this.sort = {};
     }
 
-    render(container, items) {
+    render(container, items, paginationData = {}, filters = {}, sort = {}) {
         this.currentItems = Array.isArray(items) ? items : [];
+        this.pagination = paginationData;
+        this.filters = filters;
+        this.sort = sort;
         container.innerHTML = "";
 
         const card = document.createElement("div");
@@ -37,6 +41,16 @@ class ActionHistoryTable {
         const tableContainer = document.createElement("div");
         tableContainer.className = "table-container";
 
+        // Create loading element (same as sensor-data)
+        const loadingElement = document.createElement("div");
+        loadingElement.className = "table-loading";
+        loadingElement.id = "actionTableLoading";
+        loadingElement.style.display = "none";
+        loadingElement.innerHTML = `
+            <div class="loading-spinner"></div>
+            <p>Đang tải dữ liệu...</p>
+        `;
+
         const table = document.createElement("table");
         table.className = "action-history-table";
 
@@ -53,12 +67,21 @@ class ActionHistoryTable {
         const tbody = document.createElement("tbody");
         tbody.id = "actionHistoryTableBody";
 
-        this.currentItems.forEach((item) => {
-            const tr = this._createRow(item);
+        if (this.currentItems.length === 0) {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td colspan="3" class="no-data">Không có dữ liệu để hiển thị</td>
+            `;
             tbody.appendChild(tr);
-        });
+        } else {
+            this.currentItems.forEach((item) => {
+                const tr = this._createRow(item);
+                tbody.appendChild(tr);
+            });
+        }
 
         table.appendChild(tbody);
+        tableContainer.appendChild(loadingElement);
         tableContainer.appendChild(table);
 
         card.appendChild(tableHeader);
@@ -79,7 +102,7 @@ class ActionHistoryTable {
           </select>
           <div class="search-input-group">
             <i class="fas fa-search"></i>
-            <input type="text" id="actionHistorySearchInput" placeholder="Tìm theo thời gian (VD: 12/9/2025 hoặc 15:30)">
+            <input type="text" id="actionHistorySearchInput" placeholder="Tìm kiếm theo thời gian (VD: 00:17:07 21/09/2025, 00:17 21/09/2025, 21/09/2025)">
             <button id="actionHistoryClearSearch" class="clear-btn" style="display:none;"><i class="fas fa-times"></i></button>
           </div>
         </div>
@@ -88,10 +111,10 @@ class ActionHistoryTable {
         card.appendChild(searchControls);
         card.appendChild(tableContainer);
 
-        const pagination = document.createElement("div");
-        pagination.className = "table-pagination";
-        pagination.id = "actionTablePagination";
-        pagination.innerHTML = `
+        const paginationElement = document.createElement("div");
+        paginationElement.className = "table-pagination";
+        paginationElement.id = "actionTablePagination";
+        paginationElement.innerHTML = `
       <div class="pagination-info">
         <span id="actionPaginationInfo">Hiển thị 0 - 0 của 0 bản ghi</span>
       </div>
@@ -108,7 +131,7 @@ class ActionHistoryTable {
       </div>
     `;
 
-        card.appendChild(pagination);
+        card.appendChild(paginationElement);
 
         container.appendChild(card);
     }
@@ -116,13 +139,10 @@ class ActionHistoryTable {
     _createRow(item) {
         const tr = document.createElement("tr");
 
-        // highlight match rows
-        if (this.hasSearchMatch(item)) {
-            tr.classList.add("search-match");
-        }
+        // No frontend search matching - backend handles all search
 
         const ledTd = document.createElement("td");
-        ledTd.innerHTML = this.highlightText(item.led || "", "device");
+        ledTd.textContent = item.led || "";
 
         const stateTd = document.createElement("td");
         // render a small colored badge for ON/OFF states and fallback text for others
@@ -158,7 +178,7 @@ class ActionHistoryTable {
                 ts = item.timestamp;
             }
         }
-        tsTd.innerHTML = this.highlightText(ts, "time");
+        tsTd.textContent = ts;
 
         tr.appendChild(ledTd);
         tr.appendChild(stateTd);
@@ -167,19 +187,35 @@ class ActionHistoryTable {
         return tr;
     }
 
-    updateData(newItems, container) {
+    updateData(
+        newItems,
+        paginationData = {},
+        filters = {},
+        sort = {},
+        container
+    ) {
         const normalized = Array.isArray(newItems) ? newItems : [];
         if (JSON.stringify(normalized) === JSON.stringify(this.currentItems)) {
             return; // nothing changed
         }
 
         this.currentItems = normalized;
+        this.pagination = paginationData;
+        this.filters = filters;
+        this.sort = sort;
 
         // preserve scroll
         const oldScroll = window.pageYOffset;
 
         const tbody = container.querySelector("#actionHistoryTableBody");
-        if (!tbody) return this.render(container, this.currentItems);
+        if (!tbody)
+            return this.render(
+                container,
+                this.currentItems,
+                paginationData,
+                filters,
+                sort
+            );
 
         // clear and repopulate
         tbody.innerHTML = "";
@@ -190,44 +226,18 @@ class ActionHistoryTable {
         window.scrollTo(0, oldScroll);
     }
 
-    hasSearchMatch(item) {
-        if (!this.searchTerm) return false;
-        const searchLower = this.searchTerm.toLowerCase();
-        if (this.searchCriteria === "device") {
-            const device = (item.led || item.device || "")
-                .toString()
-                .toLowerCase();
-            return device.includes(searchLower);
-        }
-        // default: time
-        try {
-            const s = new Date(item.timestamp).toLocaleString("vi-VN");
-            return s.toLowerCase().includes(searchLower);
-        } catch (e) {
-            return String(item.timestamp || "")
-                .toLowerCase()
-                .includes(searchLower);
+    showLoading() {
+        const loadingElement = document.getElementById("actionTableLoading");
+        if (loadingElement) {
+            loadingElement.style.display = "flex";
         }
     }
 
-    highlightText(text, columnType) {
-        if (!this.searchTerm || !text) return text;
-        const shouldHighlight = this.searchCriteria === columnType;
-        if (!shouldHighlight) return text;
-        const searchLower = this.searchTerm.toLowerCase();
-        const textLower = text.toString().toLowerCase();
-        if (!textLower.includes(searchLower)) return text;
-        const regex = new RegExp(
-            `(${this.escapeRegex(this.searchTerm)})`,
-            "gi"
-        );
-        return text
-            .toString()
-            .replace(regex, '<mark class="search-highlight">$1</mark>');
-    }
-
-    escapeRegex(string) {
-        return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    hideLoading() {
+        const loadingElement = document.getElementById("actionTableLoading");
+        if (loadingElement) {
+            loadingElement.style.display = "none";
+        }
     }
 }
 

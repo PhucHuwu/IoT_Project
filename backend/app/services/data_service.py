@@ -4,6 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 from app.core.database import DatabaseManager
 from app.services.mqtt_service import MQTTManager
 from app.core.logger_config import logger
+from app.core.timezone_utils import get_current_vietnam_time
 
 
 class IoTMQTTReceiver:
@@ -27,7 +28,8 @@ class IoTMQTTReceiver:
 
     def process_action_status(self, status_data: Dict[str, Any]):
         try:
-            logger.info(f"process_action_status received at {datetime.utcnow().isoformat()}Z: {status_data}")
+            current_time = get_current_vietnam_time()
+            logger.info(f"process_action_status received at {current_time.isoformat()}: {status_data}")
             # Expecting status_data to include: type, led, state
             if not isinstance(status_data, dict):
                 logger.warning(f"Invalid status data type: {status_data}")
@@ -51,14 +53,14 @@ class IoTMQTTReceiver:
                 try:
                     res = self.db_manager.insert_action_history(record)
                     if res:
-                        logger.info(f"Action status stored successfully at {datetime.utcnow().isoformat()}Z: {res}")
+                        logger.info(f"Action status stored successfully at {get_current_vietnam_time().isoformat()}: {res}")
                     else:
-                        logger.error(f"Failed to store action status in database at {datetime.utcnow().isoformat()}Z")
+                        logger.error(f"Failed to store action status in database at {get_current_vietnam_time().isoformat()}")
                 except Exception as e:
-                    logger.error(f"Background write error at {datetime.utcnow().isoformat()}Z: {e}")
+                    logger.error(f"Background write error at {get_current_vietnam_time().isoformat()}: {e}")
 
             self._executor.submit(_write_action, action_record)
-            logger.info(f"Submitted action history write to background at {datetime.utcnow().isoformat()}Z")
+            logger.info(f"Submitted action history write to background at {current_time.isoformat()}")
 
         except Exception as e:
             logger.error(f"Error processing action status: {e}")
