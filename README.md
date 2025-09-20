@@ -17,10 +17,10 @@ This project implements a complete IoT monitoring system including:
 ┌─────────────────┐    MQTT     ┌─────────────────┐    HTTP     ┌─────────────────┐
 │   ESP32 Device  │ ──────────► │   Backend API   │ ◄────────── │   Frontend      │
 │                 │             │   (Flask)       │             │   (HTML/JS)     │
-│ - DHT11 Sensor  │             │                 │             │                 │
-│ - Light Sensor  │             │ - MQTT Client   │             │ - Real-time UI  │
-│ - LED Control   │             │ - REST API      │             │ - Charts        │
-│                 │             │ - MongoDB       │             │ - Data Tables   │
+│                 │             │                 │             │                 │
+│ - DHT11 Sensor  │             │ - MQTT Client   │             │ - Real-time UI  │
+│ - Light Sensor  │             │ - REST API      │             │ - Charts        │
+│ - LED Control   │             │ - MongoDB       │             │ - Data Tables   │
 └─────────────────┘             └─────────────────┘             └─────────────────┘
 ```
 
