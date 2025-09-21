@@ -167,7 +167,19 @@ def sensor_data_list():
                     data.sort(key=lambda x: x.get(sort_field, 0), reverse=reverse)
                 elif sort_field == 'timestamp':
                     reverse = sort_order == 'desc'
-                    data.sort(key=lambda x: x.get('timestamp', datetime.min), reverse=reverse)
+                    def get_timestamp_for_sort(x):
+                        ts = x.get('timestamp')
+                        if isinstance(ts, str):
+                            try:
+                                from dateutil import parser
+                                return parser.parse(ts)
+                            except:
+                                return datetime.min
+                        elif isinstance(ts, datetime):
+                            return ts
+                        else:
+                            return datetime.min
+                    data.sort(key=get_timestamp_for_sort, reverse=reverse)
 
                 if sample and sample > 1:
                     data = data[::sample]
@@ -230,7 +242,7 @@ def sensor_data_list():
                         data.sort(key=lambda x: x.get(sort_field, 0), reverse=reverse)
                     elif sort_field == 'timestamp':
                         reverse = sort_order == 'desc'
-                        data.sort(key=lambda x: x.get('timestamp', datetime.min), reverse=reverse)
+                        data.sort(key=lambda x: x.get('timestamp') or datetime.min, reverse=reverse)
 
                     if sample and sample > 1:
                         data = data[::sample]
@@ -282,7 +294,19 @@ def sensor_data_list():
                     data.sort(key=lambda x: x.get(sort_field, 0), reverse=reverse)
                 elif sort_field == 'timestamp':
                     reverse = sort_order == 'desc'
-                    data.sort(key=lambda x: x.get('timestamp', datetime.min), reverse=reverse)
+                    def get_timestamp_for_sort(x):
+                        ts = x.get('timestamp')
+                        if isinstance(ts, str):
+                            try:
+                                from dateutil import parser
+                                return parser.parse(ts)
+                            except:
+                                return datetime.min
+                        elif isinstance(ts, datetime):
+                            return ts
+                        else:
+                            return datetime.min
+                    data.sort(key=get_timestamp_for_sort, reverse=reverse)
 
                 if sample and sample > 1:
                     data = data[::sample]
@@ -323,7 +347,19 @@ def sensor_data_list():
                     data.sort(key=lambda x: x.get(sort_field, 0), reverse=reverse)
                 elif sort_field == 'timestamp':
                     reverse = sort_order == 'desc'
-                    data.sort(key=lambda x: x.get('timestamp', datetime.min), reverse=reverse)
+                    def get_timestamp_for_sort(x):
+                        ts = x.get('timestamp')
+                        if isinstance(ts, str):
+                            try:
+                                from dateutil import parser
+                                return parser.parse(ts)
+                            except:
+                                return datetime.min
+                        elif isinstance(ts, datetime):
+                            return ts
+                        else:
+                            return datetime.min
+                    data.sort(key=get_timestamp_for_sort, reverse=reverse)
 
                 if sample and sample > 1:
                     data = data[::sample]
@@ -454,21 +490,69 @@ def chart_data():
             end_time = selected_date_local.replace(hour=23, minute=59, second=59, microsecond=999999)
 
             data = db.search_by_time_range_optimized(start_time, end_time)
-            data.sort(key=lambda x: x.get('timestamp', datetime.min))
+            def get_timestamp_for_sort(x):
+                ts = x.get('timestamp')
+                if isinstance(ts, str):
+                    try:
+                        from dateutil import parser
+                        return parser.parse(ts)
+                    except:
+                        return datetime.min
+                elif isinstance(ts, datetime):
+                    return ts
+                else:
+                    return datetime.min
+            data.sort(key=get_timestamp_for_sort)
 
             if not is_all_data and limit and len(data) > limit:
                 data = data[-limit:]
 
         except ValueError:
             data = db.get_recent_data(limit=limit)
-            data.sort(key=lambda x: x.get('timestamp', datetime.min))
+            def get_timestamp_for_sort(x):
+                ts = x.get('timestamp')
+                if isinstance(ts, str):
+                    try:
+                        from dateutil import parser
+                        return parser.parse(ts)
+                    except:
+                        return datetime.min
+                elif isinstance(ts, datetime):
+                    return ts
+                else:
+                    return datetime.min
+            data.sort(key=get_timestamp_for_sort)
     else:
         if is_all_data:
             data = db.get_recent_data(limit=None)
-            data.sort(key=lambda x: x.get('timestamp', datetime.min))
+            def get_timestamp_for_sort(x):
+                ts = x.get('timestamp')
+                if isinstance(ts, str):
+                    try:
+                        from dateutil import parser
+                        return parser.parse(ts)
+                    except:
+                        return datetime.min
+                elif isinstance(ts, datetime):
+                    return ts
+                else:
+                    return datetime.min
+            data.sort(key=get_timestamp_for_sort)
         else:
             data = db.get_recent_data(limit=limit)
-            data.sort(key=lambda x: x.get('timestamp', datetime.min))
+            def get_timestamp_for_sort(x):
+                ts = x.get('timestamp')
+                if isinstance(ts, str):
+                    try:
+                        from dateutil import parser
+                        return parser.parse(ts)
+                    except:
+                        return datetime.min
+                elif isinstance(ts, datetime):
+                    return ts
+                else:
+                    return datetime.min
+            data.sort(key=get_timestamp_for_sort)
 
     logger.info(f"Chart data request - date_str: {date_str}, time_period: {time_period}, limit: {limit_arg}")
     logger.info(f"Mode: {'Historical' if date_str else 'Realtime'}, All Data: {is_all_data}")
@@ -532,7 +616,7 @@ def led_status():
 
                 if led_id in led_states:
                     current_timestamp = led_states.get(f'{led_id}_timestamp')
-                    if not current_timestamp or (timestamp and timestamp > current_timestamp):
+                    if not current_timestamp or (timestamp and isinstance(timestamp, datetime) and isinstance(current_timestamp, datetime) and timestamp > current_timestamp):
                         led_states[led_id] = state
                         led_states[f'{led_id}_timestamp'] = timestamp
 

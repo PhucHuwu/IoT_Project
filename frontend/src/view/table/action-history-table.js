@@ -138,7 +138,6 @@ class ActionHistoryTable {
     _createRow(item) {
         const tr = document.createElement("tr");
 
-
         const ledTd = document.createElement("td");
         ledTd.textContent = item.led || "";
 
