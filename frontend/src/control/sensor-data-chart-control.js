@@ -46,7 +46,6 @@ class SensorDataChartController {
                 this.dataLimit = e.target.value;
                 console.log("Data limit changed to:", this.dataLimit);
                 this.loadChart();
-                // Cập nhật auto refresh interval khi thay đổi data limit
                 this.checkAndUpdateAutoRefresh();
             });
         }
@@ -57,7 +56,7 @@ class SensorDataChartController {
                 console.log("Selected date changed to:", this.selectedDate);
                 this.stopAutoRefresh();
                 this.loadChart();
-                this.startAutoRefresh(); // Sẽ tự động kiểm tra xem có nên bật realtime hay không
+                this.startAutoRefresh();
             });
         }
     }
@@ -99,7 +98,6 @@ class SensorDataChartController {
             console.log("Debug - isToday:", this.selectedDate === today);
             console.log("Debug - dataLimit:", this.dataLimit);
 
-            // Nếu chọn "Tất cả dữ liệu", luôn lấy theo ngày (từ 00:00h đến 23:59h)
             if (this.dataLimit === "all") {
                 console.log(
                     "Getting ALL data for date:",
@@ -129,7 +127,6 @@ class SensorDataChartController {
                     throw new Error("Không có dữ liệu từ API");
                 }
             }
-            // Nếu đang xem ngày hiện tại và có limit cụ thể, lấy dữ liệu gần nhất (realtime)
             else if (this.selectedDate === today) {
                 console.log(
                     "Getting realtime data with limit:",
@@ -152,7 +149,6 @@ class SensorDataChartController {
                     throw new Error("Không có dữ liệu từ API");
                 }
             } else {
-                // Nếu xem ngày khác và có limit cụ thể, lấy dữ liệu theo ngày cụ thể
                 console.log(
                     "Getting historical data for date:",
                     this.selectedDate,
@@ -197,7 +193,6 @@ class SensorDataChartController {
         if (this.isLoading) return;
 
         try {
-            // Kiểm tra xem có cần cập nhật auto refresh không
             this.checkAndUpdateAutoRefresh();
 
             const data = await this.getSensorData();
@@ -217,18 +212,15 @@ class SensorDataChartController {
 
     startAutoRefresh() {
         const today = this.getLocalDateString();
-        // Chỉ auto refresh khi xem ngày hiện tại
         if (this.selectedDate === today) {
             let refreshInterval = 0;
 
             if (this.dataLimit === "all") {
-                // "Tất cả dữ liệu" - refresh mỗi 10 giây
                 refreshInterval = 10000;
                 console.log(
                     "Starting auto refresh for ALL data (10s interval)..."
                 );
             } else {
-                // "Dữ liệu gần nhất" - refresh mỗi 1 giây
                 refreshInterval = 1000;
                 console.log(
                     "Starting auto refresh for recent data (1s interval)..."
@@ -267,7 +259,6 @@ class SensorDataChartController {
             console.log("Switching to realtime mode - starting auto refresh");
             this.startAutoRefresh();
         } else if (isToday && this.refreshInterval) {
-            // Đang xem ngày hiện tại và có refresh interval, kiểm tra xem có cần thay đổi interval không
             console.log("Updating auto refresh interval for current mode");
             this.stopAutoRefresh();
             this.startAutoRefresh();

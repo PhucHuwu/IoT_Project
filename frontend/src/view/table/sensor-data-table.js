@@ -92,10 +92,8 @@ class SensorDataTable {
             const field = fieldMap[idx];
             if (!field) return;
 
-            // Reset all headers
             th.textContent = th.textContent.replace(/ ↑| ↓/, "");
 
-            // Add sort indicator if this is the current sort field
             if (field === this.sortData.field) {
                 const indicator = this.sortData.order === "asc" ? " ↑" : " ↓";
                 th.textContent += indicator;
@@ -169,7 +167,6 @@ class SensorDataTable {
 
         if (pageNum && !isDisabled) {
             button.addEventListener("click", () => {
-                // Emit custom event for page change
                 this.container.dispatchEvent(
                     new CustomEvent("pageChange", {
                         detail: { page: pageNum },
@@ -267,7 +264,6 @@ class SensorDataTable {
     }
 
     destroy() {
-        // Clean up event listeners if any
         if (this.container) {
             this.container.removeEventListener(
                 "pageChange",

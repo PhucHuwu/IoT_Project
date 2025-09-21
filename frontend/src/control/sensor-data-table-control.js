@@ -8,7 +8,6 @@ class SensorDataTableController {
         this.refreshInterval = null;
         this.updateIndicator = new UpdateIndicator();
 
-        // CRUD state - managed by backend
         this.currentPage = 1;
         this.itemsPerPage = 10;
         this.searchTerm = "";
@@ -27,11 +26,9 @@ class SensorDataTableController {
     }
 
     setupEventListeners() {
-        // Page size change
         const pageSize = document.getElementById("tablePageSize");
 
         if (pageSize) {
-            // Set initial value
             pageSize.value = this.itemsPerPage;
 
             pageSize.addEventListener("change", (e) => {
@@ -42,12 +39,11 @@ class SensorDataTableController {
                     this.currentPage = 1;
                     this.loadData();
                 } else {
-                    e.target.value = this.itemsPerPage; // Reset to current value
+                    e.target.value = this.itemsPerPage;
                 }
             });
         }
 
-        // Search input
         const searchInput = document.getElementById("tableSearchInput");
         const clearSearch = document.getElementById("clearSearch");
         const searchCriteria = document.getElementById("searchCriteria");
@@ -70,7 +66,6 @@ class SensorDataTableController {
                         ? "block"
                         : "none";
                 }
-                // Debounce search
                 clearTimeout(this.searchTimeout);
                 this.searchTimeout = setTimeout(() => {
                     this.currentPage = 1;
@@ -97,7 +92,6 @@ class SensorDataTableController {
             });
         }
 
-        // Export CSV
         const exportCSV = document.getElementById("exportCSV");
         if (exportCSV) {
             exportCSV.addEventListener("click", () => {
@@ -105,7 +99,6 @@ class SensorDataTableController {
             });
         }
 
-        // Manual refresh
         const manualRefresh = document.getElementById("manualRefresh");
         if (manualRefresh) {
             manualRefresh.addEventListener("click", () => {
@@ -113,7 +106,6 @@ class SensorDataTableController {
             });
         }
 
-        // Pagination controls
         const prevPage = document.getElementById("prevPage");
         const nextPage = document.getElementById("nextPage");
 
@@ -133,7 +125,6 @@ class SensorDataTableController {
             });
         }
 
-        // Table header clicks for sorting
         if (this.table.container) {
             const ths = this.table.container.querySelectorAll("thead th");
             const fieldMap = ["timestamp", "temperature", "light", "humidity"];
@@ -148,7 +139,6 @@ class SensorDataTableController {
                 });
             });
 
-            // Listen for page change events from table
             this.table.container.addEventListener("pageChange", (e) => {
                 this.currentPage = e.detail.page;
                 this.loadData();
@@ -173,10 +163,8 @@ class SensorDataTableController {
 
     handleSort(field) {
         if (this.sortField === field) {
-            // Toggle sort order if same field
             this.sortOrder = this.sortOrder === "asc" ? "desc" : "asc";
         } else {
-            // New field, default to desc
             this.sortField = field;
             this.sortOrder = "desc";
         }
@@ -190,7 +178,6 @@ class SensorDataTableController {
                 this.table.showLoading();
             }
 
-            // Prepare CRUD parameters for backend
             const crudParams = {
                 page: this.currentPage,
                 per_page: this.itemsPerPage,
@@ -201,10 +188,10 @@ class SensorDataTableController {
             };
 
             const response = await SensorDataService.getSensorDataList(
-                "all", // limit
-                null, // timePeriod
-                null, // filters
-                10, // sample - lấy mẫu 1:10 để giảm tải dữ liệu
+                "all",
+                null,
+                null,
+                10,
                 crudParams
             );
 
@@ -251,7 +238,6 @@ class SensorDataTableController {
 
     async refreshDataSilently() {
         try {
-            // Only refresh if we're on page 1 and no search/filter active
             if (
                 this.currentPage === 1 &&
                 !this.searchTerm &&
@@ -259,7 +245,7 @@ class SensorDataTableController {
             ) {
                 const crudParams = {
                     page: 1,
-                    per_page: 3, // Get fewer records for silent refresh
+                    per_page: 3,
                     sort_field: this.sortField,
                     sort_order: this.sortOrder,
                     search: "",
@@ -270,7 +256,7 @@ class SensorDataTableController {
                     "all",
                     null,
                     null,
-                    10, // sample - lấy mẫu 1:10 để giảm tải dữ liệu
+                    10,
                     crudParams
                 );
 
@@ -281,7 +267,6 @@ class SensorDataTableController {
                         JSON.stringify(response.data)
                     ) {
                         this.updateIndicator.show();
-                        // Only update if user is not actively searching/filtering
                         if (!this.searchTerm && this.searchCriteria === "all") {
                             this.loadData(false);
                         }

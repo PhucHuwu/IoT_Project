@@ -19,7 +19,6 @@ class SensorDataChart {
         const chartData = this.prepareChartData(data, sensorType);
         console.log("Prepared chart data:", chartData);
 
-        // Nếu biểu đồ chưa tồn tại hoặc sensorType thay đổi, tạo mới
         if (!this.sensorChart || this.currentSensorType !== sensorType) {
             if (this.sensorChart) {
                 this.sensorChart.destroy();
@@ -32,7 +31,6 @@ class SensorDataChart {
                 this.createSingleChart(ctx, chartData, sensorType);
             }
         } else {
-            // Chỉ cập nhật dữ liệu, không tạo lại biểu đồ
             this.updateChartData(chartData, sensorType);
         }
     }
@@ -40,20 +38,16 @@ class SensorDataChart {
     updateChartData(chartData, sensorType) {
         if (!this.sensorChart) return;
 
-        // Cập nhật labels
         this.sensorChart.data.labels = chartData.labels;
 
         if (sensorType === "all") {
-            // Cập nhật dữ liệu cho combined chart
             this.sensorChart.data.datasets[0].data = chartData.temperature;
             this.sensorChart.data.datasets[1].data = chartData.humidity;
             this.sensorChart.data.datasets[2].data = chartData.light;
         } else {
-            // Cập nhật dữ liệu cho single chart
             this.sensorChart.data.datasets[0].data = chartData.values;
         }
 
-        // Cập nhật biểu đồ với animation mượt mà
         this.sensorChart.update("active");
     }
 
@@ -62,7 +56,6 @@ class SensorDataChart {
             return { labels: [], temperature: [], humidity: [], light: [] };
         }
 
-        // Đảm bảo dữ liệu được sắp xếp theo thời gian tăng dần (cũ nhất trước, mới nhất sau)
         const sortedData = [...data].sort((a, b) => {
             const timeA = new Date(a.timestamp).getTime();
             const timeB = new Date(b.timestamp).getTime();

@@ -1,4 +1,3 @@
-// Avatar update functionality
 let selectedAvatarType = null;
 let selectedAvatarData = null;
 
@@ -6,7 +5,6 @@ function openAvatarModal() {
     document.getElementById("avatarModal").style.display = "flex";
     document.body.style.overflow = "hidden";
 
-    // Reset modal state
     document.getElementById("newAvatarSection").style.display = "none";
     document.getElementById("updateBtn").disabled = true;
     selectedAvatarType = null;
@@ -25,13 +23,11 @@ function triggerFileInput() {
 function previewAvatar(event) {
     const file = event.target.files[0];
     if (file) {
-        // Check file size (5MB limit)
         if (file.size > 5 * 1024 * 1024) {
             alert("Kích thước file quá lớn. Vui lòng chọn file nhỏ hơn 5MB.");
             return;
         }
 
-        // Check file type
         if (!file.type.match("image.*")) {
             alert("Vui lòng chọn file ảnh hợp lệ.");
             return;
@@ -57,12 +53,10 @@ function previewAvatar(event) {
 }
 
 function selectPresetAvatar(avatar) {
-    // Remove active class from all preset avatars
     document.querySelectorAll(".preset-avatar").forEach((el) => {
         el.classList.remove("active");
     });
 
-    // Add active class to selected avatar
     event.target.classList.add("active");
 
     const newAvatarPreview = document.getElementById("newAvatarPreview");
@@ -83,11 +77,9 @@ function updateAvatar() {
         return;
     }
 
-    // Sử dụng AvatarManager để cập nhật avatar
     if (window.avatarManager) {
         window.avatarManager.saveAvatar(selectedAvatarType, selectedAvatarData);
     } else {
-        // Fallback nếu AvatarManager chưa load
         if (selectedAvatarType === "image") {
             localStorage.setItem("userAvatarType", "image");
             localStorage.setItem("userAvatarData", selectedAvatarData);
@@ -96,7 +88,6 @@ function updateAvatar() {
             localStorage.setItem("userAvatarData", selectedAvatarData);
         }
 
-        // Manual update cho trang hiện tại (kiểm tra tồn tại phần tử trước khi thao tác)
         const profileAvatar = document.getElementById("profileAvatar");
         const headerAvatar = document.querySelector(".header-right .avatar");
 
@@ -129,10 +120,8 @@ function updateAvatar() {
         }
     }
 
-    // Show success message
     showNotification("Cập nhật ảnh đại diện thành công!", "success");
 
-    // Close modal
     closeAvatarModal();
 }
 
@@ -148,12 +137,10 @@ function showNotification(message, type = "info") {
 
     document.body.appendChild(notification);
 
-    // Show notification
     setTimeout(() => {
         notification.classList.add("show");
     }, 100);
 
-    // Hide notification after 3 seconds
     setTimeout(() => {
         notification.classList.remove("show");
         setTimeout(() => {
@@ -162,14 +149,10 @@ function showNotification(message, type = "info") {
     }, 3000);
 }
 
-// Load saved avatar on page load
 function loadSavedAvatar() {
-    // AvatarManager sẽ tự động load avatar, không cần function này nữa
-    // Tuy nhiên giữ lại để backward compatibility
     if (window.avatarManager) {
         window.avatarManager.loadSavedAvatar();
     } else {
-        // Fallback code
         const avatarType = localStorage.getItem("userAvatarType");
         const avatarData = localStorage.getItem("userAvatarData");
 
@@ -208,12 +191,10 @@ function loadSavedAvatar() {
     }
 }
 
-// Initialize avatar on page load
 document.addEventListener("DOMContentLoaded", function () {
     loadSavedAvatar();
 });
 
-// Close modal when clicking outside (only if modal exists on the page)
 const _avatarModal = document.getElementById("avatarModal");
 if (_avatarModal) {
     _avatarModal.addEventListener("click", function (e) {
@@ -222,8 +203,6 @@ if (_avatarModal) {
         }
     });
 }
-
-// Drag & drop support removed: keep click-to-upload (file input) only
 
 class AvatarManager {
     constructor() {

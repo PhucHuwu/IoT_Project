@@ -531,7 +531,6 @@ body {
     transform: translateX(20px);
 }
 
-/* Status classes used by JavaScript */
 .status-normal {
     color: #34c759 !important;
 }
@@ -770,7 +769,6 @@ body {
     line-height: var(--line-height-normal);
 }
 
-/* Data table section on sensor-data page */
 .data-table-section {
     display: flex;
     flex-direction: column;
@@ -809,7 +807,6 @@ body {
     box-sizing: border-box;
 }
 
-/* Ensure action-history container fills available content height */
 .action-history-page #action-history-container {
     display: flex;
     flex-direction: column;
@@ -817,7 +814,6 @@ body {
     min-height: 0;
 }
 
-/* Styles for action-history table inside .table-container (matches sensor-data-table behavior) */
 .table-container .action-history-table {
     width: 100%;
     border-collapse: collapse;
@@ -1419,7 +1415,6 @@ body {
     position: relative;
     width: 100%;
     flex: 1;
-    /* ensure search inputs don't shrink below 300px */
     min-width: 300px;
 }
 
@@ -1866,7 +1861,6 @@ mark {
     box-shadow: 0 1px 3px rgba(255, 193, 7, 0.3);
 }
 
-/* Keyframe animations */
 @keyframes pulse {
     0% {
         transform: scale(1);

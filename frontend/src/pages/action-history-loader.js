@@ -8,9 +8,7 @@ class ActionHistoryLoader {
 
   async load(limit = 50) {
     await this.tableControl.load(limit);
-    // start auto refresh (30s)
     this.tableControl.startAutoRefresh(30000, limit);
-    // stop auto refresh when page unloads
     window.addEventListener("beforeunload", () => this.tableControl.destroy());
   }
 }

@@ -86,7 +86,6 @@ class LEDController {
                     `${ledId} đã ${newAction === "ON" ? "bật" : "tắt"}`
                 );
 
-                // Đợi một chút để hardware xử lý và gửi ack
                 setTimeout(() => {
                     this.loadLEDStatesFromBackend();
                 }, 2000);
@@ -106,7 +105,6 @@ class LEDController {
 
     async loadLEDStatesFromBackend() {
         try {
-            // Sử dụng API trạng thái LED mới
             const statusResult = await SensorDataService.getLEDStatus();
 
             if (
@@ -120,7 +118,6 @@ class LEDController {
 
             const ledStatuses = statusResult.data;
 
-            // Cập nhật trạng thái cho từng LED
             Object.keys(this.ledStates).forEach((ledId) => {
                 const state = ledStatuses[ledId];
                 let isOn = false;
@@ -132,7 +129,6 @@ class LEDController {
 
                 this.ledStates[ledId] = !!isOn;
 
-                // Cập nhật UI
                 const normalizedLower = ledId.toLowerCase();
                 const card =
                     document.querySelector(`.sensor-card.${normalizedLower}`) ||
@@ -172,7 +168,6 @@ class LEDController {
                 try {
                     item.element.removeEventListener(item.type, item.handler);
                 } catch (e) {
-                    // ignore
                 }
             });
         }

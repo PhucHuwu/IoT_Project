@@ -77,7 +77,6 @@ class SensorCardView {
                     `Temperature: ${value}°C -> ${statusInfo.status} (${statusInfo.color_class})`
                 );
             } else {
-                // Fallback logic nếu không có thông tin từ backend
                 if (value < 15) {
                     temperatureCard.classList.add("status-warning");
                 } else if (value > 35) {
@@ -106,7 +105,6 @@ class SensorCardView {
                     `Light: ${value}% -> ${statusInfo.status} (${statusInfo.color_class})`
                 );
             } else {
-                // Fallback logic nếu không có thông tin từ backend
                 if (value < 30) {
                     lightCard.classList.add("status-warning");
                 } else {
@@ -133,7 +131,6 @@ class SensorCardView {
                     `Humidity: ${value}% -> ${statusInfo.status} (${statusInfo.color_class})`
                 );
             } else {
-                // Fallback logic nếu không có thông tin từ backend
                 if (value < 30 || value > 80) {
                     humidityCard.classList.add("status-warning");
                 } else if (value > 90) {
@@ -179,7 +176,6 @@ class SensorCardView {
 
         if (data.sensor_statuses) {
             console.log("Using backend status data:", data.sensor_statuses);
-            // Cập nhật nhiệt độ với thông tin trạng thái từ backend
             if (data.temperature !== undefined) {
                 this.updateTemperatureCard(data.temperature);
                 this.updateTemperatureStatus(
@@ -188,7 +184,6 @@ class SensorCardView {
                 );
             }
 
-            // Cập nhật độ ẩm với thông tin trạng thái từ backend
             if (data.humidity !== undefined) {
                 this.updateHumidityCard(data.humidity);
                 this.updateHumidityStatus(
@@ -197,7 +192,6 @@ class SensorCardView {
                 );
             }
 
-            // Cập nhật ánh sáng với thông tin trạng thái từ backend
             if (data.light !== undefined) {
                 this.updateLightCard(data.light);
                 this.updateLightStatus(data.light, data.sensor_statuses.light);
@@ -205,7 +199,6 @@ class SensorCardView {
         } else {
             console.log("No sensor_statuses, using fallback logic");
 
-            // Fallback nếu không có thông tin trạng thái từ backend
             if (data.temperature !== undefined) {
                 this.updateTemperatureCard(data.temperature);
                 this.updateTemperatureStatus(data.temperature);

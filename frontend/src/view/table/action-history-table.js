@@ -41,7 +41,6 @@ class ActionHistoryTable {
         const tableContainer = document.createElement("div");
         tableContainer.className = "table-container";
 
-        // Create loading element (same as sensor-data)
         const loadingElement = document.createElement("div");
         loadingElement.className = "table-loading";
         loadingElement.id = "actionTableLoading";
@@ -139,13 +138,11 @@ class ActionHistoryTable {
     _createRow(item) {
         const tr = document.createElement("tr");
 
-        // No frontend search matching - backend handles all search
 
         const ledTd = document.createElement("td");
         ledTd.textContent = item.led || "";
 
         const stateTd = document.createElement("td");
-        // render a small colored badge for ON/OFF states and fallback text for others
         const stateValue = (item.state || "").toString().toLowerCase();
         const badge = document.createElement("span");
         badge.className = "status-badge";
@@ -196,7 +193,7 @@ class ActionHistoryTable {
     ) {
         const normalized = Array.isArray(newItems) ? newItems : [];
         if (JSON.stringify(normalized) === JSON.stringify(this.currentItems)) {
-            return; // nothing changed
+            return;
         }
 
         this.currentItems = normalized;
@@ -204,7 +201,6 @@ class ActionHistoryTable {
         this.filters = filters;
         this.sort = sort;
 
-        // preserve scroll
         const oldScroll = window.pageYOffset;
 
         const tbody = container.querySelector("#actionHistoryTableBody");
@@ -217,7 +213,6 @@ class ActionHistoryTable {
                 sort
             );
 
-        // clear and repopulate
         tbody.innerHTML = "";
         this.currentItems.forEach((item) => {
             tbody.appendChild(this._createRow(item));

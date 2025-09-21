@@ -9,7 +9,6 @@ class ActionHistoryTableControl {
         this.updateIndicator = new UpdateIndicator();
         this.refreshInterval = null;
 
-        // CRUD state - managed by backend
         this.currentPage = 1;
         this.itemsPerPage = 10;
         this.searchTerm = "";
@@ -17,7 +16,7 @@ class ActionHistoryTableControl {
         this.selectedState = "all";
         this.sortField = "timestamp";
         this.sortOrder = "desc";
-        this.allDevices = new Set(); // Lưu trữ tất cả devices
+        this.allDevices = new Set();
 
         this.searchListenersAttached = false;
         this.controlListenersAttached = false;
@@ -30,10 +29,8 @@ class ActionHistoryTableControl {
 
     async load(limit = 50) {
         try {
-            // Show loading state using table view method (same as sensor-data)
             this.tableView.showLoading();
 
-            // Prepare CRUD parameters for backend
             const crudParams = {
                 page: this.currentPage,
                 per_page: this.itemsPerPage,
@@ -49,7 +46,6 @@ class ActionHistoryTableControl {
                 crudParams
             );
 
-            // Hide loading state using table view method
             this.tableView.hideLoading();
 
             if (result && result.status === "success") {
@@ -83,8 +79,6 @@ class ActionHistoryTableControl {
 
     async refreshSilently(limit = 50) {
         try {
-            // Only refresh if we're on page 1 and no search/filters active
-            // This prevents disrupting user's search/filter state
             if (
                 this.currentPage === 1 &&
                 !this.searchTerm &&
@@ -126,14 +120,12 @@ class ActionHistoryTableControl {
                     }
                 }
             }
-            // If user has active search/filters, don't auto-refresh to preserve their state
         } catch (err) {
             console.error("Lỗi khi refresh lịch sử hành động:", err);
         }
     }
 
     updateAllDevices(items) {
-        // Cập nhật danh sách tất cả devices từ dữ liệu mới
         items.forEach((item) => {
             const device = (item.led || item.device || "").toString();
             if (device) this.allDevices.add(device);
@@ -144,12 +136,10 @@ class ActionHistoryTableControl {
         const select = this.container.querySelector("#actionFilterDevice");
         if (!select) return;
 
-        // Cập nhật danh sách tất cả devices
         const oldDeviceCount = this.allDevices.size;
         this.updateAllDevices(items);
         const newDeviceCount = this.allDevices.size;
 
-        // Chỉ tạo lại dropdown nếu chưa có options hoặc có device mới
         if (select.children.length <= 1 || newDeviceCount > oldDeviceCount) {
             this.renderDeviceFilter();
         }
@@ -159,16 +149,13 @@ class ActionHistoryTableControl {
         const select = this.container.querySelector("#actionFilterDevice");
         if (!select) return;
 
-        // Clear current options and add default 'all' option
         select.innerHTML = "";
         const defaultOpt = document.createElement("option");
         defaultOpt.value = "all";
         defaultOpt.textContent = "Tất cả";
         select.appendChild(defaultOpt);
 
-        // Sort devices and append options từ allDevices
         const sortedDevices = Array.from(this.allDevices).sort((a, b) => {
-            // Extract number from device name (e.g., "LED1" -> 1, "LED2" -> 2)
             const getDeviceNumber = (deviceName) => {
                 const match = deviceName.match(/(\d+)/);
                 return match ? parseInt(match[1]) : 999;
@@ -177,7 +164,6 @@ class ActionHistoryTableControl {
             const numA = getDeviceNumber(a);
             const numB = getDeviceNumber(b);
 
-            // Sort by number first, then by name
             if (numA !== numB) {
                 return numA - numB;
             }
@@ -191,7 +177,6 @@ class ActionHistoryTableControl {
             select.appendChild(opt);
         });
 
-        // Khôi phục giá trị đã chọn
         select.value = this.selectedDevice || "all";
     }
 
@@ -304,10 +289,8 @@ class ActionHistoryTableControl {
             return;
         }
 
-        // Always time-based search
         this._updateSearchPlaceholder("time");
 
-        // Restore search input value and clear button state
         if (this.searchTerm) {
             input.value = this.searchTerm;
             if (clearBtn) clearBtn.style.display = "block";
@@ -318,7 +301,6 @@ class ActionHistoryTableControl {
             this.searchTerm = value;
             if (clearBtn) clearBtn.style.display = value ? "block" : "none";
 
-            // Debounce search
             clearTimeout(this.searchTimeout);
             this.searchTimeout = setTimeout(() => {
                 this.currentPage = 1;
@@ -370,7 +352,6 @@ class ActionHistoryTableControl {
         const nextBtn = this.container.querySelector("#actionNextPage");
 
         if (pageSize) {
-            // Set initial value
             pageSize.value = String(this.itemsPerPage);
 
             pageSize.addEventListener("change", async (e) => {
@@ -380,7 +361,7 @@ class ActionHistoryTableControl {
                     this.currentPage = 1;
                     await this.load(this.itemsPerPage);
                 } else {
-                    e.target.value = this.itemsPerPage; // Reset to current value
+                    e.target.value = this.itemsPerPage;
                 }
             });
         }
@@ -477,8 +458,6 @@ class ActionHistoryTableControl {
     }
 
     showError(message) {
-        // Simple error handling - just log for now
-        // Could be enhanced with a toast notification or modal
         console.error("Action History Error:", message);
     }
 

@@ -29,7 +29,6 @@ class SensorDataService {
 
             let url = `${API_BASE_URL}/sensor-data-list?limit=${limitParam}&sample=${sample}`;
 
-            // Add CRUD parameters
             if (crudParams.page) url += `&page=${crudParams.page}`;
             if (crudParams.per_page) url += `&per_page=${crudParams.per_page}`;
             if (crudParams.sort_field)
@@ -77,7 +76,6 @@ class SensorDataService {
         try {
             console.log("Getting chart data with limit:", limit);
 
-            // Chuyển đổi limit thành số nếu cần
             let limitParam = limit;
             if (typeof limit === "string" && limit !== "all") {
                 limitParam = parseInt(limit);
@@ -193,7 +191,6 @@ class SensorDataService {
         try {
             let url = `${API_BASE_URL}/action-history?limit=${limit}`;
 
-            // Add CRUD parameters
             if (crudParams.page) url += `&page=${crudParams.page}`;
             if (crudParams.per_page) url += `&per_page=${crudParams.per_page}`;
             if (crudParams.sort_field)

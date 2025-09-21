@@ -46,7 +46,6 @@ class SensorCardController {
     }
 
     updateSensorCards(data) {
-        // Kiểm tra xem có dữ liệu mới không
         const hasNewData =
             data.temperature !== this.lastData.temperature ||
             data.light !== this.lastData.light ||
@@ -56,10 +55,8 @@ class SensorCardController {
                     JSON.stringify(this.lastData.sensor_statuses));
 
         if (hasNewData) {
-            // Sử dụng method mới để cập nhật với thông tin trạng thái từ backend
             this.view.updateFromBackendData(data);
 
-            // Cập nhật lastData
             this.lastData = {
                 temperature: data.temperature,
                 light: data.light,

@@ -150,7 +150,6 @@ class HomePageChart {
             return { labels: [], values: [] };
         }
 
-        // Data should already be sorted by backend
         const labels = data.map((item) => {
             const date = new Date(item.timestamp);
             return date.toLocaleTimeString("vi-VN", {
