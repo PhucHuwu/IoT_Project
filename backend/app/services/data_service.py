@@ -30,12 +30,10 @@ class IoTMQTTReceiver:
         try:
             current_time = get_current_vietnam_time()
             logger.info(f"process_action_status received at {current_time.isoformat()}: {status_data}")
-            # Expecting status_data to include: type, led, state
             if not isinstance(status_data, dict):
                 logger.warning(f"Invalid status data type: {status_data}")
                 return
 
-            # Minimal validation
             led = status_data.get('led')
             state = status_data.get('state')
             if not led or not state:
@@ -48,7 +46,6 @@ class IoTMQTTReceiver:
                 'state': state
             }
 
-            # Offload DB write to background thread to avoid blocking MQTT callback thread
             def _write_action(record):
                 try:
                     res = self.db_manager.insert_action_history(record)

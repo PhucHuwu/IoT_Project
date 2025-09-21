@@ -10,7 +10,6 @@ db = DatabaseManager()
 
 @nosql_bp.route("/search/text")
 def search_by_text():
-    """Tìm kiếm text trong dữ liệu sensor"""
     try:
         search_term = request.args.get('q', '')
         fields = request.args.get('fields', '').split(',') if request.args.get('fields') else None
@@ -22,13 +21,11 @@ def search_by_text():
                 "data": []
             }), 400
 
-        # Lọc bỏ các field rỗng
         if fields:
             fields = [f.strip() for f in fields if f.strip()]
 
         data = db.search_by_text(search_term, fields)
 
-        # Chuyển đổi _id thành string
         for doc in data:
             if '_id' in doc:
                 doc['_id'] = str(doc['_id'])
@@ -52,13 +49,11 @@ def search_by_text():
 
 @nosql_bp.route("/search/range")
 def search_by_range():
-    """Tìm kiếm theo khoảng giá trị số"""
     try:
         field = request.args.get('field', 'temperature')
         min_val = request.args.get('min', None)
         max_val = request.args.get('max', None)
 
-        # Validate field
         if field not in ['temperature', 'humidity', 'light']:
             return jsonify({
                 "status": "error",
@@ -66,7 +61,6 @@ def search_by_range():
                 "data": []
             }), 400
 
-        # Parse min/max values
         min_val = float(min_val) if min_val else None
         max_val = float(max_val) if max_val else None
 
@@ -79,7 +73,6 @@ def search_by_range():
 
         data = db.search_by_numeric_range(field, min_val, max_val)
 
-        # Chuyển đổi _id thành string
         for doc in data:
             if '_id' in doc:
                 doc['_id'] = str(doc['_id'])
@@ -110,11 +103,9 @@ def search_by_range():
 
 @nosql_bp.route("/search/multi-criteria", methods=['POST'])
 def search_by_multiple_criteria():
-    """Tìm kiếm theo nhiều tiêu chí kết hợp"""
     try:
         criteria = request.get_json() or {}
 
-        # Parse time range
         if 'start_date' in criteria and 'end_date' in criteria:
             try:
                 start_date = datetime.strptime(criteria['start_date'], '%Y-%m-%d')
@@ -135,7 +126,6 @@ def search_by_multiple_criteria():
 
         data = db.search_by_multiple_criteria(criteria)
 
-        # Chuyển đổi _id thành string
         for doc in data:
             if '_id' in doc:
                 doc['_id'] = str(doc['_id'])
@@ -158,13 +148,11 @@ def search_by_multiple_criteria():
 
 @nosql_bp.route("/aggregated")
 def get_aggregated_data():
-    """Lấy dữ liệu đã được tổng hợp"""
     try:
         group_by = request.args.get('group_by', 'hour')
         start_date = request.args.get('start_date', None)
         end_date = request.args.get('end_date', None)
 
-        # Validate group_by
         if group_by not in ['minute', 'hour', 'day']:
             return jsonify({
                 "status": "error",
@@ -217,7 +205,6 @@ def get_aggregated_data():
 
 @nosql_bp.route("/statistics")
 def get_statistics():
-    """Lấy thống kê tổng quan về dữ liệu"""
     try:
         start_date = request.args.get('start_date', None)
         end_date = request.args.get('end_date', None)
@@ -265,30 +252,25 @@ def get_statistics():
 
 @nosql_bp.route("/search/advanced", methods=['POST'])
 def advanced_search():
-    """Tìm kiếm nâng cao với nhiều tùy chọn"""
     try:
         search_params = request.get_json() or {}
 
-        # Parse parameters
         query = search_params.get('query', {})
         page = int(search_params.get('page', 1))
         per_page = int(search_params.get('per_page', 10))
         sort_field = search_params.get('sort_field', 'timestamp')
         sort_order = search_params.get('sort_order', 'desc')
 
-        # Validate pagination
         if page < 1:
             page = 1
         if per_page < 1 or per_page > 100:
             per_page = 10
 
-        # Validate sort
         if sort_order not in ['asc', 'desc']:
             sort_order = 'desc'
         if sort_field not in ['timestamp', 'temperature', 'humidity', 'light']:
             sort_field = 'timestamp'
 
-        # Process time range in query
         if 'start_time' in query and 'end_time' in query:
             try:
                 start_dt = datetime.fromisoformat(query['start_time'].replace('Z', '+00:00'))
@@ -300,7 +282,6 @@ def advanced_search():
 
         result = db.search_with_pagination_optimized(query, page, per_page, sort_field, sort_order)
 
-        # Chuyển đổi _id thành string
         for doc in result['data']:
             if '_id' in doc:
                 doc['_id'] = str(doc['_id'])

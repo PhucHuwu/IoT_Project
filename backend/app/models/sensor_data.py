@@ -15,7 +15,6 @@ class SensorData:
         self.additional_data = kwargs
 
     def to_dict(self) -> Dict[str, Any]:
-        # Lấy trạng thái cho tất cả sensor
         sensor_statuses = StatusService.get_sensor_statuses(
             self.temperature, self.humidity, self.light
         )

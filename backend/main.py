@@ -21,7 +21,6 @@ def create_app():
 
     app.register_blueprint(api_bp)
 
-    # Serve static files from frontend
     @app.route('/')
     def serve_frontend():
         return send_from_directory('../frontend/public', 'home-page.html')

@@ -93,7 +93,6 @@ class LEDControlService:
         try:
             if not self.is_connected:
                 logger.warning("LED Control Service: Not connected, scheduling background reconnect and returning False")
-                # schedule a reconnect attempt in background without blocking caller
                 threading.Thread(target=self._reconnect, daemon=True).start()
                 return False
 

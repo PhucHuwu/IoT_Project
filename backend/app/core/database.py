@@ -17,7 +17,6 @@ class DatabaseManager:
         self.connect()
 
     def _convert_timestamps_to_vietnam(self, data_list: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Chuyển đổi tất cả timestamp trong danh sách dữ liệu sang múi giờ Việt Nam"""
         for item in data_list:
             if 'timestamp' in item and isinstance(item['timestamp'], datetime):
                 item['timestamp'] = convert_to_vietnam_time(item['timestamp'])
@@ -38,7 +37,6 @@ class DatabaseManager:
             self.mongo_client.admin.command('ping')
             logger.info("Connected to MongoDB successfully")
 
-            # Khởi tạo NoSQL query service với action collection
             action_collection = self.db.get_collection('action_history')
             self.nosql_service = NoSQLQueryService(self.collection, action_collection)
 
@@ -53,7 +51,6 @@ class DatabaseManager:
             if 'timestamp' not in sensor_data:
                 sensor_data['timestamp'] = get_current_vietnam_time()
             else:
-                # Đảm bảo timestamp được chuyển đổi sang UTC để lưu database
                 if isinstance(sensor_data['timestamp'], datetime):
                     sensor_data['timestamp'] = convert_from_vietnam_time(sensor_data['timestamp'])
 
@@ -71,13 +68,11 @@ class DatabaseManager:
 
     def insert_action_history(self, action_data: Dict[str, Any], collection_name: Optional[str] = 'action_history') -> Optional[str]:
         try:
-            # Use a dedicated collection for action history
             collection = self.db[collection_name]
 
             if 'timestamp' not in action_data:
                 action_data['timestamp'] = get_current_vietnam_time()
             else:
-                # Đảm bảo timestamp được chuyển đổi sang UTC để lưu database
                 if isinstance(action_data['timestamp'], datetime):
                     action_data['timestamp'] = convert_from_vietnam_time(action_data['timestamp'])
 
@@ -105,7 +100,6 @@ class DatabaseManager:
                 cursor = cursor.limit(limit)
             data = list(cursor)
 
-            # Chuyển đổi timestamp sang múi giờ Việt Nam
             data = self._convert_timestamps_to_vietnam(data)
 
             logger.info(f"Retrieved {len(data)} recent records")
@@ -121,7 +115,6 @@ class DatabaseManager:
             cursor = collection.find().sort("timestamp", -1).limit(limit)
             data = list(cursor)
 
-            # Chuyển đổi timestamp sang múi giờ Việt Nam
             data = self._convert_timestamps_to_vietnam(data)
 
             logger.info(f"Retrieved {len(data)} recent action history records")
@@ -142,32 +135,23 @@ class DatabaseManager:
         try:
             collection = self.db[collection_name]
 
-            # Build base query
             base_query = {}
 
-            # Add device filter
             if device_filter and device_filter != 'all':
                 base_query['led'] = {'$regex': f'^{device_filter}$', '$options': 'i'}
 
-            # Add state filter
             if state_filter and state_filter != 'all':
                 if state_filter.lower() == 'on':
                     base_query['state'] = {'$in': ['ON', 'on', '1', 'true', 'TRUE']}
                 elif state_filter.lower() == 'off':
                     base_query['state'] = {'$in': ['OFF', 'off', '0', 'false', 'FALSE']}
 
-            # Add search functionality (time-based)
             if search_term:
-                # Use MongoDB text search or date range queries
-                # For now, let's try a simpler approach with date range
                 try:
-                    # Try to parse search term as different date formats
                     from datetime import datetime, timedelta
                     search_lower = search_term.lower()
                     search_original = search_term.strip()
 
-                    # Check for format: HH:MM:SS DD/M/YYYY or HH:MM:SS D/M/YYYY
-                    # Examples: "00:00:41 21/9/2025", "17:00:41 20/09/2025"
                     time_date_pattern = r'^(\d{1,2}):(\d{1,2}):(\d{1,2})\s+(\d{1,2})/(\d{1,2})/(\d{4})$'
                     import re
                     time_date_match = re.match(time_date_pattern, search_original)
@@ -182,7 +166,6 @@ class DatabaseManager:
 
                         try:
                             search_datetime = datetime(year, month, day, hour, minute, second)
-                            # Search for exact timestamp or within 1 minute range
                             start_time = search_datetime - timedelta(seconds=30)
                             end_time = search_datetime + timedelta(seconds=30)
                             base_query['timestamp'] = {'$gte': start_time, '$lte': end_time}
@@ -191,8 +174,6 @@ class DatabaseManager:
                             logger.error(f"Invalid datetime: {search_original}")
                             pass
 
-                    # Check for format: HH:MM DD/M/YYYY or HH:MM D/M/YYYY
-                    # Examples: "00:17 21/9/2025", "17:00 20/09/2025"
                     elif re.match(r'^(\d{1,2}):(\d{1,2})\s+(\d{1,2})/(\d{1,2})/(\d{4})$', search_original):
                         parts = search_original.split()
                         time_part = parts[0].split(':')
@@ -214,8 +195,6 @@ class DatabaseManager:
                             logger.error(f"Invalid datetime: {search_original}")
                             pass
 
-                    # Check for format: DD/M/YYYY or D/M/YYYY (date only)
-                    # Examples: "21/9/2025", "20/09/2025"
                     elif re.match(r'^(\d{1,2})/(\d{1,2})/(\d{4})$', search_original):
                         parts = search_original.split('/')
                         day = int(parts[0])
@@ -231,16 +210,12 @@ class DatabaseManager:
                             logger.error(f"Invalid date: {search_original}")
                             pass
 
-                    # Check for format: HH:MM:SS (time only)
-                    # Examples: "00:00:41", "17:30:25"
                     elif re.match(r'^(\d{1,2}):(\d{1,2}):(\d{1,2})$', search_original):
                         parts = search_original.split(':')
                         hour = int(parts[0])
                         minute = int(parts[1])
                         second = int(parts[2])
 
-                        # For time-only search, use string matching approach
-                        # since we need to search across all dates
                         cursor = collection.find(base_query)
                         all_data = list(cursor)
 
@@ -248,11 +223,9 @@ class DatabaseManager:
                         for doc in all_data:
                             if doc.get('timestamp'):
                                 timestamp_str = str(doc['timestamp'])
-                                # Look for the time pattern in the timestamp string
                                 if search_original in timestamp_str:
                                     filtered_data.append(doc)
 
-                        # Sort and paginate
                         filtered_data.sort(key=lambda x: x.get(sort_field, ''), reverse=(sort_order == 'desc'))
                         total_count = len(filtered_data)
                         start_idx = (page - 1) * per_page
@@ -284,7 +257,6 @@ class DatabaseManager:
                         logger.info(f"Action history time search executed: {len(data)} records, page {page}/{total_pages}")
                         return result
 
-                    # Check if it's a year (e.g., "2025")
                     elif search_lower.isdigit() and len(search_lower) == 4:
                         year = int(search_lower)
                         start_date = datetime(year, 1, 1)
@@ -292,7 +264,6 @@ class DatabaseManager:
                         base_query['timestamp'] = {'$gte': start_date, '$lte': end_date}
                         logger.info(f"Searching for year: {year}")
 
-                    # Check if it's a month (e.g., "09", "Sep")
                     elif search_lower in ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']:
                         month = int(search_lower)
                         current_year = datetime.now().year
@@ -304,7 +275,6 @@ class DatabaseManager:
                         base_query['timestamp'] = {'$gte': start_date, '$lte': end_date}
                         logger.info(f"Searching for month: {month}")
 
-                    # Check if it's a day (e.g., "20")
                     elif search_lower.isdigit() and 1 <= int(search_lower) <= 31:
                         day = int(search_lower)
                         current_date = datetime.now()
@@ -313,9 +283,7 @@ class DatabaseManager:
                         base_query['timestamp'] = {'$gte': start_date, '$lte': end_date}
                         logger.info(f"Searching for day: {day}")
 
-                    # For other terms, try to match in string representation
                     else:
-                        # Get all records and filter in Python for complex searches
                         cursor = collection.find(base_query)
                         all_data = list(cursor)
 
@@ -326,7 +294,6 @@ class DatabaseManager:
                                 if search_term.lower() in timestamp_str.lower():
                                     filtered_data.append(doc)
 
-                        # Sort and paginate
                         filtered_data.sort(key=lambda x: x.get(sort_field, ''), reverse=(sort_order == 'desc'))
                         total_count = len(filtered_data)
                         start_idx = (page - 1) * per_page
@@ -360,26 +327,19 @@ class DatabaseManager:
 
                 except Exception as e:
                     logger.error(f"Error in search logic: {e}")
-                    # Fallback: no search filter
                     pass
 
-            # Build sort criteria
             sort_criteria = [(sort_field, -1 if sort_order == 'desc' else 1)]
 
-            # Calculate pagination
             skip = (page - 1) * per_page
 
-            # Get total count
             total_count = collection.count_documents(base_query)
 
-            # Execute query with pagination
             cursor = collection.find(base_query).sort(sort_criteria).skip(skip).limit(per_page)
             data = list(cursor)
 
-            # Chuyển đổi timestamp sang múi giờ Việt Nam
             data = self._convert_timestamps_to_vietnam(data)
 
-            # Calculate pagination info
             total_pages = max(1, (total_count + per_page - 1) // per_page)
 
             result = {
@@ -424,7 +384,6 @@ class DatabaseManager:
 
     def get_data_by_time_range(self, start_time: datetime, end_time: datetime) -> List[Dict[str, Any]]:
         try:
-            # Chuyển đổi thời gian từ múi giờ Việt Nam sang UTC để query
             start_time_utc = convert_from_vietnam_time(start_time) if start_time.tzinfo else start_time.replace(tzinfo=timezone.utc)
             end_time_utc = convert_from_vietnam_time(end_time) if end_time.tzinfo else end_time.replace(tzinfo=timezone.utc)
 
@@ -437,7 +396,6 @@ class DatabaseManager:
             cursor = self.collection.find(query).sort("timestamp", 1)
             data = list(cursor)
 
-            # Chuyển đổi timestamp sang múi giờ Việt Nam
             data = self._convert_timestamps_to_vietnam(data)
 
             logger.info(f"Retrieved {len(data)} records for time range {start_time} to {end_time}")
@@ -490,17 +448,13 @@ class DatabaseManager:
                                       per_page: int = 10,
                                       limit: Optional[int] = None) -> Dict[str, Any]:
         try:
-            # Build base query
             base_query = query_filter or {}
 
-            # Add search functionality using MongoDB queries
             if search_term:
                 search_conditions = []
 
                 if search_criteria == 'all':
-                    # Search in all fields
                     try:
-                        # Try exact number match for numeric fields
                         search_num = float(search_term)
                         search_conditions.extend([
                             {"temperature": search_num},
@@ -510,7 +464,6 @@ class DatabaseManager:
                     except ValueError:
                         pass
 
-                    # String search in timestamp
                     search_conditions.append({"timestamp": {"$regex": search_term, "$options": "i"}})
 
                 elif search_criteria == 'temperature':
@@ -535,22 +488,17 @@ class DatabaseManager:
                         search_conditions.append({"light": {"$regex": search_term, "$options": "i"}})
 
                 elif search_criteria == 'time':
-                    # Simple time search using regex
                     search_conditions.append({"timestamp": {"$regex": search_term, "$options": "i"}})
 
                 if search_conditions:
                     base_query["$or"] = search_conditions
 
-            # Build sort criteria
             sort_criteria = [(sort_field, -1 if sort_order == 'desc' else 1)]
 
-            # Calculate pagination
             skip = (page - 1) * per_page
 
-            # Get total count
             total_count = self.collection.count_documents(base_query)
 
-            # Execute query with pagination
             cursor = self.collection.find(base_query).sort(sort_criteria)
 
             if limit:
@@ -560,10 +508,8 @@ class DatabaseManager:
 
             data = list(cursor)
 
-            # Chuyển đổi timestamp sang múi giờ Việt Nam
             data = self._convert_timestamps_to_vietnam(data)
 
-            # Calculate pagination info
             total_pages = max(1, (total_count + per_page - 1) // per_page) if not limit else 1
 
             result = {
@@ -622,45 +568,37 @@ class DatabaseManager:
             pass
         return False
 
-    # === NoSQL Query Methods ===
-
     def search_by_text(self, search_term: str, fields: List[str] = None) -> List[Dict[str, Any]]:
-        """Tìm kiếm text với MongoDB text search"""
         if not self.nosql_service:
             logger.error("NoSQL service not initialized")
             return []
         return self.nosql_service.search_by_text(search_term, fields)
 
     def search_by_numeric_range(self, field: str, min_val: float = None, max_val: float = None) -> List[Dict[str, Any]]:
-        """Tìm kiếm theo khoảng giá trị số"""
         if not self.nosql_service:
             logger.error("NoSQL service not initialized")
             return []
         return self.nosql_service.search_by_numeric_range(field, min_val, max_val)
 
     def search_by_time_range_optimized(self, start_time: datetime, end_time: datetime) -> List[Dict[str, Any]]:
-        """Tìm kiếm theo khoảng thời gian với tối ưu hóa"""
         if not self.nosql_service:
             logger.error("NoSQL service not initialized")
             return []
         return self.nosql_service.search_by_time_range(start_time, end_time)
 
     def search_by_multiple_criteria(self, criteria: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Tìm kiếm theo nhiều tiêu chí kết hợp"""
         if not self.nosql_service:
             logger.error("NoSQL service not initialized")
             return []
         return self.nosql_service.search_by_multiple_criteria(criteria)
 
     def get_aggregated_data(self, group_by: str = "hour", time_range: Dict[str, datetime] = None) -> List[Dict[str, Any]]:
-        """Lấy dữ liệu đã được tổng hợp theo thời gian"""
         if not self.nosql_service:
             logger.error("NoSQL service not initialized")
             return []
         return self.nosql_service.get_aggregated_data(group_by, time_range)
 
     def get_statistics(self, time_range: Dict[str, datetime] = None) -> Dict[str, Any]:
-        """Lấy thống kê tổng quan về dữ liệu"""
         if not self.nosql_service:
             logger.error("NoSQL service not initialized")
             return {"total_records": 0}
@@ -668,32 +606,26 @@ class DatabaseManager:
 
     def search_with_pagination_optimized(self, query: Dict[str, Any], page: int = 1, per_page: int = 10,
                                          sort_field: str = "timestamp", sort_order: str = "desc") -> Dict[str, Any]:
-        """Tìm kiếm với phân trang tối ưu"""
         if not self.nosql_service:
             logger.error("NoSQL service not initialized")
             return {'data': [], 'pagination': {'page': 1, 'per_page': per_page, 'total_count': 0, 'total_pages': 1, 'has_prev': False, 'has_next': False}}
         return self.nosql_service.search_with_pagination(query, page, per_page, sort_field, sort_order)
 
-    # === Action History Methods ===
-
     def search_action_history(self, search_term: str = '', device_filter: str = 'all',
                               state_filter: str = 'all', sort_field: str = 'timestamp',
                               sort_order: str = 'desc', page: int = 1, per_page: int = 10) -> Dict[str, Any]:
-        """Tìm kiếm action history với các bộ lọc"""
         if not self.nosql_service:
             logger.error("NoSQL service not initialized")
             return {'data': [], 'pagination': {'page': 1, 'per_page': per_page, 'total_count': 0, 'total_pages': 1, 'has_prev': False, 'has_next': False}}
         return self.nosql_service.search_action_history(search_term, device_filter, state_filter, sort_field, sort_order, page, per_page)
 
     def get_recent_action_history_optimized(self, limit: int = 50) -> List[Dict[str, Any]]:
-        """Lấy action history gần đây nhất với tối ưu hóa"""
         if not self.nosql_service:
             logger.error("NoSQL service not initialized")
             return []
         return self.nosql_service.get_recent_action_history(limit)
 
     def search_by_time_string(self, time_string: str) -> List[Dict[str, Any]]:
-        """Tìm kiếm theo chuỗi thời gian với nhiều format"""
         if not self.nosql_service:
             logger.error("NoSQL service not initialized")
             return []

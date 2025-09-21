@@ -27,7 +27,6 @@ class MQTTManager:
             self._client_id = client_id
             self._reconnect_attempts = 0
 
-            # enable paho internal logging to help diagnose disconnects
             try:
                 self.mqtt_client.enable_logger()
             except Exception:
@@ -40,7 +39,6 @@ class MQTTManager:
             context.verify_mode = ssl.CERT_NONE
             self.mqtt_client.tls_set_context(context)
 
-            # configure reconnect backoff (min 1s, max 120s)
             try:
                 self.mqtt_client.reconnect_delay_set(min_delay=1, max_delay=120)
             except Exception:
@@ -93,7 +91,6 @@ class MQTTManager:
 
             logger.info(f"Received message on topic '{topic}': {payload}")
 
-            # Route messages by topic
             if topic == MQTT_DATA_TOPIC:
                 sensor_data = json.loads(payload)
                 if not DataValidator.validate_sensor_data(sensor_data):
