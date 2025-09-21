@@ -92,6 +92,9 @@ class ActionHistoryTable {
           <label class="filter-label">Thiết bị</label>
           <select id="actionFilterDevice" class="filter-select">
             <option value="all">Tất cả</option>
+            <option value="LED1">LED1</option>
+            <option value="LED2">LED2</option>
+            <option value="LED3">LED3</option>
           </select>
           <label class="filter-label">Trạng thái</label>
           <select id="actionFilterState" class="filter-select">

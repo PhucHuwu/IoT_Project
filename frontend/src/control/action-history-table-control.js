@@ -140,7 +140,12 @@ class ActionHistoryTableControl {
         this.updateAllDevices(items);
         const newDeviceCount = this.allDevices.size;
 
-        if (select.children.length <= 1 || newDeviceCount > oldDeviceCount) {
+        const hasLEDOptions =
+            select.querySelector('option[value="LED1"]') &&
+            select.querySelector('option[value="LED2"]') &&
+            select.querySelector('option[value="LED3"]');
+
+        if (!hasLEDOptions || newDeviceCount > oldDeviceCount) {
             this.renderDeviceFilter();
         }
     }
@@ -149,11 +154,28 @@ class ActionHistoryTableControl {
         const select = this.container.querySelector("#actionFilterDevice");
         if (!select) return;
 
-        select.innerHTML = "";
-        const defaultOpt = document.createElement("option");
-        defaultOpt.value = "all";
-        defaultOpt.textContent = "Tất cả";
-        select.appendChild(defaultOpt);
+        const currentValue = select.value;
+
+        const hasLEDOptions =
+            select.querySelector('option[value="LED1"]') &&
+            select.querySelector('option[value="LED2"]') &&
+            select.querySelector('option[value="LED3"]');
+
+        if (!hasLEDOptions) {
+            select.innerHTML = "";
+            const defaultOpt = document.createElement("option");
+            defaultOpt.value = "all";
+            defaultOpt.textContent = "Tất cả";
+            select.appendChild(defaultOpt);
+
+            const ledOptions = ["LED1", "LED2", "LED3"];
+            ledOptions.forEach((led) => {
+                const opt = document.createElement("option");
+                opt.value = led;
+                opt.textContent = led;
+                select.appendChild(opt);
+            });
+        }
 
         const sortedDevices = Array.from(this.allDevices).sort((a, b) => {
             const getDeviceNumber = (deviceName) => {
@@ -171,13 +193,15 @@ class ActionHistoryTableControl {
         });
 
         sortedDevices.forEach((device) => {
-            const opt = document.createElement("option");
-            opt.value = device;
-            opt.textContent = device;
-            select.appendChild(opt);
+            if (!select.querySelector(`option[value="${device}"]`)) {
+                const opt = document.createElement("option");
+                opt.value = device;
+                opt.textContent = device;
+                select.appendChild(opt);
+            }
         });
 
-        select.value = this.selectedDevice || "all";
+        select.value = currentValue || this.selectedDevice || "all";
     }
 
     renderPagination(paginationInfo) {
