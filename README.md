@@ -1,26 +1,28 @@
 # IoT Monitoring System
 
-A comprehensive IoT monitoring and control system using ESP32, featuring a modern web interface and powerful backend API.
+A comprehensive IoT monitoring and control system using ESP32, featuring a modern web interface and powerful backend API with advanced NoSQL query capabilities.
 
 ## Overview
 
 This project implements a complete IoT monitoring system including:
 
--   **Hardware**: ESP32 device with temperature, humidity, light sensors and LED control
--   **Backend**: REST API built with Flask and MongoDB
--   **Frontend**: Responsive web interface with real-time charts and data tables
--   **Communication**: MQTT protocol for real-time communication
+-   **Hardware**: ESP32 device with DHT11 temperature/humidity sensor, light sensor, and 3 LED controls
+-   **Backend**: REST API built with Flask, MongoDB, and MQTT integration
+-   **Frontend**: Responsive web interface with real-time charts, data tables, and LED controls
+-   **Communication**: MQTT protocol for real-time communication between ESP32 and backend
+-   **Advanced Features**: NoSQL queries, data aggregation, time-based filtering, and comprehensive search
 
 ## System Architecture
 
 ```
 ┌─────────────────┐            ┌─────────────────┐            ┌─────────────────┐
 │  ESP32 Device   │            │   Backend API   │            │    Frontend     │
-│                 │            │   (Flask)       │            │    (HTML/JS)    │
+│                 │            │     (Flask)     │            │    (HTML/JS)    │
 │                 │    MQTT    │                 │    HTTP    │                 │
 │ - DHT11 Sensor  │ ─────────► │ - MQTT Client   │ ◄───────── │ - Real-time UI  │
 │ - Light Sensor  │            │ - REST API      │            │ - Charts        │
-│ - LED Control   │            │ - MongoDB       │            │ - Data Tables   │
+│ - 3x LED Control│            │ - MongoDB       │            │ - Data Tables   │
+│ - WiFi + MQTT   │            │ - NoSQL Queries │            │ - LED Controls  │
 └─────────────────┘            └─────────────────┘            └─────────────────┘
 ```
 
@@ -28,38 +30,45 @@ This project implements a complete IoT monitoring system including:
 
 ### Hardware (ESP32)
 
--   Read DHT11 sensor data (temperature, humidity)
--   Read light sensor via ADC
--   Remote control of 3 LEDs
--   WiFi and MQTT connectivity
--   Send data periodically every second
+-   **DHT11 Sensor**: Temperature and humidity readings
+-   **Light Sensor**: Analog light sensor via ADC (Pin 34)
+-   **LED Control**: 3 LEDs (Pins 25, 26, 27) with remote control
+-   **WiFi Connectivity**: Automatic connection and reconnection
+-   **MQTT Communication**: Secure TLS connection to HiveMQ Cloud
+-   **Real-time Data**: Sends sensor data every 1 second
+-   **Action History**: Publishes LED status changes
 
 ### Backend API
 
--   **RESTful API** with versioning (`/api/v1/`)
--   **MQTT Integration** to receive data from ESP32
--   **Database Management** with MongoDB
--   **Real-time Control** for LED control via MQTT
--   **Data Validation** and error handling
--   **Pagination** and filtering for data
--   **NoSQL Queries** advanced with text search and aggregation
+-   **RESTful API** with versioning (`/api/v1/`) and Swagger documentation
+-   **MQTT Integration**: Receives sensor data and publishes LED commands
+-   **MongoDB Database**: Stores sensor data and action history
+-   **Advanced NoSQL Queries**: Text search, range queries, aggregation
+-   **Real-time LED Control**: MQTT-based remote LED control
+-   **Data Validation**: Comprehensive input validation and error handling
+-   **Pagination & Filtering**: Advanced data filtering with time-based queries
+-   **Timezone Support**: Vietnam timezone handling for all timestamps
+-   **Health Monitoring**: System status and connection monitoring
 
 ### Frontend
 
--   **Home Page**: Display real-time sensor data and charts
--   **Sensor Data**: Data table with pagination and detailed charts
--   **Action History**: Track LED control commands
--   **Responsive interface** with sidebar navigation
--   **Real-time updates** without page refresh
+-   **Home Page**: Real-time sensor cards, LED controls, and interactive charts
+-   **Sensor Data Page**: Advanced data table with search, filtering, and pagination
+-   **Action History Page**: LED control history with comprehensive filtering
+-   **Profile Page**: User interface for system settings
+-   **Responsive Design**: Mobile-friendly interface with sidebar navigation
+-   **Real-time Updates**: Live data updates without page refresh
+-   **Interactive Charts**: Chart.js integration with time-based data visualization
 
 ## Installation and Setup
 
 ### System Requirements
 
 -   Python 3.8+
--   Node.js (for development tools)
--   MongoDB
--   MQTT Broker (HiveMQ Cloud or local)
+-   MongoDB (local or cloud)
+-   MQTT Broker (HiveMQ Cloud recommended)
+-   ESP32 development board
+-   Arduino IDE with ESP32 board package
 
 ### Backend Setup
 
@@ -74,16 +83,16 @@ pip install -r requirements.txt
    Create `.env` file in `backend/` directory:
 
 ```env
-# Database
+# Database Configuration
 MONGODB_CONNECTION_STRING=mongodb://localhost:27017
 MONGODB_DB_NAME=iot_database
 MONGODB_COLLECTION_NAME=sensor_data
 
-# MQTT Configuration
-MQTT_BROKER_HOST=your-mqtt-broker-host
+# MQTT Configuration (HiveMQ Cloud)
+MQTT_BROKER_HOST=your-hivemq-broker-host
 MQTT_BROKER_PORT=8883
-MQTT_USERNAME=your-username
-MQTT_PASSWORD=your-password
+MQTT_USERNAME=your-hivemq-username
+MQTT_PASSWORD=your-hivemq-password
 MQTT_DATA_TOPIC=esp32/iot/data
 MQTT_CONTROL_TOPIC=esp32/iot/control
 MQTT_ACTION_HISTORY_TOPIC=esp32/iot/action-history
@@ -93,6 +102,14 @@ API_HOST=0.0.0.0
 API_PORT=5000
 SECRET_KEY=your-secret-key
 DEBUG_MODE=True
+
+# Sensor Thresholds (Optional)
+TEMP_NORMAL_MIN=25.0
+TEMP_NORMAL_MAX=35.0
+HUMIDITY_NORMAL_MIN=40.0
+HUMIDITY_NORMAL_MAX=60.0
+LIGHT_NORMAL_MIN=40.0
+LIGHT_NORMAL_MAX=60.0
 ```
 
 3. **Run backend:**
@@ -103,9 +120,13 @@ python main.py
 
 Backend will run at `http://localhost:5000`
 
+**API Documentation**: Available at `http://localhost:5000/docs/`
+
 ### Frontend Setup
 
 Frontend consists of static files served by Flask backend. No additional dependencies required.
+
+The frontend is automatically served by the Flask backend at `http://localhost:5000/`
 
 ### Hardware Setup
 
@@ -123,51 +144,71 @@ ESP32 Pin Connections:
 ```
 
 3. **Configure WiFi and MQTT:**
-   Edit parameters in `IoT_Device.ino` file:
+   Edit parameters in `hardware/IoT_Device/IoT_Device.ino` file:
 
 ```cpp
+// WiFi Configuration
 const char *wifiSsid = "YOUR_WIFI_SSID";
 const char *wifiPassword = "YOUR_WIFI_PASSWORD";
 
-const char *mqttServer = "YOUR_MQTT_BROKER";
-const char *mqttUsername = "YOUR_USERNAME";
-const char *mqttPassword = "YOUR_PASSWORD";
+// MQTT Configuration (HiveMQ Cloud)
+const char *mqttServer = "your-hivemq-broker-host";
+const char *mqttUsername = "your-hivemq-username";
+const char *mqttPassword = "your-hivemq-password";
 ```
 
 4. **Upload code to ESP32**
 
 ## API Documentation
 
-### Sensor Data Endpoints
+Complete API documentation is available at `http://localhost:5000/docs/` when the backend is running.
 
-#### GET `/api/v1/sensors/sensor-data-list`
+### Main Endpoints
 
-Get sensor data list with pagination and filtering.
+#### Sensor Data Endpoints
 
-**Query Parameters:**
+-   **GET** `/api/v1/sensors/sensor-data` - Get latest sensor data
+-   **GET** `/api/v1/sensors/sensor-data-list` - Get paginated sensor data with advanced filtering
+-   **GET** `/api/v1/sensors/sensor-data/chart` - Get chart data with time-based filtering
+-   **POST** `/api/v1/sensors/sensor-data` - Add new sensor data
+-   **GET** `/api/v1/sensors/sensor-data/{id}` - Get sensor data by ID
+
+#### LED Control Endpoints
+
+-   **POST** `/api/v1/sensors/led-control` - Control LED (ON/OFF)
+-   **GET** `/api/v1/sensors/led-status` - Get current LED status
+-   **GET** `/api/v1/sensors/action-history` - Get LED action history
+
+#### NoSQL Query Endpoints
+
+-   **GET** `/api/v1/nosql/search/text` - Text search in sensor data
+-   **GET** `/api/v1/nosql/search/range` - Search by numeric value range
+-   **POST** `/api/v1/nosql/search/multi-criteria` - Multi-criteria search
+-   **GET** `/api/v1/nosql/aggregated` - Get aggregated data by time periods
+-   **GET** `/api/v1/nosql/statistics` - Get data statistics
+-   **POST** `/api/v1/nosql/search/advanced` - Advanced search with pagination
+
+#### System Endpoints
+
+-   **GET** `/api/v1/system/health` - System health check
+-   **GET** `/api/v1/system/info` - System information
+
+### Query Parameters
+
+#### Sensor Data List (`/sensor-data-list`)
 
 -   `page`: Page number (default: 1)
 -   `per_page`: Records per page (default: 10, max: 100)
 -   `sort_field`: Sort field (timestamp, temperature, humidity, light)
 -   `sort_order`: Sort order (asc, desc)
--   `limit`: Limit number of records
--   `timePeriod`: Time period (today, week, month)
+-   `limit`: Limit number of records or "all"
+-   `timePeriod`: Time period (today, 1day, 2days)
 -   `dateFrom`, `dateTo`: Start/end date (YYYY-MM-DD)
--   `sample`: Sampling frequency
+-   `search`: Search term for filtering
+-   `search_criteria`: Search criteria (all, temperature, humidity, light, time)
+-   `sample`: Sampling frequency (1, 2, 3, etc.)
 
-#### GET `/api/v1/sensors/sensor-data/chart`
-
-Get data for charts with aggregation options.
-
-**Query Parameters:**
-
--   `timePeriod`: Time period
--   `aggregation`: Aggregation type (avg, min, max, count)
--   `interval`: Time interval between data points
-
-#### POST `/api/v1/sensors/led-control`
-
-Remote LED control.
+#### LED Control (`/led-control`)
 
 **Request Body:**
 
@@ -177,32 +218,6 @@ Remote LED control.
     "action": "ON|OFF"
 }
 ```
-
-#### GET `/api/v1/sensors/led-status`
-
-Get current status of LEDs.
-
-### NoSQL Query Endpoints
-
-#### GET `/api/v1/nosql/search/text`
-
-Search text in sensor data.
-
-#### GET `/api/v1/nosql/search/range`
-
-Search by numeric value range.
-
-#### GET `/api/v1/nosql/aggregated`
-
-Get aggregated data by criteria.
-
-#### GET `/api/v1/nosql/statistics`
-
-Get overall data statistics.
-
-#### POST `/api/v1/nosql/search/advanced`
-
-Advanced search with multiple options.
 
 ## Project Structure
 
@@ -303,9 +318,42 @@ IoT_Project/
 
 ## MQTT Topics
 
--   `esp32/iot/data`: Sensor data from ESP32
--   `esp32/iot/control`: LED control commands from backend
--   `esp32/iot/action-history`: Control action history
+-   **`esp32/iot/data`**: Sensor data from ESP32 (temperature, humidity, light)
+-   **`esp32/iot/control`**: LED control commands from backend to ESP32
+-   **`esp32/iot/action-history`**: LED status changes and action history
+
+### MQTT Message Formats
+
+#### Sensor Data (`esp32/iot/data`)
+
+```json
+{
+    "temperature": 25.5,
+    "humidity": 60.2,
+    "light": 45.8
+}
+```
+
+#### LED Control (`esp32/iot/control`)
+
+```
+LED1_ON
+LED1_OFF
+LED2_ON
+LED2_OFF
+LED3_ON
+LED3_OFF
+```
+
+#### Action History (`esp32/iot/action-history`)
+
+```json
+{
+    "type": "led_status",
+    "led": "LED1",
+    "state": "ON"
+}
+```
 
 ## Development
 
@@ -329,14 +377,20 @@ Frontend uses vanilla JavaScript with MVC architecture:
 
 ### Testing MQTT
 
-Use mosquitto client to test MQTT:
+Use mosquitto client to test MQTT (example commands in `hardware/IoT_Device/pubsub.txt`):
 
 ```bash
-# Subscribe to data topic
-mosquitto_sub -h your-broker -p 8883 -u username -P password -t "esp32/iot/data"
+# Subscribe to sensor data
+mosquitto_sub -h your-hivemq-broker -p 8883 -u username -P password -t "esp32/iot/data"
+
+# Subscribe to action history
+mosquitto_sub -h your-hivemq-broker -p 8883 -u username -P password -t "esp32/iot/action-history"
 
 # Send LED control command
-mosquitto_pub -h your-broker -p 8883 -u username -P password -t "esp32/iot/control" -m "LED1_ON"
+mosquitto_pub -h your-hivemq-broker -p 8883 -u username -P password -t "esp32/iot/control" -m "LED1_ON"
+
+# Send test sensor data
+mosquitto_pub -h your-hivemq-broker -p 8883 -u username -P password -t "esp32/iot/data" -m '{"temperature":25.0,"humidity":60.0,"light":80.0}'
 ```
 
 ## Troubleshooting
@@ -361,9 +415,22 @@ mosquitto_pub -h your-broker -p 8883 -u username -P password -t "esp32/iot/contr
     - Check MongoDB connection
 
 4. **Frontend not displaying data:**
+
     - Check browser console for errors
-    - Verify API endpoints
+    - Verify API endpoints are accessible
     - Check CORS configuration
+    - Ensure backend is running on correct port
+
+5. **NoSQL queries not working:**
+
+    - Verify MongoDB connection
+    - Check collection names and indexes
+    - Review query syntax and parameters
+
+6. **LED control not working:**
+    - Check MQTT broker connection
+    - Verify LED control topic subscription
+    - Check ESP32 MQTT client status
 
 ## Contributing
 
