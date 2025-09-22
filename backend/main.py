@@ -75,15 +75,15 @@ def create_app():
             try:
                 from app.core.database import DatabaseManager
                 from app.services.status_service import StatusService
-                
+
                 db = DatabaseManager()
                 data = db.get_recent_data(limit=1)
-                
+
                 if data:
                     doc = data[0]
                     if '_id' in doc:
                         doc['_id'] = str(doc['_id'])
-                    
+
                     if 'timestamp' in doc and hasattr(doc['timestamp'], 'isoformat'):
                         doc['timestamp'] = doc['timestamp'].isoformat()
 
@@ -105,13 +105,13 @@ def create_app():
                         "error": "Không có dữ liệu cảm biến",
                         "message": "Database trống hoặc chưa có dữ liệu từ ESP32"
                     }
-                    
+
             except Exception as e:
                 return {
                     "error": f"Lỗi khi lấy dữ liệu: {str(e)}",
                     "message": "Không thể kết nối đến database"
                 }, 500
-    
+
     @sensors_ns.route('/sensor-data/list')
     class SensorDataListResource(Resource):
         @sensors_ns.doc('get_sensor_data_list', description='Lấy danh sách dữ liệu cảm biến với phân trang')
@@ -119,13 +119,13 @@ def create_app():
             try:
                 from flask import request
                 from app.core.database import DatabaseManager
-                
+
                 page = int(request.args.get('page', 1))
                 per_page = int(request.args.get('per_page', 10))
                 limit = request.args.get('limit', '10')
-                
+
                 db = DatabaseManager()
-                
+
                 if limit == 'all':
                     data = db.get_recent_data(limit=None)
                 else:
@@ -134,16 +134,16 @@ def create_app():
                         data = db.get_recent_data(limit=limit_int)
                     except ValueError:
                         data = db.get_recent_data(limit=10)
-                
+
                 total_count = len(data)
                 start_idx = (page - 1) * per_page
                 end_idx = start_idx + per_page
                 paginated_data = data[start_idx:end_idx]
-                
+
                 for doc in paginated_data:
                     if '_id' in doc:
                         doc['_id'] = str(doc['_id'])
-                
+
                 return {
                     "status": "success",
                     "data": paginated_data,
@@ -158,13 +158,13 @@ def create_app():
                     "count": len(paginated_data),
                     "total_count": total_count
                 }
-                
+
             except Exception as e:
                 return {
                     "error": f"Lỗi khi lấy danh sách dữ liệu: {str(e)}",
                     "message": "Không thể kết nối đến database"
                 }, 500
-    
+
     @sensors_ns.route('/sensor-data/add')
     class SensorDataAddResource(Resource):
         @sensors_ns.expect(sensor_data_model)
@@ -174,20 +174,20 @@ def create_app():
                 from flask import request
                 from app.core.database import DatabaseManager
                 from datetime import datetime
-                
+
                 data = request.get_json()
-                
+
                 required_fields = ['temperature', 'humidity', 'light']
                 for field in required_fields:
                     if field not in data:
                         return {"error": f"Thiếu trường bắt buộc: {field}"}, 400
-                
+
                 if 'timestamp' not in data:
                     data['timestamp'] = datetime.now()
-                
+
                 db = DatabaseManager()
                 result = db.insert_sensor_data(data)
-                
+
                 if result:
                     return {
                         "status": "success",
@@ -202,13 +202,13 @@ def create_app():
                     }
                 else:
                     return {"error": "Không thể thêm dữ liệu vào database"}, 500
-                    
+
             except Exception as e:
                 return {
                     "error": f"Lỗi khi thêm dữ liệu: {str(e)}",
                     "message": "Không thể kết nối đến database"
                 }, 500
-    
+
     led_control_model = api.model('LEDControl', {
         'led_id': fields.String(required=True, description='ID của LED', enum=['LED1', 'LED2', 'LED3'], example='LED1'),
         'action': fields.String(required=True, description='Hành động', enum=['ON', 'OFF'], example='ON')
