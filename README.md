@@ -2,6 +2,22 @@
 
 A comprehensive IoT monitoring and control system using ESP32, featuring a modern web interface and powerful backend API with advanced NoSQL query capabilities.
 
+## Table of Contents
+
+-   [Overview](#overview)
+-   [System Architecture](#system-architecture)
+-   [Key Features](#key-features)
+-   [Quick Start](#quick-start)
+-   [Installation and Setup](#installation-and-setup)
+-   [API Documentation](#api-documentation)
+-   [Project Structure](#project-structure)
+-   [MQTT Topics](#mqtt-topics)
+-   [Development](#development)
+-   [Troubleshooting](#troubleshooting)
+-   [Contributing](#contributing)
+-   [License](#license)
+-   [Support](#support)
+
 ## Overview
 
 This project implements a complete IoT monitoring system including:
@@ -14,7 +30,7 @@ This project implements a complete IoT monitoring system including:
 
 ## System Architecture
 
-```
+```text
 ┌─────────────────┐            ┌─────────────────┐            ┌─────────────────┐
 │  ESP32 Device   │            │   Backend API   │            │    Frontend     │
 │                 │            │     (Flask)     │            │    (HTML/JS)    │
@@ -59,6 +75,13 @@ This project implements a complete IoT monitoring system including:
 -   **Responsive Design**: Mobile-friendly interface with sidebar navigation
 -   **Real-time Updates**: Live data updates without page refresh
 -   **Interactive Charts**: Chart.js integration with time-based data visualization
+
+## Quick Start
+
+1. **Clone the repository**
+2. **Set up the backend** (see [Backend Setup](#backend-setup))
+3. **Configure the hardware** (see [Hardware Setup](#hardware-setup))
+4. **Access the web interface** at `http://localhost:5000`
 
 ## Installation and Setup
 
@@ -134,7 +157,7 @@ The frontend is automatically served by the Flask backend at `http://localhost:5
 
 2. **Hardware connections:**
 
-```
+```text
 ESP32 Pin Connections:
 - DHT11: Pin 21
 - Light Sensor: Pin 34 (ADC)
@@ -144,7 +167,7 @@ ESP32 Pin Connections:
 ```
 
 3. **Configure WiFi and MQTT:**
-   Edit parameters in `hardware/IoT_Device/IoT_Device.ino` file:
+   Edit parameters in [`hardware/IoT_Device/IoT_Device.ino`](hardware/IoT_Device/IoT_Device.ino) file:
 
 ```cpp
 // WiFi Configuration
@@ -221,7 +244,7 @@ Complete API documentation is available at `http://localhost:5000/docs/` when th
 
 ## Project Structure
 
-```
+```text
 IoT_Project/
 ├── .gitignore
 ├── README.md
@@ -229,8 +252,8 @@ IoT_Project/
 ├── backend/
 │   ├── .env
 │   ├── .env.example
-│   ├── main.py                                            # Entry point
-│   ├── requirements.txt                                   # Python dependencies
+│   ├── [main.py](backend/main.py)                         # Entry point
+│   ├── [requirements.txt](backend/requirements.txt)      # Python dependencies
 │   ├── app/
 │   │   ├── __init__.py
 │   │   ├── api/                                           # API routes and blueprints
@@ -336,7 +359,7 @@ IoT_Project/
 
 #### LED Control (`esp32/iot/control`)
 
-```
+```text
 LED1_ON
 LED1_OFF
 LED2_ON
@@ -377,7 +400,7 @@ Frontend uses vanilla JavaScript with MVC architecture:
 
 ### Testing MQTT
 
-Use mosquitto client to test MQTT (example commands in `hardware/IoT_Device/pubsub.txt`):
+Use mosquitto client to test MQTT (example commands in [`hardware/IoT_Device/pubsub.txt`](hardware/IoT_Device/pubsub.txt)):
 
 ```bash
 # Subscribe to sensor data
@@ -397,53 +420,71 @@ mosquitto_pub -h your-hivemq-broker -p 8883 -u username -P password -t "esp32/io
 
 ### Common Issues
 
+#### Hardware Issues
+
 1. **ESP32 cannot connect to WiFi:**
 
-    - Check SSID and password
+    - Check SSID and password in [`hardware/IoT_Device/IoT_Device.ino`](hardware/IoT_Device/IoT_Device.ino)
     - Ensure WiFi is in 2.4GHz mode
+    - Verify signal strength
 
-2. **MQTT connection failed:**
-
-    - Check broker host and port
-    - Verify username/password
-    - Test with mosquitto client
-
-3. **Backend not receiving data:**
-
-    - Check MQTT broker connection
-    - Verify topic names
-    - Check MongoDB connection
-
-4. **Frontend not displaying data:**
-
-    - Check browser console for errors
-    - Verify API endpoints are accessible
-    - Check CORS configuration
-    - Ensure backend is running on correct port
-
-5. **NoSQL queries not working:**
-
-    - Verify MongoDB connection
-    - Check collection names and indexes
-    - Review query syntax and parameters
-
-6. **LED control not working:**
+2. **LED control not working:**
     - Check MQTT broker connection
     - Verify LED control topic subscription
     - Check ESP32 MQTT client status
 
+#### Backend Issues
+
+3. **MQTT connection failed:**
+
+    - Check broker host and port in `.env` file
+    - Verify username/password
+    - Test with mosquitto client (see [Testing MQTT](#testing-mqtt))
+
+4. **Backend not receiving data:**
+
+    - Check MQTT broker connection
+    - Verify topic names match configuration
+    - Check MongoDB connection
+
+5. **NoSQL queries not working:**
+    - Verify MongoDB connection
+    - Check collection names and indexes
+    - Review query syntax and parameters
+
+#### Frontend Issues
+
+6. **Frontend not displaying data:**
+    - Check browser console for errors
+    - Verify API endpoints are accessible at `http://localhost:5000`
+    - Check CORS configuration
+    - Ensure backend is running on correct port
+
 ## Contributing
 
-1. Fork repository
-2. Create feature branch
-3. Commit changes
-4. Push to branch
-5. Create Pull Request
+We welcome contributions! Here's how you can help:
+
+1. **Fork the repository**
+2. **Create a feature branch** (`git checkout -b feature/amazing-feature`)
+3. **Commit your changes** (`git commit -m 'Add some amazing feature'`)
+4. **Push to the branch** (`git push origin feature/amazing-feature`)
+5. **Open a Pull Request**
+
+### Development Guidelines
+
+-   Follow the existing code structure and patterns
+-   Add appropriate comments and documentation
+-   Test your changes thoroughly
+-   Ensure all existing tests pass
 
 ## License
 
 This project is developed for educational and research purposes.
 
-## Contact
+## Support
 
-For support or contributions, please create an issue on the GitHub repository.
+For support, questions, or contributions, please:
+
+-   Create an issue on the GitHub repository
+-   Check the [Troubleshooting](#troubleshooting) section first
+-   Review the [API Documentation](http://localhost:5000/docs/) when the backend is running
