@@ -1,5 +1,12 @@
 # IoT Monitoring System
 
+<div align="center">
+
+[![English](https://img.shields.io/badge/English-Click_to_View-yellow)](README.md)
+[![Vietnamese](https://img.shields.io/badge/Vietnamese-Click_to_View-orange)](README_vi.md)
+
+</div>
+
 A comprehensive IoT monitoring and control system using ESP32, featuring a modern web interface and powerful backend API with advanced NoSQL query capabilities.
 
 ## Table of Contents
