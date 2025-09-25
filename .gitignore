@@ -4,3 +4,4 @@ __pycache__/
 .github/
 .cursor/
 .DS_Store
+diagram/

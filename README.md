@@ -259,8 +259,8 @@ IoT_Project/
 ├── backend/
 │   ├── .env
 │   ├── .env.example
-│   ├── [main.py](backend/main.py)                         # Entry point
-│   ├── [requirements.txt](backend/requirements.txt)      # Python dependencies
+│   ├── main.py                                            # Entry point
+│   ├── requirements.txt                                   # Python dependencies
 │   ├── app/
 │   │   ├── __init__.py
 │   │   ├── api/                                           # API routes and blueprints
