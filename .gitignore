@@ -5,3 +5,4 @@ __pycache__/
 .cursor/
 .DS_Store
 diagram/
+*.docx
