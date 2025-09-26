@@ -167,6 +167,7 @@ def sensor_data_list():
                     data.sort(key=lambda x: x.get(sort_field, 0), reverse=reverse)
                 elif sort_field == 'timestamp':
                     reverse = sort_order == 'desc'
+
                     def get_timestamp_for_sort(x):
                         ts = x.get('timestamp')
                         if isinstance(ts, str):
@@ -294,6 +295,7 @@ def sensor_data_list():
                     data.sort(key=lambda x: x.get(sort_field, 0), reverse=reverse)
                 elif sort_field == 'timestamp':
                     reverse = sort_order == 'desc'
+
                     def get_timestamp_for_sort(x):
                         ts = x.get('timestamp')
                         if isinstance(ts, str):
@@ -347,6 +349,7 @@ def sensor_data_list():
                     data.sort(key=lambda x: x.get(sort_field, 0), reverse=reverse)
                 elif sort_field == 'timestamp':
                     reverse = sort_order == 'desc'
+
                     def get_timestamp_for_sort(x):
                         ts = x.get('timestamp')
                         if isinstance(ts, str):
@@ -490,6 +493,7 @@ def chart_data():
             end_time = selected_date_local.replace(hour=23, minute=59, second=59, microsecond=999999)
 
             data = db.search_by_time_range_optimized(start_time, end_time)
+
             def get_timestamp_for_sort(x):
                 ts = x.get('timestamp')
                 if isinstance(ts, str):
@@ -509,6 +513,7 @@ def chart_data():
 
         except ValueError:
             data = db.get_recent_data(limit=limit)
+
             def get_timestamp_for_sort(x):
                 ts = x.get('timestamp')
                 if isinstance(ts, str):
@@ -525,6 +530,7 @@ def chart_data():
     else:
         if is_all_data:
             data = db.get_recent_data(limit=None)
+
             def get_timestamp_for_sort(x):
                 ts = x.get('timestamp')
                 if isinstance(ts, str):
@@ -540,6 +546,7 @@ def chart_data():
             data.sort(key=get_timestamp_for_sort)
         else:
             data = db.get_recent_data(limit=limit)
+
             def get_timestamp_for_sort(x):
                 ts = x.get('timestamp')
                 if isinstance(ts, str):

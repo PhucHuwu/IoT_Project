@@ -30,8 +30,7 @@ def create_app():
         prefix='/api/v1'
     )
 
-    sensors_ns = api.namespace('sensors', description='Quản lý dữ liệu cảm biến và điều khiển LED')
-    nosql_ns = api.namespace('nosql', description='Truy vấn NoSQL và thống kê dữ liệu')
+    sensors_ns = api.namespace('sensors', description='API quản lý dữ liệu cảm biến và điều khiển LED')
 
     sensor_data_model = api.model('SensorData', {
         'temperature': fields.Float(required=True, description='Nhiệt độ (Celsius)', example=25.5),
@@ -40,37 +39,31 @@ def create_app():
         'timestamp': fields.DateTime(description='Thời gian (ISO 8601)', example='2024-01-15T10:30:00+07:00')
     })
 
+    led_control_model = api.model('LEDControl', {
+        'led_id': fields.String(required=True, description='ID của LED', enum=['LED1', 'LED2', 'LED3'], example='LED1'),
+        'action': fields.String(required=True, description='Hành động', enum=['ON', 'OFF'], example='ON')
+    })
+
     success_response_model = api.model('SuccessResponse', {
         'status': fields.String(description='Trạng thái', example='success'),
         'data': fields.Raw(description='Dữ liệu trả về'),
         'message': fields.String(description='Thông báo')
     })
 
-    @sensors_ns.route('/test')
-    class SensorTestResource(Resource):
-        @sensors_ns.doc('test_sensor', description='Test endpoint cho sensors')
-        @sensors_ns.marshal_with(success_response_model)
-        def get(self):
-            return {
-                "status": "success",
-                "data": {"message": "Sensors API hoạt động bình thường!"},
-                "message": "Test thành công"
-            }
-
-    @nosql_ns.route('/test')
-    class NoSQLTestResource(Resource):
-        @nosql_ns.doc('test_nosql', description='Test endpoint cho nosql')
-        @nosql_ns.marshal_with(success_response_model)
-        def get(self):
-            return {
-                "status": "success",
-                "data": {"message": "NoSQL API hoạt động bình thường!"},
-                "message": "Test thành công"
-            }
+    error_response_model = api.model('ErrorResponse', {
+        'status': fields.String(description='Trạng thái', example='error'),
+        'message': fields.String(description='Thông báo lỗi'),
+        'error': fields.String(description='Chi tiết lỗi')
+    })
 
     @sensors_ns.route('/sensor-data')
     class SensorDataResource(Resource):
-        @sensors_ns.doc('get_latest_sensor_data', description='Lấy dữ liệu cảm biến mới nhất')
+        @sensors_ns.doc('get_latest_sensor_data',
+                        description='Lấy dữ liệu cảm biến mới nhất từ ESP32',
+                        responses={
+                            200: 'Thành công - Trả về dữ liệu cảm biến mới nhất',
+                            500: 'Lỗi server - Không thể kết nối database'
+                        })
         def get(self):
             try:
                 from app.core.database import DatabaseManager
@@ -112,9 +105,26 @@ def create_app():
                     "message": "Không thể kết nối đến database"
                 }, 500
 
-    @sensors_ns.route('/sensor-data/list')
+    @sensors_ns.route('/sensor-data-list')
     class SensorDataListResource(Resource):
-        @sensors_ns.doc('get_sensor_data_list', description='Lấy danh sách dữ liệu cảm biến với phân trang')
+        @sensors_ns.doc('get_sensor_data_list',
+                        description='Lấy danh sách dữ liệu cảm biến với phân trang và bộ lọc',
+                        params={
+                            'page': 'Số trang (mặc định: 1)',
+                            'per_page': 'Số bản ghi mỗi trang (mặc định: 10)',
+                            'limit': 'Giới hạn số bản ghi (có thể là số hoặc "all")',
+                            'timePeriod': 'Khoảng thời gian (today, 1day, 2days)',
+                            'dateFrom': 'Ngày bắt đầu (YYYY-MM-DD)',
+                            'dateTo': 'Ngày kết thúc (YYYY-MM-DD)',
+                            'sort_field': 'Trường sắp xếp (timestamp, temperature, humidity, light)',
+                            'sort_order': 'Thứ tự sắp xếp (asc, desc)',
+                            'search': 'Từ khóa tìm kiếm',
+                            'search_criteria': 'Tiêu chí tìm kiếm (all, time, temperature, humidity, light)'
+                        },
+                        responses={
+                            200: 'Thành công - Trả về danh sách dữ liệu cảm biến',
+                            500: 'Lỗi server - Không thể kết nối database'
+                        })
         def get(self):
             try:
                 from flask import request
@@ -144,6 +154,9 @@ def create_app():
                     if '_id' in doc:
                         doc['_id'] = str(doc['_id'])
 
+                    if 'timestamp' in doc and hasattr(doc['timestamp'], 'isoformat'):
+                        doc['timestamp'] = doc['timestamp'].isoformat()
+
                 return {
                     "status": "success",
                     "data": paginated_data,
@@ -165,10 +178,16 @@ def create_app():
                     "message": "Không thể kết nối đến database"
                 }, 500
 
-    @sensors_ns.route('/sensor-data/add')
+    @sensors_ns.route('/sensor-data', methods=['POST'])
     class SensorDataAddResource(Resource):
         @sensors_ns.expect(sensor_data_model)
-        @sensors_ns.doc('add_sensor_data', description='Thêm dữ liệu cảm biến mới')
+        @sensors_ns.doc('add_sensor_data',
+                        description='Thêm dữ liệu cảm biến mới từ ESP32',
+                        responses={
+                            201: 'Thành công - Dữ liệu cảm biến đã được thêm',
+                            400: 'Lỗi request - Thiếu trường bắt buộc',
+                            500: 'Lỗi server - Không thể thêm dữ liệu vào database'
+                        })
         def post(self):
             try:
                 from flask import request
@@ -209,15 +228,16 @@ def create_app():
                     "message": "Không thể kết nối đến database"
                 }, 500
 
-    led_control_model = api.model('LEDControl', {
-        'led_id': fields.String(required=True, description='ID của LED', enum=['LED1', 'LED2', 'LED3'], example='LED1'),
-        'action': fields.String(required=True, description='Hành động', enum=['ON', 'OFF'], example='ON')
-    })
-
-    @sensors_ns.route('/led/control')
+    @sensors_ns.route('/led-control', methods=['POST'])
     class LEDControlResource(Resource):
         @sensors_ns.expect(led_control_model)
-        @sensors_ns.doc('control_led', description='Điều khiển LED')
+        @sensors_ns.doc('control_led',
+                        description='Điều khiển LED qua MQTT',
+                        responses={
+                            200: 'Thành công - Lệnh điều khiển LED đã được gửi',
+                            400: 'Lỗi request - Thiếu led_id hoặc action',
+                            500: 'Lỗi server - Không thể gửi lệnh điều khiển'
+                        })
         def post(self):
             try:
                 from flask import request
@@ -245,9 +265,14 @@ def create_app():
             except Exception as e:
                 return {"error": str(e)}, 500
 
-    @sensors_ns.route('/led/status')
+    @sensors_ns.route('/led-status')
     class LEDStatusResource(Resource):
-        @sensors_ns.doc('get_led_status', description='Lấy trạng thái tất cả LED')
+        @sensors_ns.doc('get_led_status',
+                        description='Lấy trạng thái hiện tại của tất cả LED',
+                        responses={
+                            200: 'Thành công - Trả về trạng thái LED',
+                            500: 'Lỗi server - Không thể lấy trạng thái LED'
+                        })
         def get(self):
             try:
                 from app.services.led_control_service import LEDControlService
@@ -267,71 +292,147 @@ def create_app():
             except Exception as e:
                 return {"error": str(e)}, 500
 
-    api.add_namespace(sensors_ns)
-    api.add_namespace(nosql_ns)
-
-    system_ns = api.namespace('system', description='Thông tin hệ thống và health check')
-
-    @system_ns.route('/health')
-    class HealthResource(Resource):
-        @system_ns.doc('health_check', description='Kiểm tra trạng thái hệ thống')
+    @sensors_ns.route('/action-history')
+    class ActionHistoryResource(Resource):
+        @sensors_ns.doc('get_action_history',
+                        description='Lấy lịch sử hành động điều khiển LED',
+                        params={
+                            'page': 'Số trang (mặc định: 1)',
+                            'per_page': 'Số bản ghi mỗi trang (mặc định: 10)',
+                            'limit': 'Giới hạn số bản ghi',
+                            'sort_field': 'Trường sắp xếp (timestamp, led, state)',
+                            'sort_order': 'Thứ tự sắp xếp (asc, desc)',
+                            'search': 'Từ khóa tìm kiếm',
+                            'device_filter': 'Lọc theo thiết bị (all, LED1, LED2, LED3)',
+                            'state_filter': 'Lọc theo trạng thái (all, ON, OFF)'
+                        },
+                        responses={
+                            200: 'Thành công - Trả về lịch sử hành động',
+                            500: 'Lỗi server - Không thể lấy lịch sử hành động'
+                        })
         def get(self):
             try:
+                from flask import request
                 from app.core.database import DatabaseManager
+
+                page = int(request.args.get('page', 1))
+                per_page = int(request.args.get('per_page', 10))
+                sort_field = request.args.get('sort_field', 'timestamp')
+                sort_order = request.args.get('sort_order', 'desc')
+                search_term = request.args.get('search', '')
+                device_filter = request.args.get('device_filter', 'all')
+                state_filter = request.args.get('state_filter', 'all')
+                limit = int(request.args.get('limit', 0))
+
+                if limit > 0 and limit < per_page:
+                    per_page = limit
+
                 db = DatabaseManager()
+                result = db.search_action_history(
+                    search_term=search_term,
+                    device_filter=device_filter,
+                    state_filter=state_filter,
+                    sort_field=sort_field,
+                    sort_order=sort_order,
+                    page=page,
+                    per_page=per_page
+                )
 
-                try:
-                    db.mongo_client.admin.command('ping')
-                    db_status = "connected"
-                except:
-                    db_status = "disconnected"
+                for doc in result['data']:
+                    if '_id' in doc:
+                        doc['_id'] = str(doc['_id'])
 
-                from app.services.led_control_service import LEDControlService
-                led_service = LEDControlService()
-                mqtt_status = "connected" if led_service.is_connected else "disconnected"
+                    if 'timestamp' in doc and hasattr(doc['timestamp'], 'isoformat'):
+                        doc['timestamp'] = doc['timestamp'].isoformat()
 
                 return {
                     "status": "success",
-                    "data": {
-                        "database": db_status,
-                        "mqtt": mqtt_status,
-                        "timestamp": datetime.now().isoformat(),
-                        "version": "1.0.0"
-                    }
+                    "data": result['data'],
+                    "pagination": result['pagination'],
+                    "filters": result['filters'],
+                    "sort": result['sort'],
+                    "count": len(result['data']),
+                    "total_count": result['pagination']['total_count']
                 }
+
             except Exception as e:
-                return {
-                    "status": "error",
-                    "message": str(e)
-                }, 500
+                return {"status": "error", "message": str(e), "data": []}, 500
 
-    @system_ns.route('/info')
-    class InfoResource(Resource):
-        @system_ns.doc('system_info', description='Thông tin chi tiết về hệ thống')
+    @sensors_ns.route('/sensor-data/chart')
+    class ChartDataResource(Resource):
+        @sensors_ns.doc('get_chart_data',
+                        description='Lấy dữ liệu cảm biến cho biểu đồ',
+                        params={
+                            'limit': 'Giới hạn số bản ghi (mặc định: 50, có thể là "all")',
+                            'date': 'Ngày cụ thể (YYYY-MM-DD)',
+                            'timePeriod': 'Khoảng thời gian (today, 1day, 2days)'
+                        },
+                        responses={
+                            200: 'Thành công - Trả về dữ liệu cho biểu đồ',
+                            500: 'Lỗi server - Không thể lấy dữ liệu biểu đồ'
+                        })
         def get(self):
-            return {
-                "status": "success",
-                "data": {
-                    "name": "IoT Monitoring System",
-                    "version": "1.0.0",
-                    "description": "Hệ thống giám sát IoT với các chức năng quản lý dữ liệu cảm biến, điều khiển LED và truy vấn dữ liệu",
-                    "endpoints": {
-                        "sensors": "/api/v1/sensors/",
-                        "nosql": "/api/v1/nosql/",
-                        "system": "/api/v1/system/",
-                        "docs": "/docs/"
-                    },
-                    "features": [
-                        "Thu thập dữ liệu cảm biến từ ESP32",
-                        "Điều khiển LED qua MQTT",
-                        "Truy vấn dữ liệu NoSQL",
-                        "Thống kê và phân tích dữ liệu",
-                        "API documentation với Swagger"
-                    ]
-                }
-            }
+            try:
+                from flask import request
+                from app.core.database import DatabaseManager
+                from app.core.timezone_utils import get_vietnam_timezone, create_vietnam_datetime
 
-    api.add_namespace(system_ns)
+                limit_arg = request.args.get('limit', '50')
+                date_str = request.args.get('date', None)
+                time_period = request.args.get('timePeriod', None)
+
+                limit = 50
+                is_all_data = False
+                if limit_arg and limit_arg.lower() == 'all':
+                    is_all_data = True
+                    limit = None
+                elif limit_arg:
+                    try:
+                        limit = int(limit_arg)
+                        if limit <= 0:
+                            limit = 50
+                    except (ValueError, TypeError):
+                        limit = 50
+
+                db = DatabaseManager()
+                vn_tz = get_vietnam_timezone()
+                end_time = datetime.now(vn_tz)
+
+                if date_str:
+                    try:
+                        selected_date_local = create_vietnam_datetime(
+                            *datetime.strptime(date_str, '%Y-%m-%d').timetuple()[:3],
+                            hour=0, minute=0, second=0, microsecond=0
+                        )
+                        start_time = selected_date_local
+                        end_time = selected_date_local.replace(hour=23, minute=59, second=59, microsecond=999999)
+                        data = db.search_by_time_range_optimized(start_time, end_time)
+                        data.sort(key=lambda x: x.get('timestamp') or datetime.min)
+                        if not is_all_data and limit and len(data) > limit:
+                            data = data[-limit:]
+                    except ValueError:
+                        data = db.get_recent_data(limit=limit)
+                        data.sort(key=lambda x: x.get('timestamp') or datetime.min)
+                else:
+                    if is_all_data:
+                        data = db.get_recent_data(limit=None)
+                    else:
+                        data = db.get_recent_data(limit=limit)
+                    data.sort(key=lambda x: x.get('timestamp') or datetime.min)
+
+                for doc in data:
+                    if '_id' in doc:
+                        doc['_id'] = str(doc['_id'])
+
+                    if 'timestamp' in doc and hasattr(doc['timestamp'], 'isoformat'):
+                        doc['timestamp'] = doc['timestamp'].isoformat()
+
+                return data
+
+            except Exception as e:
+                return {"error": f"Lỗi khi lấy dữ liệu biểu đồ: {str(e)}"}, 500
+
+    api.add_namespace(sensors_ns)
 
     app.register_blueprint(api_bp)
 

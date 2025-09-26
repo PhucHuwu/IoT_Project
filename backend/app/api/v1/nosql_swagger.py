@@ -13,33 +13,31 @@ from app.api.swagger_config import (
 db = DatabaseManager()
 
 text_search_parser = reqparse.RequestParser()
-text_search_parser.add_argument('q', type=str, required=True, help='Từ khóa tìm kiếm')
-text_search_parser.add_argument('fields', type=str, help='Các trường tìm kiếm, phân cách bằng dấu phẩy')
+text_search_parser.add_argument('q', type=str, required=True)
+text_search_parser.add_argument('fields', type=str)
 
 range_search_parser = reqparse.RequestParser()
 range_search_parser.add_argument('field', type=str, required=True,
-                                 choices=['temperature', 'humidity', 'light'],
-                                 help='Trường tìm kiếm')
-range_search_parser.add_argument('min', type=float, help='Giá trị tối thiểu')
-range_search_parser.add_argument('max', type=float, help='Giá trị tối đa')
+                                 choices=['temperature', 'humidity', 'light'])
+range_search_parser.add_argument('min', type=float)
+range_search_parser.add_argument('max', type=float)
 
 aggregated_parser = reqparse.RequestParser()
 aggregated_parser.add_argument('group_by', type=str, default='hour',
-                               choices=['minute', 'hour', 'day'],
-                               help='Nhóm theo')
-aggregated_parser.add_argument('start_date', type=str, help='Ngày bắt đầu (YYYY-MM-DD)')
-aggregated_parser.add_argument('end_date', type=str, help='Ngày kết thúc (YYYY-MM-DD)')
+                               choices=['minute', 'hour', 'day'])
+aggregated_parser.add_argument('start_date', type=str)
+aggregated_parser.add_argument('end_date', type=str)
 
 statistics_parser = reqparse.RequestParser()
-statistics_parser.add_argument('start_date', type=str, help='Ngày bắt đầu (YYYY-MM-DD)')
-statistics_parser.add_argument('end_date', type=str, help='Ngày kết thúc (YYYY-MM-DD)')
+statistics_parser.add_argument('start_date', type=str)
+statistics_parser.add_argument('end_date', type=str)
 
 
 @nosql_ns.route('/search/text')
 class TextSearchResource(Resource):
     @nosql_ns.expect(text_search_parser)
     @nosql_ns.marshal_with(success_response_model)
-    @nosql_ns.doc('search_by_text', description='Tìm kiếm theo text')
+    @nosql_ns.doc('search_by_text')
     def get(self):
         try:
             args = text_search_parser.parse_args()
@@ -75,7 +73,7 @@ class TextSearchResource(Resource):
 class RangeSearchResource(Resource):
     @nosql_ns.expect(range_search_parser)
     @nosql_ns.marshal_with(success_response_model)
-    @nosql_ns.doc('search_by_range', description='Tìm kiếm theo khoảng giá trị')
+    @nosql_ns.doc('search_by_range')
     def get(self):
         try:
             args = range_search_parser.parse_args()
@@ -115,7 +113,7 @@ class RangeSearchResource(Resource):
 class MultiCriteriaSearchResource(Resource):
     @nosql_ns.expect(multi_criteria_model)
     @nosql_ns.marshal_with(success_response_model)
-    @nosql_ns.doc('search_by_multiple_criteria', description='Tìm kiếm đa tiêu chí')
+    @nosql_ns.doc('search_by_multiple_criteria')
     def post(self):
         try:
             criteria = request.get_json() or {}
@@ -156,7 +154,7 @@ class MultiCriteriaSearchResource(Resource):
 class AggregatedDataResource(Resource):
     @nosql_ns.expect(aggregated_parser)
     @nosql_ns.marshal_with(success_response_model)
-    @nosql_ns.doc('get_aggregated_data', description='Lấy dữ liệu tổng hợp')
+    @nosql_ns.doc('get_aggregated_data')
     def get(self):
         try:
             args = aggregated_parser.parse_args()
@@ -206,7 +204,7 @@ class AggregatedDataResource(Resource):
 class StatisticsResource(Resource):
     @nosql_ns.expect(statistics_parser)
     @nosql_ns.marshal_with(statistics_model)
-    @nosql_ns.doc('get_statistics', description='Lấy thống kê')
+    @nosql_ns.doc('get_statistics')
     def get(self):
         try:
             args = statistics_parser.parse_args()
@@ -250,7 +248,7 @@ class StatisticsResource(Resource):
 class AdvancedSearchResource(Resource):
     @nosql_ns.expect(advanced_search_model)
     @nosql_ns.marshal_with(success_response_model)
-    @nosql_ns.doc('advanced_search', description='Tìm kiếm nâng cao')
+    @nosql_ns.doc('advanced_search')
     def post(self):
         try:
             search_params = request.get_json() or {}
