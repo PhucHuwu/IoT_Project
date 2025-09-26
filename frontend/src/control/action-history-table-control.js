@@ -320,16 +320,21 @@ class ActionHistoryTableControl {
             if (clearBtn) clearBtn.style.display = "block";
         }
 
+        // Xử lý sự kiện input để cập nhật giao diện
         input.addEventListener("input", (e) => {
             const value = e.target.value.trim();
             this.searchTerm = value;
             if (clearBtn) clearBtn.style.display = value ? "block" : "none";
+        });
 
-            clearTimeout(this.searchTimeout);
-            this.searchTimeout = setTimeout(() => {
+        // Xử lý sự kiện Enter để thực hiện tìm kiếm
+        input.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                clearTimeout(this.searchTimeout);
                 this.currentPage = 1;
                 this.load(this.itemsPerPage);
-            }, 500);
+            }
         });
 
         if (deviceSelect) {

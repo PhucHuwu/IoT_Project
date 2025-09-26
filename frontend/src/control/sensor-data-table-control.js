@@ -58,6 +58,7 @@ class SensorDataTableController {
         }
 
         if (searchInput) {
+            // Xử lý sự kiện input để cập nhật giao diện
             searchInput.addEventListener("input", (e) => {
                 const newSearchTerm = e.target.value.trim();
                 this.searchTerm = newSearchTerm;
@@ -82,11 +83,16 @@ class SensorDataTableController {
                         ? "block"
                         : "none";
                 }
-                clearTimeout(this.searchTimeout);
-                this.searchTimeout = setTimeout(() => {
+            });
+
+            // Xử lý sự kiện Enter để thực hiện tìm kiếm
+            searchInput.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    clearTimeout(this.searchTimeout);
                     this.currentPage = 1;
                     this.loadData();
-                }, 500);
+                }
             });
         }
 
