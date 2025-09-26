@@ -129,21 +129,65 @@ def create_app():
             try:
                 from flask import request
                 from app.core.database import DatabaseManager
+                import re
 
                 page = int(request.args.get('page', 1))
                 per_page = int(request.args.get('per_page', 10))
                 limit = request.args.get('limit', '10')
+                search_term = request.args.get('search', '')
+                search_criteria = request.args.get('search_criteria', 'all')
+                sort_field = request.args.get('sort_field', 'timestamp')
+                sort_order = request.args.get('sort_order', 'desc')
 
                 db = DatabaseManager()
 
-                if limit == 'all':
-                    data = db.get_recent_data(limit=None)
+                # Xử lý tìm kiếm
+                if search_term:
+                    if search_criteria == 'time':
+                        data = db.search_by_time_string(search_term)
+                    elif search_criteria in ['temperature', 'humidity', 'light']:
+                        if search_term.replace('.', '').isdigit():
+                            search_value = float(search_term)
+                            criteria = {
+                                f'{search_criteria}_min': search_value,
+                                f'{search_criteria}_max': search_value
+                            }
+                            data = db.search_by_multiple_criteria(criteria)
+                        else:
+                            data = []
+                    else:  # search_criteria == 'all'
+                        criteria = {'text_search': search_term}
+                        data = db.search_by_multiple_criteria(criteria)
                 else:
-                    try:
-                        limit_int = int(limit)
-                        data = db.get_recent_data(limit=limit_int)
-                    except ValueError:
-                        data = db.get_recent_data(limit=10)
+                    if limit == 'all':
+                        data = db.get_recent_data(limit=None)
+                    else:
+                        try:
+                            limit_int = int(limit)
+                            data = db.get_recent_data(limit=limit_int)
+                        except ValueError:
+                            data = db.get_recent_data(limit=10)
+
+                # Sắp xếp dữ liệu
+                if sort_field in ['temperature', 'humidity', 'light']:
+                    reverse = sort_order == 'desc'
+                    data.sort(key=lambda x: x.get(sort_field, 0), reverse=reverse)
+                elif sort_field == 'timestamp':
+                    reverse = sort_order == 'desc'
+
+                    def get_timestamp_for_sort(x):
+                        ts = x.get('timestamp')
+                        if isinstance(ts, str):
+                            try:
+                                from dateutil import parser
+                                return parser.parse(ts)
+                            except:
+                                return datetime.min
+                        elif isinstance(ts, datetime):
+                            return ts
+                        else:
+                            return datetime.min
+                    data.sort(key=get_timestamp_for_sort, reverse=reverse)
 
                 total_count = len(data)
                 start_idx = (page - 1) * per_page
@@ -167,6 +211,14 @@ def create_app():
                         "total_pages": (total_count + per_page - 1) // per_page,
                         "has_prev": page > 1,
                         "has_next": end_idx < total_count
+                    },
+                    "sort": {
+                        "field": sort_field,
+                        "order": sort_order
+                    },
+                    "search": {
+                        "term": search_term,
+                        "criteria": search_criteria
                     },
                     "count": len(paginated_data),
                     "total_count": total_count

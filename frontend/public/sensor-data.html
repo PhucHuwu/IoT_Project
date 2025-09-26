@@ -52,12 +52,6 @@
                         <div class="table-header">
                             <h3>Bảng dữ liệu cảm biến</h3>
                             <div class="table-controls">
-                                <select id="tablePageSize">
-                                    <option value="10">10 dòng</option>
-                                    <option value="25">25 dòng</option>
-                                    <option value="50">50 dòng</option>
-                                    <option value="100">100 dòng</option>
-                                </select>
                                 <button id="manualRefresh" class="refresh-btn">
                                     <i class="fas fa-sync-alt"></i>
                                     Làm mới
@@ -113,6 +107,12 @@
                                 <span id="paginationInfo">Hiển thị 0 - 0 của 0 bản ghi</span>
                             </div>
                             <div class="pagination-controls">
+                                <select id="tablePageSize" class="page-size-select">
+                                    <option value="10">10 dòng</option>
+                                    <option value="25">25 dòng</option>
+                                    <option value="50">50 dòng</option>
+                                    <option value="100">100 dòng</option>
+                                </select>
                                 <button id="prevPage" class="page-btn" disabled>
                                     <i class="fas fa-chevron-left"></i>
                                     Trước

@@ -52,8 +52,8 @@ class SensorDataTableController {
             searchCriteria.addEventListener("change", (e) => {
                 this.searchCriteria = e.target.value;
                 this.updateSearchPlaceholder(e.target.value);
-                this.currentPage = 1;
-                this.loadData();
+                // Không gọi loadData() ngay khi đổi searchCriteria
+                // Chỉ gọi khi user thực sự tìm kiếm
             });
         }
 
@@ -61,6 +61,22 @@ class SensorDataTableController {
             searchInput.addEventListener("input", (e) => {
                 const newSearchTerm = e.target.value.trim();
                 this.searchTerm = newSearchTerm;
+
+                // Tự động phát hiện format thời gian và thay đổi search_criteria
+                if (this.isTimeFormat(newSearchTerm)) {
+                    this.searchCriteria = "time";
+                    if (searchCriteria) {
+                        searchCriteria.value = "time";
+                        this.updateSearchPlaceholder("time");
+                    }
+                } else if (this.isNumericFormat(newSearchTerm)) {
+                    this.searchCriteria = "all";
+                    if (searchCriteria) {
+                        searchCriteria.value = "all";
+                        this.updateSearchPlaceholder("all");
+                    }
+                }
+
                 if (clearSearch) {
                     clearSearch.style.display = this.searchTerm
                         ? "block"
@@ -88,7 +104,7 @@ class SensorDataTableController {
                     this.updateSearchPlaceholder("all");
                 }
                 this.currentPage = 1;
-                this.loadData();
+                this.loadData(); // Vẫn gọi loadData() khi clear search vì đây là hành động tìm kiếm
             });
         }
 
@@ -161,6 +177,28 @@ class SensorDataTableController {
         searchInput.placeholder = placeholders[criteria] || placeholders.all;
     }
 
+    isTimeFormat(searchTerm) {
+        if (!searchTerm) return false;
+
+        // Các pattern thời gian được hỗ trợ
+        const timePatterns = [
+            /^\d{1,2}:\d{1,2}:\d{1,2}\s+\d{1,2}\/\d{1,2}\/\d{4}$/, // 15:57:50 26/09/2025
+            /^\d{1,2}:\d{1,2}\s+\d{1,2}\/\d{1,2}\/\d{4}$/, // 15:57 26/09/2025
+            /^\d{1,2}\/\d{1,2}\/\d{4}$/, // 26/09/2025
+            /^\d{1,2}:\d{1,2}:\d{1,2}$/, // 15:57:50
+            /^\d{1,2}:\d{1,2}$/, // 15:57
+        ];
+
+        return timePatterns.some((pattern) => pattern.test(searchTerm));
+    }
+
+    isNumericFormat(searchTerm) {
+        if (!searchTerm) return false;
+
+        // Kiểm tra xem có phải là số không (có thể có dấu thập phân)
+        return /^\d+(\.\d+)?$/.test(searchTerm);
+    }
+
     handleSort(field) {
         if (this.sortField === field) {
             this.sortOrder = this.sortOrder === "asc" ? "desc" : "asc";
@@ -191,11 +229,17 @@ class SensorDataTableController {
                 "all",
                 null,
                 null,
-                10,
+                1,
                 crudParams
             );
 
+            console.log("API Response:", response);
+            console.log("Search term:", this.searchTerm);
+            console.log("Search criteria:", this.searchCriteria);
+
             if (response.status === "success" && response.data) {
+                console.log("Data received:", response.data);
+                console.log("Data count:", response.data.length);
                 this.table.renderTable(
                     response.data,
                     response.pagination,

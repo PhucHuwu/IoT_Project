@@ -9,6 +9,7 @@ class LEDController {
         };
         this._initialized = false;
         this._listeners = [];
+        this._processingLEDs = new Set(); // Track which LEDs are being processed
 
         this._onVisibilityChangeBound = () => {
             if (document.visibilityState === "visible") {
@@ -43,7 +44,10 @@ class LEDController {
                 const ledId = `LED${ledNumber}`;
 
                 const handler = (e) => {
-                    if (toggleSwitch.classList.contains("loading")) {
+                    if (
+                        toggleSwitch.classList.contains("loading") ||
+                        this._processingLEDs.has(ledId)
+                    ) {
                         e.preventDefault();
                         return;
                     }
@@ -70,9 +74,17 @@ class LEDController {
     }
 
     async toggleLED(ledId, toggleElement, statusElement) {
+        // Kiểm tra xem LED này có đang được xử lý không
+        if (this._processingLEDs.has(ledId)) {
+            return;
+        }
+
         const currentState = this.ledStates[ledId];
         const newState = !currentState;
         const newAction = newState ? "ON" : "OFF";
+
+        // Đánh dấu LED đang được xử lý
+        this._processingLEDs.add(ledId);
 
         this.ledStates[ledId] = newState;
         this.updateLEDUI(toggleElement, statusElement, newState);
@@ -85,10 +97,6 @@ class LEDController {
                 console.log(
                     `${ledId} đã ${newAction === "ON" ? "bật" : "tắt"}`
                 );
-
-                setTimeout(() => {
-                    this.loadLEDStatesFromBackend();
-                }, 2000);
             } else {
                 throw new Error(result.message || "Lỗi không xác định");
             }
@@ -100,6 +108,7 @@ class LEDController {
             alert(`Không thể điều khiển ${ledId}: ${error.message}`);
         } finally {
             toggleElement.classList.remove("loading");
+            this._processingLEDs.delete(ledId);
         }
     }
 
@@ -127,19 +136,25 @@ class LEDController {
                     isOn = s === "ON" || s === "1" || s === "TRUE";
                 }
 
-                this.ledStates[ledId] = !!isOn;
+                // Chỉ cập nhật nếu trạng thái thực sự thay đổi
+                if (this.ledStates[ledId] !== isOn) {
+                    this.ledStates[ledId] = !!isOn;
 
-                const normalizedLower = ledId.toLowerCase();
-                const card =
-                    document.querySelector(`.sensor-card.${normalizedLower}`) ||
-                    document.querySelector(
-                        `.sensor-card[class*="${normalizedLower}"]`
-                    );
-                if (card) {
-                    const toggleSwitch = card.querySelector(".toggle-switch");
-                    const statusElement = card.querySelector(".led-status");
-                    if (toggleSwitch && statusElement) {
-                        this.updateLEDUI(toggleSwitch, statusElement, isOn);
+                    const normalizedLower = ledId.toLowerCase();
+                    const card =
+                        document.querySelector(
+                            `.sensor-card.${normalizedLower}`
+                        ) ||
+                        document.querySelector(
+                            `.sensor-card[class*="${normalizedLower}"]`
+                        );
+                    if (card) {
+                        const toggleSwitch =
+                            card.querySelector(".toggle-switch");
+                        const statusElement = card.querySelector(".led-status");
+                        if (toggleSwitch && statusElement) {
+                            this.updateLEDUI(toggleSwitch, statusElement, isOn);
+                        }
                     }
                 }
             });
@@ -167,8 +182,7 @@ class LEDController {
             this._listeners.forEach((item) => {
                 try {
                     item.element.removeEventListener(item.type, item.handler);
-                } catch (e) {
-                }
+                } catch (e) {}
             });
         }
 

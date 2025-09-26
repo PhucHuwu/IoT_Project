@@ -180,7 +180,7 @@ class SensorDataTable {
 
     showLoading() {
         if (this.loadingElement) {
-            this.loadingElement.style.display = "block";
+            this.loadingElement.style.display = "flex";
         }
     }
 

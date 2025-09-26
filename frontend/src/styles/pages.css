@@ -72,21 +72,3 @@
 .action-history-page .history-details {
     color: #555;
 }
-
-@media (prefers-color-scheme: dark) {
-    .profile-page .profile-section,
-    .action-history-page .history-item {
-        background: #2d3748;
-        color: #e2e8f0;
-    }
-
-    .sensor-data-page .data-table th {
-        background-color: #4a5568;
-        color: #e2e8f0;
-    }
-
-    .action-history-page .history-timestamp,
-    .action-history-page .history-details {
-        color: #a0aec0;
-    }
-}

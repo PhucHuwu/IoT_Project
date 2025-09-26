@@ -21,12 +21,6 @@ class ActionHistoryTable {
         tableHeader.innerHTML = `
       <h3>Bảng lịch sử hành động</h3>
       <div class="table-controls">
-        <select id="actionTablePageSize">
-          <option value="10">10 dòng</option>
-          <option value="25">25 dòng</option>
-          <option value="50">50 dòng</option>
-          <option value="100">100 dòng</option>
-        </select>
         <button id="actionManualRefresh" class="refresh-btn">
           <i class="fas fa-sync-alt"></i>
           Làm mới
@@ -121,6 +115,12 @@ class ActionHistoryTable {
         <span id="actionPaginationInfo">Hiển thị 0 - 0 của 0 bản ghi</span>
       </div>
       <div class="pagination-controls">
+        <select id="actionTablePageSize" class="page-size-select">
+          <option value="10">10 dòng</option>
+          <option value="25">25 dòng</option>
+          <option value="50">50 dòng</option>
+          <option value="100">100 dòng</option>
+        </select>
         <button id="actionPrevPage" class="page-btn" disabled>
           <i class="fas fa-chevron-left"></i>
           Trước
