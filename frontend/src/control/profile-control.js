@@ -191,8 +191,25 @@ function loadSavedAvatar() {
     }
 }
 
+function openInNewWindow(url) {
+    window.open(
+        url,
+        "_blank",
+        "width=1200,height=800,scrollbars=yes,resizable=yes"
+    );
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     loadSavedAvatar();
+
+    // Xử lý các link để mở cửa sổ mới thay vì tab mới
+    const externalLinks = document.querySelectorAll('a[target="_new"]');
+    externalLinks.forEach((link) => {
+        link.addEventListener("click", function (e) {
+            e.preventDefault();
+            openInNewWindow(this.href);
+        });
+    });
 });
 
 const _avatarModal = document.getElementById("avatarModal");
