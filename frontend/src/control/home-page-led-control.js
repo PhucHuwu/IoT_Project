@@ -167,10 +167,12 @@ class LEDController {
             toggleElement.classList.add("active");
             statusElement.textContent = "BẬT 💡";
             statusElement.style.color = "#34C759";
+            statusElement.classList.add("on");
         } else {
             toggleElement.classList.remove("active");
             statusElement.textContent = "TẮT";
             statusElement.style.color = "#999";
+            statusElement.classList.remove("on");
         }
     }
 

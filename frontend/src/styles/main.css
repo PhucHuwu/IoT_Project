@@ -556,6 +556,9 @@ body {
 .led-status.on {
     color: #34c759;
     text-shadow: 0 0 8px rgba(52, 199, 89, 0.3);
+    text-shadow: 0 0 8px rgba(52, 199, 89, 0.3), 0 0 16px rgba(52, 199, 89, 0.2),
+        0 0 24px rgba(52, 199, 89, 0.1);
+    
 }
 
 .toggle-switch {
