@@ -197,55 +197,127 @@ Tài liệu API đầy đủ có sẵn tại `http://localhost:5000/docs/` khi b
 
 #### Endpoint Dữ Liệu Cảm Biến
 
--   **GET** `/api/v1/sensors/sensor-data` - Lấy dữ liệu cảm biến mới nhất
--   **GET** `/api/v1/sensors/sensor-data-list` - Lấy dữ liệu cảm biến có phân trang với lọc nâng cao
--   **GET** `/api/v1/sensors/sensor-data/chart` - Lấy dữ liệu biểu đồ với lọc theo thời gian
--   **POST** `/api/v1/sensors/sensor-data` - Thêm dữ liệu cảm biến mới
--   **GET** `/api/v1/sensors/sensor-data/{id}` - Lấy dữ liệu cảm biến theo ID
+-   **GET** `/api/v1/sensors/sensor-data` - Lấy dữ liệu cảm biến mới nhất với thông tin trạng thái
+-   **GET** `/api/v1/sensors/sensor-data-list` - Lấy danh sách dữ liệu cảm biến với phân trang, sắp xếp và tìm kiếm nâng cao
+-   **GET** `/api/v1/sensors/sensor-data/chart` - Lấy dữ liệu biểu đồ với lọc theo thời gian và chọn ngày
+-   **POST** `/api/v1/sensors/sensor-data` - Thêm dữ liệu cảm biến mới (sử dụng bởi ESP32)
+-   **GET** `/api/v1/sensors/available-dates` - Lấy danh sách các ngày có dữ liệu cảm biến
 
 #### Endpoint Điều Khiển LED
 
--   **POST** `/api/v1/sensors/led-control` - Điều khiển LED (BẬT/TẮT)
--   **GET** `/api/v1/sensors/led-status` - Lấy trạng thái LED hiện tại
--   **GET** `/api/v1/sensors/action-history` - Lấy lịch sử hành động LED
-
-#### Endpoint Truy Vấn NoSQL
-
--   **GET** `/api/v1/nosql/search/text` - Tìm kiếm văn bản trong dữ liệu cảm biến
--   **GET** `/api/v1/nosql/search/range` - Tìm kiếm theo phạm vi giá trị số
--   **POST** `/api/v1/nosql/search/multi-criteria` - Tìm kiếm đa tiêu chí
--   **GET** `/api/v1/nosql/aggregated` - Lấy dữ liệu tổng hợp theo khoảng thời gian
--   **GET** `/api/v1/nosql/statistics` - Lấy thống kê dữ liệu
--   **POST** `/api/v1/nosql/search/advanced` - Tìm kiếm nâng cao với phân trang
-
-#### Endpoint Hệ Thống
-
--   **GET** `/api/v1/system/health` - Kiểm tra sức khỏe hệ thống
--   **GET** `/api/v1/system/info` - Thông tin hệ thống
+-   **POST** `/api/v1/sensors/led-control` - Điều khiển LED (BẬT/TẮT) qua MQTT
+-   **GET** `/api/v1/sensors/led-status` - Lấy trạng thái LED hiện tại từ lịch sử hành động
+-   **GET** `/api/v1/sensors/action-history` - Lấy lịch sử hành động LED với lọc và phân trang
 
 ### Tham Số Truy Vấn
 
-#### Danh Sách Dữ Liệu Cảm Biến (`/sensor-data-list`)
+#### Danh Sách Dữ Liệu Cảm Biến (`/api/v1/sensors/sensor-data-list`)
 
 -   `page`: Số trang (mặc định: 1)
 -   `per_page`: Bản ghi mỗi trang (mặc định: 10, tối đa: 100)
 -   `sort_field`: Trường sắp xếp (timestamp, temperature, humidity, light)
 -   `sort_order`: Thứ tự sắp xếp (asc, desc)
 -   `limit`: Giới hạn số bản ghi hoặc "all"
--   `timePeriod`: Khoảng thời gian (today, 1day, 2days)
--   `dateFrom`, `dateTo`: Ngày bắt đầu/kết thúc (YYYY-MM-DD)
 -   `search`: Thuật ngữ tìm kiếm để lọc
 -   `search_criteria`: Tiêu chí tìm kiếm (all, temperature, humidity, light, time)
 -   `sample`: Tần suất lấy mẫu (1, 2, 3, v.v.)
 
-#### Điều Khiển LED (`/led-control`)
+#### Dữ Liệu Biểu Đồ (`/api/v1/sensors/sensor-data/chart`)
+
+-   `limit`: Số lượng bản ghi (mặc định: 50, có thể là "all")
+-   `date`: Ngày cụ thể (định dạng YYYY-MM-DD)
+-   `timePeriod`: Bộ lọc khoảng thời gian (tùy chọn)
+
+#### Lịch Sử Hành Động (`/api/v1/sensors/action-history`)
+
+-   `page`: Số trang (mặc định: 1)
+-   `per_page`: Bản ghi mỗi trang (mặc định: 10, tối đa: 100)
+-   `sort_field`: Trường sắp xếp (timestamp, led, state)
+-   `sort_order`: Thứ tự sắp xếp (asc, desc)
+-   `search`: Thuật ngữ tìm kiếm để lọc
+-   `device_filter`: Lọc theo thiết bị (all, LED1, LED2, LED3)
+-   `state_filter`: Lọc theo trạng thái (all, ON, OFF)
+-   `limit`: Giới hạn số bản ghi
+
+### Ví Dụ Request/Response
+
+#### Điều Khiển LED (`/api/v1/sensors/led-control`)
 
 **Nội Dung Yêu Cầu:**
 
 ```json
 {
-    "led_id": "LED1|LED2|LED3",
-    "action": "ON|OFF"
+    "led_id": "LED1",
+    "action": "ON"
+}
+```
+
+**Response:**
+
+```json
+{
+    "status": "success",
+    "message": "Command LED1_ON sent successfully"
+}
+```
+
+#### Dữ Liệu Cảm Biến (`/api/v1/sensors/sensor-data`)
+
+**Response:**
+
+```json
+{
+    "_id": "507f1f77bcf86cd799439011",
+    "temperature": 25.5,
+    "humidity": 60.2,
+    "light": 45.8,
+    "timestamp": "2024-01-15T10:30:00+07:00",
+    "sensor_statuses": {
+        "temperature": "normal",
+        "humidity": "normal",
+        "light": "normal"
+    },
+    "overall_status": {
+        "status": "normal",
+        "color_class": "status-normal"
+    }
+}
+```
+
+#### Danh Sách Dữ Liệu Cảm Biến (`/api/v1/sensors/sensor-data-list`)
+
+**Response:**
+
+```json
+{
+    "status": "success",
+    "data": [
+        {
+            "_id": "507f1f77bcf86cd799439011",
+            "temperature": 25.5,
+            "humidity": 60.2,
+            "light": 45.8,
+            "timestamp": "2024-01-15T10:30:00+07:00"
+        }
+    ],
+    "pagination": {
+        "page": 1,
+        "per_page": 10,
+        "total_count": 150,
+        "total_pages": 15,
+        "has_prev": false,
+        "has_next": true
+    },
+    "sort": {
+        "field": "timestamp",
+        "order": "desc"
+    },
+    "search": {
+        "term": "",
+        "criteria": "all"
+    },
+    "count": 10,
+    "total_count": 150
 }
 ```
 
@@ -266,10 +338,11 @@ IoT_Project/
 │   │   ├── __init__.py
 │   │   ├── api/                                           # Route API và blueprint
 │   │   │   ├── routes.py
+│   │   │   ├── swagger_config.py
 │   │   │   ├── __init__.py
 │   │   │   └── v1/
-│   │   │       ├── nosql_queries.py
 │   │   │       ├── sensors.py
+│   │   │       ├── sensors_swagger.py
 │   │   │       └── __init__.py
 │   │   │
 │   │   ├── core/                                          # Cấu hình và cơ sở dữ liệu
@@ -288,7 +361,6 @@ IoT_Project/
 │   │       ├── data_service.py
 │   │       ├── led_control_service.py
 │   │       ├── mqtt_service.py
-│   │       ├── nosql_query_service.py
 │   │       ├── status_service.py
 │   │       ├── validation_service.py
 │   │       └── __init__.py
@@ -313,7 +385,6 @@ IoT_Project/
 │       │   ├── home-page-led-control.js
 │       │   ├── home-page-sensor-card-control.js
 │       │   ├── profile-control.js
-│       │   ├── sensor-data-chart-control.js
 │       │   └── sensor-data-table-control.js
 │       │
 │       ├── pages/                                         # Trình tải trang
@@ -332,7 +403,6 @@ IoT_Project/
 │       └── view/                                          # View và template
 │           ├── charts/
 │           │   ├── home-page-chart.js
-│           │   └── sensor-data-chart.js
 │           │
 │           ├── sensors/
 │           │   └── home-page-sensor-card.js

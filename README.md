@@ -197,55 +197,127 @@ Complete API documentation is available at `http://localhost:5000/docs/` when th
 
 #### Sensor Data Endpoints
 
--   **GET** `/api/v1/sensors/sensor-data` - Get latest sensor data
--   **GET** `/api/v1/sensors/sensor-data-list` - Get paginated sensor data with advanced filtering
--   **GET** `/api/v1/sensors/sensor-data/chart` - Get chart data with time-based filtering
--   **POST** `/api/v1/sensors/sensor-data` - Add new sensor data
--   **GET** `/api/v1/sensors/sensor-data/{id}` - Get sensor data by ID
+-   **GET** `/api/v1/sensors/sensor-data` - Get latest sensor data with status information
+-   **GET** `/api/v1/sensors/sensor-data-list` - Get paginated sensor data with advanced filtering, sorting, and search
+-   **GET** `/api/v1/sensors/sensor-data/chart` - Get chart data with time-based filtering and date selection
+-   **POST** `/api/v1/sensors/sensor-data` - Add new sensor data (used by ESP32)
+-   **GET** `/api/v1/sensors/available-dates` - Get list of dates with available sensor data
 
 #### LED Control Endpoints
 
--   **POST** `/api/v1/sensors/led-control` - Control LED (ON/OFF)
--   **GET** `/api/v1/sensors/led-status` - Get current LED status
--   **GET** `/api/v1/sensors/action-history` - Get LED action history
-
-#### NoSQL Query Endpoints
-
--   **GET** `/api/v1/nosql/search/text` - Text search in sensor data
--   **GET** `/api/v1/nosql/search/range` - Search by numeric value range
--   **POST** `/api/v1/nosql/search/multi-criteria` - Multi-criteria search
--   **GET** `/api/v1/nosql/aggregated` - Get aggregated data by time periods
--   **GET** `/api/v1/nosql/statistics` - Get data statistics
--   **POST** `/api/v1/nosql/search/advanced` - Advanced search with pagination
-
-#### System Endpoints
-
--   **GET** `/api/v1/system/health` - System health check
--   **GET** `/api/v1/system/info` - System information
+-   **POST** `/api/v1/sensors/led-control` - Control LED (ON/OFF) via MQTT
+-   **GET** `/api/v1/sensors/led-status` - Get current LED status from action history
+-   **GET** `/api/v1/sensors/action-history` - Get LED action history with filtering and pagination
 
 ### Query Parameters
 
-#### Sensor Data List (`/sensor-data-list`)
+#### Sensor Data List (`/api/v1/sensors/sensor-data-list`)
 
 -   `page`: Page number (default: 1)
 -   `per_page`: Records per page (default: 10, max: 100)
 -   `sort_field`: Sort field (timestamp, temperature, humidity, light)
 -   `sort_order`: Sort order (asc, desc)
 -   `limit`: Limit number of records or "all"
--   `timePeriod`: Time period (today, 1day, 2days)
--   `dateFrom`, `dateTo`: Start/end date (YYYY-MM-DD)
 -   `search`: Search term for filtering
 -   `search_criteria`: Search criteria (all, temperature, humidity, light, time)
 -   `sample`: Sampling frequency (1, 2, 3, etc.)
 
-#### LED Control (`/led-control`)
+#### Chart Data (`/api/v1/sensors/sensor-data/chart`)
+
+-   `limit`: Number of records (default: 50, can be "all")
+-   `date`: Specific date (YYYY-MM-DD format)
+-   `timePeriod`: Time period filter (optional)
+
+#### Action History (`/api/v1/sensors/action-history`)
+
+-   `page`: Page number (default: 1)
+-   `per_page`: Records per page (default: 10, max: 100)
+-   `sort_field`: Sort field (timestamp, led, state)
+-   `sort_order`: Sort order (asc, desc)
+-   `search`: Search term for filtering
+-   `device_filter`: Filter by device (all, LED1, LED2, LED3)
+-   `state_filter`: Filter by state (all, ON, OFF)
+-   `limit`: Limit number of records
+
+### Request/Response Examples
+
+#### LED Control (`/api/v1/sensors/led-control`)
 
 **Request Body:**
 
 ```json
 {
-    "led_id": "LED1|LED2|LED3",
-    "action": "ON|OFF"
+    "led_id": "LED1",
+    "action": "ON"
+}
+```
+
+**Response:**
+
+```json
+{
+    "status": "success",
+    "message": "Command LED1_ON sent successfully"
+}
+```
+
+#### Sensor Data (`/api/v1/sensors/sensor-data`)
+
+**Response:**
+
+```json
+{
+    "_id": "507f1f77bcf86cd799439011",
+    "temperature": 25.5,
+    "humidity": 60.2,
+    "light": 45.8,
+    "timestamp": "2024-01-15T10:30:00+07:00",
+    "sensor_statuses": {
+        "temperature": "normal",
+        "humidity": "normal",
+        "light": "normal"
+    },
+    "overall_status": {
+        "status": "normal",
+        "color_class": "status-normal"
+    }
+}
+```
+
+#### Sensor Data List (`/api/v1/sensors/sensor-data-list`)
+
+**Response:**
+
+```json
+{
+    "status": "success",
+    "data": [
+        {
+            "_id": "507f1f77bcf86cd799439011",
+            "temperature": 25.5,
+            "humidity": 60.2,
+            "light": 45.8,
+            "timestamp": "2024-01-15T10:30:00+07:00"
+        }
+    ],
+    "pagination": {
+        "page": 1,
+        "per_page": 10,
+        "total_count": 150,
+        "total_pages": 15,
+        "has_prev": false,
+        "has_next": true
+    },
+    "sort": {
+        "field": "timestamp",
+        "order": "desc"
+    },
+    "search": {
+        "term": "",
+        "criteria": "all"
+    },
+    "count": 10,
+    "total_count": 150
 }
 ```
 
@@ -265,10 +337,11 @@ IoT_Project/
 │   │   ├── __init__.py
 │   │   ├── api/                                           # API routes and blueprints
 │   │   │   ├── routes.py
+│   │   │   ├── swagger_config.py
 │   │   │   ├── __init__.py
 │   │   │   └── v1/
-│   │   │       ├── nosql_queries.py
 │   │   │       ├── sensors.py
+│   │   │       ├── sensors_swagger.py
 │   │   │       └── __init__.py
 │   │   │
 │   │   ├── core/                                          # Configuration and database
@@ -287,7 +360,6 @@ IoT_Project/
 │   │       ├── data_service.py
 │   │       ├── led_control_service.py
 │   │       ├── mqtt_service.py
-│   │       ├── nosql_query_service.py
 │   │       ├── status_service.py
 │   │       ├── validation_service.py
 │   │       └── __init__.py
@@ -312,7 +384,6 @@ IoT_Project/
 │       │   ├── home-page-led-control.js
 │       │   ├── home-page-sensor-card-control.js
 │       │   ├── profile-control.js
-│       │   ├── sensor-data-chart-control.js
 │       │   └── sensor-data-table-control.js
 │       │
 │       ├── pages/                                         # Page loaders
@@ -331,7 +402,6 @@ IoT_Project/
 │       └── view/                                          # Views and templates
 │           ├── charts/
 │           │   ├── home-page-chart.js
-│           │   └── sensor-data-chart.js
 │           │
 │           ├── sensors/
 │           │   └── home-page-sensor-card.js
