@@ -29,6 +29,71 @@
     --line-height-tight: 1.2;
     --line-height-normal: 1.4;
     --line-height-relaxed: 1.6;
+
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-2xl: 48px;
+    --spacing-3xl: 64px;
+
+    --border-radius-sm: 8px;
+    --border-radius-md: 12px;
+    --border-radius-lg: 16px;
+    --border-radius-xl: 24px;
+    --border-radius-2xl: 30px;
+
+    --liquid-glass-gradient: linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 0.5) 0%,
+        rgba(255, 255, 255, 0.35) 25%,
+        rgba(250, 250, 255, 0.4) 50%,
+        rgba(255, 255, 255, 0.38) 75%,
+        rgba(255, 255, 255, 0.25) 100%
+    );
+
+    --liquid-glass-radial-light: radial-gradient(
+        ellipse 200px 150px at 30% 30%,
+        rgba(255, 255, 255, 0.6) 0%,
+        transparent 60%
+    );
+
+    --liquid-glass-radial-blue: radial-gradient(
+        ellipse 150px 200px at 70% 70%,
+        rgba(0, 122, 255, 0.2) 0%,
+        transparent 60%
+    );
+
+    --liquid-glass-radial-lightblue: radial-gradient(
+        ellipse 150px 200px at 70% 70%,
+        rgba(173, 216, 230, 0.3) 0%,
+        transparent 60%
+    );
+
+    --liquid-glass-backdrop: blur(60px) saturate(200%) brightness(110%)
+        contrast(105%);
+    --liquid-glass-backdrop-light: blur(40px) saturate(180%) brightness(110%)
+        contrast(105%);
+
+    --liquid-glass-shadow: 0 20px 60px rgba(255, 255, 255, 0.15),
+        0 10px 40px rgba(0, 0, 0, 0.08), 0 4px 20px rgba(255, 255, 255, 0.1),
+        inset 0 2px 0 rgba(255, 255, 255, 0.95),
+        inset 0 -2px 0 rgba(255, 255, 255, 0.4),
+        inset 2px 0 0 rgba(255, 255, 255, 0.4),
+        inset -2px 0 0 rgba(255, 255, 255, 0.2);
+
+    --liquid-glass-shadow-light: 0 15px 40px rgba(255, 255, 255, 0.15),
+        0 8px 25px rgba(0, 0, 0, 0.08), 0 4px 15px rgba(255, 255, 255, 0.1),
+        inset 0 2px 0 rgba(255, 255, 255, 0.95),
+        inset 0 -2px 0 rgba(255, 255, 255, 0.4),
+        inset 2px 0 0 rgba(255, 255, 255, 0.4),
+        inset -2px 0 0 rgba(255, 255, 255, 0.2);
+
+    --liquid-glass-border: 1px solid rgba(255, 255, 255, 0.6);
+    --liquid-glass-border-light: 1px solid rgba(255, 255, 255, 0.5);
+
+    --liquid-glass-transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 html,
@@ -432,37 +497,15 @@ body {
 }
 
 .sensor-card {
-    background: linear-gradient(
-            -45deg,
-            rgba(255, 255, 255, 0.5) 0%,
-            rgba(255, 255, 255, 0.35) 25%,
-            rgba(250, 250, 255, 0.4) 50%,
-            rgba(255, 255, 255, 0.38) 75%,
-            rgba(255, 255, 255, 0.25) 100%
-        ),
-        radial-gradient(
-            ellipse 200px 150px at 30% 30%,
-            rgba(255, 255, 255, 0.6) 0%,
-            transparent 60%
-        ),
-        radial-gradient(
-            ellipse 150px 200px at 70% 70%,
-            rgba(173, 216, 230, 0.3) 0%,
-            transparent 60%
-        );
-    backdrop-filter: blur(60px) saturate(200%) brightness(110%) contrast(105%);
-    -webkit-backdrop-filter: blur(60px) saturate(200%) brightness(110%)
-        contrast(105%);
-    border-radius: 30px;
+    background: var(--liquid-glass-gradient), var(--liquid-glass-radial-light),
+        var(--liquid-glass-radial-lightblue);
+    backdrop-filter: var(--liquid-glass-backdrop);
+    -webkit-backdrop-filter: var(--liquid-glass-backdrop);
+    border-radius: var(--border-radius-2xl);
     padding: 20px;
-    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-    box-shadow: 0 20px 60px rgba(255, 255, 255, 0.15),
-        0 10px 40px rgba(0, 0, 0, 0.08), 0 4px 20px rgba(255, 255, 255, 0.1),
-        inset 0 2px 0 rgba(255, 255, 255, 0.95),
-        inset 0 -2px 0 rgba(255, 255, 255, 0.4),
-        inset 2px 0 0 rgba(255, 255, 255, 0.4),
-        inset -2px 0 0 rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.6);
+    transition: var(--liquid-glass-transition);
+    box-shadow: var(--liquid-glass-shadow);
+    border: var(--liquid-glass-border);
     position: relative;
     overflow: hidden;
 }
@@ -730,7 +773,18 @@ body {
     flex-wrap: wrap;
 }
 
-.chart-header select {
+.chart-header select,
+.table-controls select,
+.search-criteria-select,
+.page-size-select,
+.filter-select,
+#actionFilterDevice,
+#actionFilterState,
+#sensorTypeSelector,
+#dataLimitSelector,
+#searchCriteria,
+#tablePageSize,
+#actionTablePageSize {
     background: linear-gradient(
             -45deg,
             rgba(255, 255, 255, 0.8) 0%,
@@ -749,7 +803,6 @@ body {
         contrast(105%);
     border: 1px solid rgba(255, 255, 255, 0.5);
     border-radius: 30px;
-    padding: 8px 16px;
     font-size: var(--font-size-footnote);
     font-weight: var(--font-weight-regular);
     font-family: var(--font-family-system);
@@ -759,16 +812,68 @@ body {
     box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2),
         0 2px 8px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8),
         inset 0 -1px 0 rgba(255, 255, 255, 0.3);
+    outline: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 12px;
 }
 
-.chart-header select:hover {
+.chart-header select,
+.search-criteria-select,
+.filter-select,
+#actionFilterDevice,
+#actionFilterState,
+#sensorTypeSelector,
+#dataLimitSelector,
+#searchCriteria {
+    padding: 8px 16px;
+    min-width: 140px;
+    min-height: 36px;
+    padding-right: 40px;
+}
+
+.table-controls select,
+.page-size-select,
+#tablePageSize,
+#actionTablePageSize {
+    padding: 8px 16px;
+    min-width: 80px;
+    min-height: 32px;
+    padding-right: 40px;
+}
+
+.chart-header select:hover,
+.table-controls select:hover,
+.search-criteria-select:hover,
+.page-size-select:hover,
+.filter-select:hover,
+#actionFilterDevice:hover,
+#actionFilterState:hover,
+#sensorTypeSelector:hover,
+#dataLimitSelector:hover,
+#searchCriteria:hover,
+#tablePageSize:hover,
+#actionTablePageSize:hover {
     border-color: rgba(0, 122, 255, 0.6);
     box-shadow: 0 6px 20px rgba(0, 122, 255, 0.15),
         0 3px 12px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9),
         inset 0 -1px 0 rgba(255, 255, 255, 0.4);
 }
 
-.chart-header select:focus {
+.chart-header select:focus,
+.table-controls select:focus,
+.search-criteria-select:focus,
+.page-size-select:focus,
+.filter-select:focus,
+#actionFilterDevice:focus,
+#actionFilterState:focus,
+#sensorTypeSelector:focus,
+#dataLimitSelector:focus,
+#searchCriteria:focus,
+#tablePageSize:focus,
+#actionTablePageSize:focus {
     outline: none;
     border-color: rgba(0, 122, 255, 0.7);
     box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15),
@@ -807,6 +912,7 @@ body {
         0 2px 8px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8),
         inset 0 -1px 0 rgba(255, 255, 255, 0.3);
     min-width: 140px;
+    min-height: 18px;
 }
 
 .chart-header .date-picker:hover {
@@ -1160,51 +1266,6 @@ body {
     gap: 12px;
 }
 
-.table-controls select {
-    background: linear-gradient(
-            -45deg,
-            rgba(255, 255, 255, 0.8) 0%,
-            rgba(255, 255, 255, 0.6) 25%,
-            rgba(250, 250, 255, 0.7) 50%,
-            rgba(255, 255, 255, 0.65) 75%,
-            rgba(255, 255, 255, 0.5) 100%
-        ),
-        radial-gradient(
-            ellipse 80px 40px at 50% 50%,
-            rgba(255, 255, 255, 0.3) 0%,
-            transparent 60%
-        );
-    backdrop-filter: blur(20px) saturate(180%) brightness(110%) contrast(105%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(110%)
-        contrast(105%);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    border-radius: 30px;
-    padding: 8px 16px;
-    font-size: 12px;
-    color: rgba(15, 15, 15, 0.8);
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2),
-        0 2px 8px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8),
-        inset 0 -1px 0 rgba(255, 255, 255, 0.3);
-}
-
-.table-controls select:hover {
-    border-color: rgba(0, 122, 255, 0.6);
-    box-shadow: 0 6px 20px rgba(0, 122, 255, 0.15),
-        0 3px 12px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9),
-        inset 0 -1px 0 rgba(255, 255, 255, 0.4);
-}
-
-.table-controls select:focus {
-    outline: none;
-    border-color: rgba(0, 122, 255, 0.7);
-    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15),
-        0 6px 20px rgba(0, 122, 255, 0.2), 0 3px 12px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9),
-        inset 0 -1px 0 rgba(255, 255, 255, 0.4);
-}
-
 .export-btn {
     background: linear-gradient(
             -45deg,
@@ -1383,46 +1444,6 @@ body {
 
 .search-criteria-group {
     flex-shrink: 0;
-}
-
-.search-criteria-select {
-    background: linear-gradient(
-        135deg,
-        rgba(15, 15, 15, 0.03) 0%,
-        rgba(250, 250, 250, 0.6) 50%,
-        rgba(255, 255, 255, 0.8) 100%
-    );
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(250, 250, 250, 0.3);
-    border-radius: 30px;
-    padding: 8px 16px;
-    font-size: 12px;
-    color: rgba(15, 15, 15, 0.8);
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04),
-        inset 0 1px 0 rgba(255, 255, 255, 0.6);
-    outline: none;
-    appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 16px;
-    padding-right: 40px;
-    min-width: 140px;
-    height: 42px;
-}
-
-.search-criteria-select:focus {
-    border-color: #007aff;
-    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
-}
-
-.search-criteria-select:hover {
-    border-color: #007aff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 .filter-toggle-section {
@@ -1767,52 +1788,6 @@ body {
         inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
-.filter-select,
-#actionFilterDevice,
-#actionFilterState {
-    background: linear-gradient(
-        135deg,
-        rgba(15, 15, 15, 0.03) 0%,
-        rgba(250, 250, 250, 0.6) 50%,
-        rgba(255, 255, 255, 0.8) 100%
-    );
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(250, 250, 250, 0.3);
-    border-radius: 30px;
-    padding: 8px 16px;
-    font-size: 12px;
-    color: rgba(15, 15, 15, 0.8);
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04),
-        inset 0 1px 0 rgba(255, 255, 255, 0.6);
-    outline: none;
-    appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 16px;
-    padding-right: 40px;
-    min-width: 120px;
-    height: 42px;
-}
-
-.filter-select:focus,
-#actionFilterDevice:focus,
-#actionFilterState:focus {
-    border-color: #007aff;
-    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
-}
-
-.filter-select:hover,
-#actionFilterDevice:hover,
-#actionFilterState:hover {
-    border-color: #007aff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.8);
-}
-
 .filter-label {
     font-size: 12px;
     font-weight: 600;
@@ -2082,29 +2057,6 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-}
-
-.page-size-select {
-    background: linear-gradient(
-        135deg,
-        rgba(15, 15, 15, 0.03) 0%,
-        rgba(250, 250, 250, 0.6) 50%,
-        rgba(255, 255, 255, 0.8) 100%
-    );
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(250, 250, 250, 0.3);
-    border-radius: 20px;
-    padding: 6px 12px;
-    font-size: 12px;
-    font-weight: 500;
-    color: rgba(15, 15, 15, 0.8);
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04),
-        inset 0 1px 0 rgba(255, 255, 255, 0.6);
-    outline: none;
-    min-width: 80px;
 }
 
 .page-btn {
