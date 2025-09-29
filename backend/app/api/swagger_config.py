@@ -7,13 +7,12 @@ api = Api(
     swagger_bp,
     version='1.0',
     title='IoT Monitoring System API',
-    description='API REST cho hệ thống giám sát IoT với các chức năng quản lý dữ liệu cảm biến, điều khiển LED và truy vấn dữ liệu',
+    description='API REST cho hệ thống giám sát IoT với các chức năng quản lý dữ liệu cảm biến và điều khiển LED',
     doc='/docs/',
     prefix='/api/v1'
 )
 
 sensors_ns = api.namespace('sensors', description='Quản lý dữ liệu cảm biến và điều khiển LED')
-nosql_ns = api.namespace('nosql', description='Truy vấn NoSQL và thống kê dữ liệu')
 
 sensor_data_model = api.model('SensorData', {
     'temperature': fields.Float(required=True, description='Nhiệt độ (Celsius)', example=25.5),
@@ -86,65 +85,9 @@ error_response_model = api.model('ErrorResponse', {
     'data': fields.List(fields.Raw, description='Dữ liệu lỗi')
 })
 
-multi_criteria_model = api.model('MultiCriteria', {
-    'start_date': fields.String(description='Ngày bắt đầu (YYYY-MM-DD)', example='2024-01-01'),
-    'end_date': fields.String(description='Ngày kết thúc (YYYY-MM-DD)', example='2024-01-31'),
-    'temperature_min': fields.Float(description='Nhiệt độ tối thiểu'),
-    'temperature_max': fields.Float(description='Nhiệt độ tối đa'),
-    'humidity_min': fields.Float(description='Độ ẩm tối thiểu'),
-    'humidity_max': fields.Float(description='Độ ẩm tối đa'),
-    'light_min': fields.Float(description='Ánh sáng tối thiểu'),
-    'light_max': fields.Float(description='Ánh sáng tối đa'),
-    'text_search': fields.String(description='Từ khóa tìm kiếm text')
-})
-
-advanced_search_model = api.model('AdvancedSearch', {
-    'query': fields.Raw(description='Query MongoDB'),
-    'page': fields.Integer(description='Số trang', default=1),
-    'per_page': fields.Integer(description='Số bản ghi mỗi trang', default=10),
-    'sort_field': fields.String(description='Trường sắp xếp', default='timestamp'),
-    'sort_order': fields.String(description='Thứ tự sắp xếp', enum=['asc', 'desc'], default='desc')
-})
-
-statistics_model = api.model('Statistics', {
-    'temperature': fields.Raw(description='Thống kê nhiệt độ'),
-    'humidity': fields.Raw(description='Thống kê độ ẩm'),
-    'light': fields.Raw(description='Thống kê ánh sáng')
-})
-
-aggregated_data_model = api.model('AggregatedData', {
-    '_id': fields.Raw(description='ID nhóm'),
-    'avg_temperature': fields.Float(description='Nhiệt độ trung bình'),
-    'avg_humidity': fields.Float(description='Độ ẩm trung bình'),
-    'avg_light': fields.Float(description='Ánh sáng trung bình'),
-    'count': fields.Integer(description='Số lượng bản ghi')
-})
-
-health_check_model = api.model('HealthCheck', {
-    'database': fields.String(description='Trạng thái database', enum=['connected', 'disconnected']),
-    'mqtt': fields.String(description='Trạng thái MQTT', enum=['connected', 'disconnected']),
-    'timestamp': fields.String(description='Thời gian kiểm tra'),
-    'version': fields.String(description='Phiên bản hệ thống')
-})
-
-system_info_model = api.model('SystemInfo', {
-    'name': fields.String(description='Tên hệ thống'),
-    'version': fields.String(description='Phiên bản'),
-    'description': fields.String(description='Mô tả hệ thống'),
-    'endpoints': fields.Raw(description='Danh sách endpoints'),
-    'features': fields.List(fields.String, description='Các tính năng')
-})
-
 chart_data_model = api.model('ChartData', {
     'timestamp': fields.DateTime(description='Thời gian'),
     'temperature': fields.Float(description='Nhiệt độ'),
     'humidity': fields.Float(description='Độ ẩm'),
     'light': fields.Float(description='Ánh sáng')
-})
-
-export_data_model = api.model('ExportData', {
-    'format': fields.String(description='Định dạng export', enum=['json', 'csv', 'xlsx']),
-    'start_date': fields.String(description='Ngày bắt đầu'),
-    'end_date': fields.String(description='Ngày kết thúc'),
-    'fields': fields.List(fields.String, description='Các trường cần export')
 })

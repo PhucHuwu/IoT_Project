@@ -233,8 +233,6 @@ class SensorDataTableController {
 
             const response = await SensorDataService.getSensorDataList(
                 "all",
-                null,
-                null,
                 1,
                 crudParams
             );
@@ -304,8 +302,6 @@ class SensorDataTableController {
 
                 const response = await SensorDataService.getSensorDataList(
                     "all",
-                    null,
-                    null,
                     10,
                     crudParams
                 );

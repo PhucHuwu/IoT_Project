@@ -42,7 +42,6 @@ def sensor_data_list():
             except (ValueError, TypeError):
                 limit = None
 
-        time_period = request.args.get('timePeriod', None)
         try:
             sample = int(request.args.get('sample', 1))
             if sample < 1:
@@ -50,99 +49,7 @@ def sensor_data_list():
         except ValueError:
             sample = 1
 
-        date_from = request.args.get('dateFrom', None)
-        date_to = request.args.get('dateTo', None)
-        temp_min = request.args.get('tempMin', None)
-        temp_max = request.args.get('tempMax', None)
-        light_min = request.args.get('lightMin', None)
-        light_max = request.args.get('lightMax', None)
-        humidity_min = request.args.get('humidityMin', None)
-        humidity_max = request.args.get('humidityMax', None)
-
         query_filter = {}
-
-        if date_from or date_to:
-            timestamp_filter = {}
-            if date_from:
-                try:
-                    start_date = create_vietnam_datetime(
-                        *datetime.strptime(date_from, '%Y-%m-%d').timetuple()[:3],
-                        hour=0, minute=0, second=0, microsecond=0
-                    )
-                    timestamp_filter['$gte'] = start_date
-                except ValueError:
-                    pass
-
-            if date_to:
-                try:
-                    end_date = create_vietnam_datetime(
-                        *datetime.strptime(date_to, '%Y-%m-%d').timetuple()[:3],
-                        hour=23, minute=59, second=59, microsecond=999999
-                    )
-                    timestamp_filter['$lte'] = end_date
-                except ValueError:
-                    pass
-
-            if timestamp_filter:
-                query_filter['timestamp'] = timestamp_filter
-
-        elif time_period:
-            vn_tz = get_vietnam_timezone()
-            end_time = datetime.now(vn_tz)
-            if time_period == 'today':
-                start_time = end_time.replace(hour=0, minute=0, second=0, microsecond=0)
-                query_filter['timestamp'] = {'$gte': start_time, '$lte': end_time}
-            elif time_period == '1day':
-                start_time = end_time - timedelta(days=1)
-                query_filter['timestamp'] = {'$gte': start_time, '$lte': end_time}
-            elif time_period == '2days':
-                start_time = end_time - timedelta(days=2)
-                query_filter['timestamp'] = {'$gte': start_time, '$lte': end_time}
-
-        if temp_min is not None or temp_max is not None:
-            temp_filter = {}
-            if temp_min is not None:
-                try:
-                    temp_filter['$gte'] = float(temp_min)
-                except ValueError:
-                    pass
-            if temp_max is not None:
-                try:
-                    temp_filter['$lte'] = float(temp_max)
-                except ValueError:
-                    pass
-            if temp_filter:
-                query_filter['temperature'] = temp_filter
-
-        if light_min is not None or light_max is not None:
-            light_filter = {}
-            if light_min is not None:
-                try:
-                    light_filter['$gte'] = float(light_min)
-                except ValueError:
-                    pass
-            if light_max is not None:
-                try:
-                    light_filter['$lte'] = float(light_max)
-                except ValueError:
-                    pass
-            if light_filter:
-                query_filter['light'] = light_filter
-
-        if humidity_min is not None or humidity_max is not None:
-            humidity_filter = {}
-            if humidity_min is not None:
-                try:
-                    humidity_filter['$gte'] = float(humidity_min)
-                except ValueError:
-                    pass
-            if humidity_max is not None:
-                try:
-                    humidity_filter['$lte'] = float(humidity_max)
-                except ValueError:
-                    pass
-            if humidity_filter:
-                query_filter['humidity'] = humidity_filter
 
         logger.info(f"Sensor data list query filter: {query_filter}")
         logger.info(f"CRUD params - page: {page}, per_page: {per_page}, sort: {sort_field}:{sort_order}, search: '{search_term}' ({search_criteria})")
@@ -205,33 +112,6 @@ def sensor_data_list():
                 }
             else:
                 criteria = {}
-
-                if 'timestamp' in query_filter:
-                    timestamp_filter = query_filter['timestamp']
-                    if '$gte' in timestamp_filter and '$lte' in timestamp_filter:
-                        criteria['start_time'] = timestamp_filter['$gte']
-                        criteria['end_time'] = timestamp_filter['$lte']
-
-                if 'temperature' in query_filter:
-                    temp_filter = query_filter['temperature']
-                    if '$gte' in temp_filter:
-                        criteria['temperature_min'] = temp_filter['$gte']
-                    if '$lte' in temp_filter:
-                        criteria['temperature_max'] = temp_filter['$lte']
-
-                if 'humidity' in query_filter:
-                    humidity_filter = query_filter['humidity']
-                    if '$gte' in humidity_filter:
-                        criteria['humidity_min'] = humidity_filter['$gte']
-                    if '$lte' in humidity_filter:
-                        criteria['humidity_max'] = humidity_filter['$lte']
-
-                if 'light' in query_filter:
-                    light_filter = query_filter['light']
-                    if '$gte' in light_filter:
-                        criteria['light_min'] = light_filter['$gte']
-                    if '$lte' in light_filter:
-                        criteria['light_max'] = light_filter['$lte']
 
                 if search_criteria == 'all':
                     criteria['text_search'] = search_term
@@ -332,59 +212,49 @@ def sensor_data_list():
                     'search': {'term': search_term, 'criteria': search_criteria}
                 }
         else:
-            if query_filter:
-                result = db.search_with_pagination_optimized(
-                    query=query_filter,
-                    page=page,
-                    per_page=per_page,
-                    sort_field=sort_field,
-                    sort_order=sort_order
-                )
-                result['search'] = {'term': '', 'criteria': 'all'}
-            else:
-                data = db.get_recent_data(limit=None)
+            data = db.get_recent_data(limit=None)
 
-                if sort_field in ['temperature', 'humidity', 'light']:
-                    reverse = sort_order == 'desc'
-                    data.sort(key=lambda x: x.get(sort_field, 0), reverse=reverse)
-                elif sort_field == 'timestamp':
-                    reverse = sort_order == 'desc'
+            if sort_field in ['temperature', 'humidity', 'light']:
+                reverse = sort_order == 'desc'
+                data.sort(key=lambda x: x.get(sort_field, 0), reverse=reverse)
+            elif sort_field == 'timestamp':
+                reverse = sort_order == 'desc'
 
-                    def get_timestamp_for_sort(x):
-                        ts = x.get('timestamp')
-                        if isinstance(ts, str):
-                            try:
-                                from dateutil import parser
-                                return parser.parse(ts)
-                            except:
-                                return datetime.min
-                        elif isinstance(ts, datetime):
-                            return ts
-                        else:
+                def get_timestamp_for_sort(x):
+                    ts = x.get('timestamp')
+                    if isinstance(ts, str):
+                        try:
+                            from dateutil import parser
+                            return parser.parse(ts)
+                        except:
                             return datetime.min
-                    data.sort(key=get_timestamp_for_sort, reverse=reverse)
+                    elif isinstance(ts, datetime):
+                        return ts
+                    else:
+                        return datetime.min
+                data.sort(key=get_timestamp_for_sort, reverse=reverse)
 
-                if sample and sample > 1:
-                    data = data[::sample]
+            if sample and sample > 1:
+                data = data[::sample]
 
-                total_count = len(data)
-                start_idx = (page - 1) * per_page
-                end_idx = start_idx + per_page
-                paginated_data = data[start_idx:end_idx]
+            total_count = len(data)
+            start_idx = (page - 1) * per_page
+            end_idx = start_idx + per_page
+            paginated_data = data[start_idx:end_idx]
 
-                result = {
-                    'data': paginated_data,
-                    'pagination': {
-                        'page': page,
-                        'per_page': per_page,
-                        'total_count': total_count,
-                        'total_pages': max(1, (total_count + per_page - 1) // per_page),
-                        'has_prev': page > 1,
-                        'has_next': page < max(1, (total_count + per_page - 1) // per_page)
-                    },
-                    'sort': {'field': sort_field, 'order': sort_order},
-                    'search': {'term': '', 'criteria': 'all'}
-                }
+            result = {
+                'data': paginated_data,
+                'pagination': {
+                    'page': page,
+                    'per_page': per_page,
+                    'total_count': total_count,
+                    'total_pages': max(1, (total_count + per_page - 1) // per_page),
+                    'has_prev': page > 1,
+                    'has_next': page < max(1, (total_count + per_page - 1) // per_page)
+                },
+                'sort': {'field': sort_field, 'order': sort_order},
+                'search': {'term': '', 'criteria': 'all'}
+            }
 
         for doc in result['data']:
             if '_id' in doc:
@@ -434,31 +304,6 @@ def sensor_data():
         return jsonify(doc)
 
     return jsonify({})
-
-
-@sensors_bp.route("/sensor-data", methods=['POST'])
-def add_sensor_data():
-    try:
-        data = request.get_json()
-        result = db.insert_data(data)
-        return jsonify({"status": "success", "id": str(result.inserted_id)}), 201
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 400
-
-
-@sensors_bp.route("/sensor-data/<sensor_id>")
-def get_sensor_data_by_id(sensor_id):
-    try:
-        data = db.get_data_by_id(sensor_id)
-        if data:
-            if '_id' in data:
-                data['_id'] = str(data['_id'])
-            return jsonify({"status": "success", "data": data})
-        else:
-            return jsonify({"status": "error", "message": "Sensor data not found"}), 404
-    except Exception as e:
-        logger.error(f"Error in get_sensor_data_by_id: {e}")
-        return jsonify({"status": "error", "message": str(e)}), 500
 
 
 @sensors_bp.route("/sensor-data/chart")

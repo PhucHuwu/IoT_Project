@@ -14,13 +14,7 @@ class SensorDataService {
         }
     }
 
-    static async getSensorDataList(
-        limit = 5,
-        timePeriod = null,
-        filters = null,
-        sample = 1,
-        crudParams = {}
-    ) {
+    static async getSensorDataList(limit = 5, sample = 1, crudParams = {}) {
         try {
             const limitParam =
                 typeof limit === "string" && limit.toLowerCase() === "all"
@@ -45,27 +39,6 @@ class SensorDataService {
                 search: crudParams.search,
                 search_criteria: crudParams.search_criteria,
             });
-
-            if (timePeriod) {
-                url += `&timePeriod=${timePeriod}`;
-            }
-
-            if (filters) {
-                if (filters.dateFrom) url += `&dateFrom=${filters.dateFrom}`;
-                if (filters.dateTo) url += `&dateTo=${filters.dateTo}`;
-                if (filters.tempMin !== null)
-                    url += `&tempMin=${filters.tempMin}`;
-                if (filters.tempMax !== null)
-                    url += `&tempMax=${filters.tempMax}`;
-                if (filters.lightMin !== null)
-                    url += `&lightMin=${filters.lightMin}`;
-                if (filters.lightMax !== null)
-                    url += `&lightMax=${filters.lightMax}`;
-                if (filters.humidityMin !== null)
-                    url += `&humidityMin=${filters.humidityMin}`;
-                if (filters.humidityMax !== null)
-                    url += `&humidityMax=${filters.humidityMax}`;
-            }
 
             const response = await fetch(url);
             if (!response.ok) {
@@ -103,21 +76,6 @@ class SensorDataService {
             return result;
         } catch (error) {
             console.error("Lỗi khi lấy dữ liệu biểu đồ:", error);
-            throw error;
-        }
-    }
-
-    static async getSensorDataByTimePeriod(timePeriod = "today") {
-        try {
-            const response = await fetch(
-                `${API_BASE_URL}/sensor-data-list?timePeriod=${timePeriod}`
-            );
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return await response.json();
-        } catch (error) {
-            console.error("Lỗi khi lấy dữ liệu theo thời gian:", error);
             throw error;
         }
     }
@@ -161,21 +119,6 @@ class SensorDataService {
             return await response.json();
         } catch (error) {
             console.error("Lỗi khi điều khiển LED:", error);
-            throw error;
-        }
-    }
-
-    static async getSensorDataById(sensorId) {
-        try {
-            const response = await fetch(
-                `${API_BASE_URL}/sensor-data/${sensorId}`
-            );
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return await response.json();
-        } catch (error) {
-            console.error("Lỗi khi lấy dữ liệu cảm biến theo ID:", error);
             throw error;
         }
     }
