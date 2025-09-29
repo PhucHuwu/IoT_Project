@@ -9,7 +9,7 @@ class LEDController {
         };
         this._initialized = false;
         this._listeners = [];
-        this._processingLEDs = new Set(); // Track which LEDs are being processed
+        this._processingLEDs = new Set();
 
         this._onVisibilityChangeBound = () => {
             if (document.visibilityState === "visible") {
@@ -74,7 +74,6 @@ class LEDController {
     }
 
     async toggleLED(ledId, toggleElement, statusElement) {
-        // Kiểm tra xem LED này có đang được xử lý không
         if (this._processingLEDs.has(ledId)) {
             return;
         }
@@ -83,7 +82,6 @@ class LEDController {
         const newState = !currentState;
         const newAction = newState ? "ON" : "OFF";
 
-        // Đánh dấu LED đang được xử lý
         this._processingLEDs.add(ledId);
 
         this.ledStates[ledId] = newState;
@@ -136,7 +134,6 @@ class LEDController {
                     isOn = s === "ON" || s === "1" || s === "TRUE";
                 }
 
-                // Chỉ cập nhật nếu trạng thái thực sự thay đổi
                 if (this.ledStates[ledId] !== isOn) {
                     this.ledStates[ledId] = !!isOn;
 

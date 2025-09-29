@@ -80,6 +80,7 @@ class SensorDataChartController {
                 console.log("Chart updated successfully");
             } else {
                 console.warn("Không có dữ liệu để hiển thị");
+                this.chartView.showNoDataMessage();
             }
         } catch (error) {
             console.error("Lỗi khi load biểu đồ:", error);
@@ -126,8 +127,7 @@ class SensorDataChartController {
                 } else {
                     throw new Error("Không có dữ liệu từ API");
                 }
-            }
-            else if (this.selectedDate === today) {
+            } else if (this.selectedDate === today) {
                 console.log(
                     "Getting realtime data with limit:",
                     this.dataLimit,
@@ -204,6 +204,8 @@ class SensorDataChartController {
                     data.length,
                     "records"
                 );
+            } else {
+                this.chartView.showNoDataMessage();
             }
         } catch (error) {
             console.error("Lỗi khi refresh biểu đồ:", error);

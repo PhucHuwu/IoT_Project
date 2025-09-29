@@ -52,18 +52,14 @@ class SensorDataTableController {
             searchCriteria.addEventListener("change", (e) => {
                 this.searchCriteria = e.target.value;
                 this.updateSearchPlaceholder(e.target.value);
-                // Không gọi loadData() ngay khi đổi searchCriteria
-                // Chỉ gọi khi user thực sự tìm kiếm
             });
         }
 
         if (searchInput) {
-            // Xử lý sự kiện input để cập nhật giao diện
             searchInput.addEventListener("input", (e) => {
                 const newSearchTerm = e.target.value.trim();
                 this.searchTerm = newSearchTerm;
 
-                // Tự động phát hiện format thời gian và thay đổi search_criteria
                 if (this.isTimeFormat(newSearchTerm)) {
                     this.searchCriteria = "time";
                     if (searchCriteria) {
@@ -85,7 +81,6 @@ class SensorDataTableController {
                 }
             });
 
-            // Xử lý sự kiện Enter để thực hiện tìm kiếm
             searchInput.addEventListener("keydown", (e) => {
                 if (e.key === "Enter") {
                     e.preventDefault();
@@ -110,7 +105,7 @@ class SensorDataTableController {
                     this.updateSearchPlaceholder("all");
                 }
                 this.currentPage = 1;
-                this.loadData(); // Vẫn gọi loadData() khi clear search vì đây là hành động tìm kiếm
+                this.loadData();
             });
         }
 
@@ -186,13 +181,12 @@ class SensorDataTableController {
     isTimeFormat(searchTerm) {
         if (!searchTerm) return false;
 
-        // Các pattern thời gian được hỗ trợ
         const timePatterns = [
-            /^\d{1,2}:\d{1,2}:\d{1,2}\s+\d{1,2}\/\d{1,2}\/\d{4}$/, // 15:57:50 26/09/2025
-            /^\d{1,2}:\d{1,2}\s+\d{1,2}\/\d{1,2}\/\d{4}$/, // 15:57 26/09/2025
-            /^\d{1,2}\/\d{1,2}\/\d{4}$/, // 26/09/2025
-            /^\d{1,2}:\d{1,2}:\d{1,2}$/, // 15:57:50
-            /^\d{1,2}:\d{1,2}$/, // 15:57
+            /^\d{1,2}:\d{1,2}:\d{1,2}\s+\d{1,2}\/\d{1,2}\/\d{4}$/,
+            /^\d{1,2}:\d{1,2}\s+\d{1,2}\/\d{1,2}\/\d{4}$/,
+            /^\d{1,2}\/\d{1,2}\/\d{4}$/,
+            /^\d{1,2}:\d{1,2}:\d{1,2}$/,
+            /^\d{1,2}:\d{1,2}$/,
         ];
 
         return timePatterns.some((pattern) => pattern.test(searchTerm));
@@ -201,7 +195,6 @@ class SensorDataTableController {
     isNumericFormat(searchTerm) {
         if (!searchTerm) return false;
 
-        // Kiểm tra xem có phải là số không (có thể có dấu thập phân)
         return /^\d+(\.\d+)?$/.test(searchTerm);
     }
 

@@ -202,7 +202,6 @@ function openInNewWindow(url) {
 document.addEventListener("DOMContentLoaded", function () {
     loadSavedAvatar();
 
-    // Xử lý các link để mở cửa sổ mới thay vì tab mới
     const externalLinks = document.querySelectorAll('a[target="_new"]');
     externalLinks.forEach((link) => {
         link.addEventListener("click", function (e) {

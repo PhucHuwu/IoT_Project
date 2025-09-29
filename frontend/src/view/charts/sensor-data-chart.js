@@ -416,6 +416,34 @@ class SensorDataChart {
         }
     }
 
+    showNoDataMessage() {
+        const ctx = document.getElementById("sensorChart");
+        if (!ctx) return;
+
+        if (this.sensorChart) {
+            this.sensorChart.destroy();
+            this.sensorChart = null;
+        }
+
+        const emptyChartData = {
+            labels: [],
+            temperature: [],
+            humidity: [],
+            light: [],
+            values: [],
+        };
+
+        if (this.currentSensorType === "all") {
+            this.createCombinedChart(ctx, emptyChartData);
+        } else {
+            this.createSingleChart(
+                ctx,
+                emptyChartData,
+                this.currentSensorType || "temperature"
+            );
+        }
+    }
+
     showError() {
         if (this.sensorChart) {
             this.sensorChart.destroy();

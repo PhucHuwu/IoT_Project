@@ -320,14 +320,12 @@ class ActionHistoryTableControl {
             if (clearBtn) clearBtn.style.display = "block";
         }
 
-        // Xử lý sự kiện input để cập nhật giao diện
         input.addEventListener("input", (e) => {
             const value = e.target.value.trim();
             this.searchTerm = value;
             if (clearBtn) clearBtn.style.display = value ? "block" : "none";
         });
 
-        // Xử lý sự kiện Enter để thực hiện tìm kiếm
         input.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
                 e.preventDefault();

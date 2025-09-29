@@ -40,6 +40,14 @@ class HomePageChart {
         const chartData = this.prepareChartData(data, "temperature");
         console.log("Prepared temperature chart data:", chartData);
 
+        if (!chartData.labels || chartData.labels.length === 0) {
+            this.showNoDataMessage(
+                "temperatureChart",
+                "Không có dữ liệu nhiệt độ"
+            );
+            return;
+        }
+
         if (!this.temperatureChart) {
             console.log("Creating new temperature chart...");
             this.temperatureChart = new Chart(ctx, {
@@ -79,6 +87,11 @@ class HomePageChart {
 
         const chartData = this.prepareChartData(data, "light");
 
+        if (!chartData.labels || chartData.labels.length === 0) {
+            this.showNoDataMessage("lightChart", "Không có dữ liệu ánh sáng");
+            return;
+        }
+
         if (!this.lightChart) {
             this.lightChart = new Chart(ctx, {
                 type: "line",
@@ -112,6 +125,11 @@ class HomePageChart {
         if (!ctx) return;
 
         const chartData = this.prepareChartData(data, "humidity");
+
+        if (!chartData.labels || chartData.labels.length === 0) {
+            this.showNoDataMessage("humidityChart", "Không có dữ liệu độ ẩm");
+            return;
+        }
 
         if (!this.humidityChart) {
             this.humidityChart = new Chart(ctx, {
@@ -260,6 +278,105 @@ class HomePageChart {
                 },
             },
         };
+    }
+
+    showNoDataMessage(canvasId, message) {
+        const ctx = document.getElementById(canvasId);
+        if (!ctx) return;
+
+        if (canvasId === "temperatureChart" && this.temperatureChart) {
+            this.temperatureChart.destroy();
+            this.temperatureChart = null;
+        } else if (canvasId === "lightChart" && this.lightChart) {
+            this.lightChart.destroy();
+            this.lightChart = null;
+        } else if (canvasId === "humidityChart" && this.humidityChart) {
+            this.humidityChart.destroy();
+            this.humidityChart = null;
+        }
+
+        const emptyChartData = { labels: [], values: [] };
+
+        if (canvasId === "temperatureChart") {
+            this.createEmptyTemperatureChart(ctx, emptyChartData);
+        } else if (canvasId === "lightChart") {
+            this.createEmptyLightChart(ctx, emptyChartData);
+        } else if (canvasId === "humidityChart") {
+            this.createEmptyHumidityChart(ctx, emptyChartData);
+        }
+    }
+
+    createEmptyTemperatureChart(ctx, chartData) {
+        this.temperatureChart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: chartData.labels,
+                datasets: [
+                    {
+                        label: "Nhiệt độ (°C)",
+                        data: chartData.values,
+                        borderColor: "#FF383C",
+                        backgroundColor: "rgba(255, 56, 60, 0.1)",
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 0,
+                    },
+                ],
+            },
+            options: this.getChartOptions(
+                "°C",
+                "temperature",
+                chartData.values
+            ),
+        });
+    }
+
+    createEmptyLightChart(ctx, chartData) {
+        this.lightChart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: chartData.labels,
+                datasets: [
+                    {
+                        label: "Ánh sáng (%)",
+                        data: chartData.values,
+                        borderColor: "#FEBC2F",
+                        backgroundColor: "rgba(254, 188, 47, 0.1)",
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 0,
+                    },
+                ],
+            },
+            options: this.getChartOptions("%", "light", chartData.values),
+        });
+    }
+
+    createEmptyHumidityChart(ctx, chartData) {
+        this.humidityChart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: chartData.labels,
+                datasets: [
+                    {
+                        label: "Độ ẩm (%)",
+                        data: chartData.values,
+                        borderColor: "#34C759",
+                        backgroundColor: "rgba(52, 199, 89, 0.1)",
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 0,
+                    },
+                ],
+            },
+            options: this.getChartOptions("%", "humidity", chartData.values),
+        });
     }
 
     showTemperatureError() {

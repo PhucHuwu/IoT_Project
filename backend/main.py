@@ -139,7 +139,6 @@ def create_app():
 
                 db = DatabaseManager()
 
-                # Xử lý tìm kiếm
                 if search_term:
                     if search_criteria == 'time':
                         data = db.search_by_time_string(search_term)
@@ -153,7 +152,7 @@ def create_app():
                             data = db.search_by_multiple_criteria(criteria)
                         else:
                             data = []
-                    else:  # search_criteria == 'all'
+                    else:
                         criteria = {'text_search': search_term}
                         data = db.search_by_multiple_criteria(criteria)
                 else:
@@ -166,7 +165,6 @@ def create_app():
                         except ValueError:
                             data = db.get_recent_data(limit=10)
 
-                # Sắp xếp dữ liệu
                 if sort_field in ['temperature', 'humidity', 'light']:
                     reverse = sort_order == 'desc'
                     data.sort(key=lambda x: x.get(sort_field, 0), reverse=reverse)
