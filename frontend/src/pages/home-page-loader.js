@@ -1,5 +1,5 @@
 import SensorCardController from "../control/home-page-sensor-card-control.js";
-import SensorDataChartController from "../control/sensor-data-chart-control.js";
+import HomePageChartController from "../control/home-page-chart-control.js";
 import LEDController from "../control/home-page-led-control.js";
 
 class HomePageLoader {
@@ -21,7 +21,7 @@ class HomePageLoader {
             this.sensorCardController = new SensorCardController();
             await this.sensorCardController.init();
 
-            this.chartController = new SensorDataChartController();
+            this.chartController = new HomePageChartController();
             await this.chartController.init();
 
             this.ledController = new LEDController();

@@ -1,224 +1,216 @@
 class HomePageChart {
     constructor() {
-        this.temperatureChart = null;
-        this.lightChart = null;
-        this.humidityChart = null;
+        this.sensorChart = null;
+        this.currentSensorType = null;
     }
 
-    forceRecreateTemperatureChart(data) {
-        if (this.temperatureChart) {
-            this.temperatureChart.destroy();
-            this.temperatureChart = null;
-        }
-        this.updateTemperatureChart(data);
-    }
+    updateChart(data, sensorType) {
+        console.log("HomePageChart.updateChart called with:", {
+            data,
+            sensorType,
+        });
 
-    forceRecreateLightChart(data) {
-        if (this.lightChart) {
-            this.lightChart.destroy();
-            this.lightChart = null;
-        }
-        this.updateLightChart(data);
-    }
-
-    forceRecreateHumidityChart(data) {
-        if (this.humidityChart) {
-            this.humidityChart.destroy();
-            this.humidityChart = null;
-        }
-        this.updateHumidityChart(data);
-    }
-
-    updateTemperatureChart(data) {
-        console.log("Temperature chart data received:", data);
-        const ctx = document.getElementById("temperatureChart");
+        const ctx = document.getElementById("sensorChart");
         if (!ctx) {
-            console.error("Temperature chart canvas not found!");
+            console.error("Canvas element 'sensorChart' not found");
             return;
         }
 
-        const chartData = this.prepareChartData(data, "temperature");
-        console.log("Prepared temperature chart data:", chartData);
+        const chartData = this.prepareChartData(data, sensorType);
+        console.log("Prepared chart data:", chartData);
 
-        if (!chartData.labels || chartData.labels.length === 0) {
-            this.showNoDataMessage(
-                "temperatureChart",
-                "Không có dữ liệu nhiệt độ"
-            );
-            return;
-        }
+        if (!this.sensorChart || this.currentSensorType !== sensorType) {
+            if (this.sensorChart) {
+                this.sensorChart.destroy();
+            }
+            this.currentSensorType = sensorType;
 
-        if (!this.temperatureChart) {
-            console.log("Creating new temperature chart...");
-            this.temperatureChart = new Chart(ctx, {
-                type: "line",
-                data: {
-                    labels: chartData.labels,
-                    datasets: [
-                        {
-                            label: "Nhiệt độ (°C)",
-                            data: chartData.values,
-                            borderColor: "#FF383C",
-                            backgroundColor: "rgba(255, 56, 60, 0.1)",
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.4,
-                            pointRadius: 0,
-                            pointHoverRadius: 0,
-                        },
-                    ],
-                },
-                options: this.getChartOptions(
-                    "°C",
-                    "temperature",
-                    chartData.values
-                ),
-            });
+            if (sensorType === "all") {
+                this.createCombinedChart(ctx, chartData);
+            } else {
+                this.createSingleChart(ctx, chartData, sensorType);
+            }
         } else {
-            this.temperatureChart.data.labels = chartData.labels;
-            this.temperatureChart.data.datasets[0].data = chartData.values;
-            this.temperatureChart.update("none");
+            this.updateChartData(chartData, sensorType);
         }
     }
 
-    updateLightChart(data) {
-        const ctx = document.getElementById("lightChart");
-        if (!ctx) return;
+    updateChartData(chartData, sensorType) {
+        if (!this.sensorChart) return;
 
-        const chartData = this.prepareChartData(data, "light");
+        this.sensorChart.data.labels = chartData.labels;
 
-        if (!chartData.labels || chartData.labels.length === 0) {
-            this.showNoDataMessage("lightChart", "Không có dữ liệu ánh sáng");
-            return;
-        }
-
-        if (!this.lightChart) {
-            this.lightChart = new Chart(ctx, {
-                type: "line",
-                data: {
-                    labels: chartData.labels,
-                    datasets: [
-                        {
-                            label: "Ánh sáng (%)",
-                            data: chartData.values,
-                            borderColor: "#FEBC2F",
-                            backgroundColor: "rgba(254, 188, 47, 0.1)",
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.4,
-                            pointRadius: 0,
-                            pointHoverRadius: 0,
-                        },
-                    ],
-                },
-                options: this.getChartOptions("%", "light", chartData.values),
-            });
+        if (sensorType === "all") {
+            this.sensorChart.data.datasets[0].data = chartData.temperature;
+            this.sensorChart.data.datasets[1].data = chartData.humidity;
+            this.sensorChart.data.datasets[2].data = chartData.light;
         } else {
-            this.lightChart.data.labels = chartData.labels;
-            this.lightChart.data.datasets[0].data = chartData.values;
-            this.lightChart.update("none");
-        }
-    }
-
-    updateHumidityChart(data) {
-        const ctx = document.getElementById("humidityChart");
-        if (!ctx) return;
-
-        const chartData = this.prepareChartData(data, "humidity");
-
-        if (!chartData.labels || chartData.labels.length === 0) {
-            this.showNoDataMessage("humidityChart", "Không có dữ liệu độ ẩm");
-            return;
+            this.sensorChart.data.datasets[0].data = chartData.values;
         }
 
-        if (!this.humidityChart) {
-            this.humidityChart = new Chart(ctx, {
-                type: "line",
-                data: {
-                    labels: chartData.labels,
-                    datasets: [
-                        {
-                            label: "Độ ẩm (%)",
-                            data: chartData.values,
-                            borderColor: "#34C759",
-                            backgroundColor: "rgba(52, 199, 89, 0.1)",
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.4,
-                            pointRadius: 0,
-                            pointHoverRadius: 0,
-                        },
-                    ],
-                },
-                options: this.getChartOptions(
-                    "%",
-                    "humidity",
-                    chartData.values
-                ),
-            });
-        } else {
-            this.humidityChart.data.labels = chartData.labels;
-            this.humidityChart.data.datasets[0].data = chartData.values;
-            this.humidityChart.update("none");
-        }
+        this.sensorChart.update("active");
     }
 
     prepareChartData(data, sensorType) {
         if (!data || !Array.isArray(data)) {
-            return { labels: [], values: [] };
+            return { labels: [], temperature: [], humidity: [], light: [] };
         }
 
-        const labels = data.map((item) => {
+        const sortedData = [...data].sort((a, b) => {
+            const timeA = new Date(a.timestamp).getTime();
+            const timeB = new Date(b.timestamp).getTime();
+            return timeA - timeB;
+        });
+
+        const labels = sortedData.map((item) => {
             const date = new Date(item.timestamp);
-            return date.toLocaleTimeString("vi-VN", {
+            return date.toLocaleString("vi-VN", {
+                month: "2-digit",
+                day: "2-digit",
                 hour: "2-digit",
                 minute: "2-digit",
             });
         });
 
-        const values = data.map((item) => {
-            const value = item[sensorType];
-            return typeof value === "number" ? parseFloat(value.toFixed(1)) : 0;
+        if (sensorType === "all") {
+            return {
+                labels,
+                temperature: sortedData.map((item) =>
+                    parseFloat(item.temperature?.toFixed(1) || 0)
+                ),
+                humidity: sortedData.map((item) =>
+                    parseFloat(item.humidity?.toFixed(1) || 0)
+                ),
+                light: sortedData.map((item) =>
+                    parseFloat(item.light?.toFixed(1) || 0)
+                ),
+            };
+        } else {
+            const values = sortedData.map((item) => {
+                const value = item[sensorType];
+                return typeof value === "number"
+                    ? parseFloat(value.toFixed(1))
+                    : 0;
+            });
+            return { labels, values };
+        }
+    }
+
+    createSingleChart(ctx, chartData, sensorType) {
+        console.log("Creating single chart for:", sensorType, chartData);
+
+        const config = this.getSingleChartConfig(sensorType);
+
+        this.sensorChart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: chartData.labels,
+                datasets: [
+                    {
+                        label: config.label,
+                        data: chartData.values,
+                        borderColor: config.borderColor,
+                        backgroundColor: config.backgroundColor,
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 0,
+                    },
+                ],
+            },
+            options: this.getSingleChartOptions(config.unit, sensorType),
         });
 
-        return { labels, values };
+        this.updateChartUnit(config.unit);
+        this.updateChartTitle(`Dữ liệu ${config.title} theo thời gian`);
+
+        console.log("Single chart created successfully");
     }
 
-    getYAxisConfig(sensorType, unit, dataValues = []) {
-        let config = {
-            grid: {
-                color: "rgba(0, 0, 0, 0.05)",
-                lineWidth: 1,
+    createCombinedChart(ctx, chartData) {
+        console.log("Creating combined chart with data:", chartData);
+
+        this.sensorChart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: chartData.labels,
+                datasets: [
+                    {
+                        label: "Nhiệt độ (°C)",
+                        data: chartData.temperature,
+                        borderColor: "#FF383C",
+                        backgroundColor: "rgba(255, 56, 60, 0.1)",
+                        borderWidth: 3,
+                        fill: false,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 0,
+                        yAxisID: "y",
+                    },
+                    {
+                        label: "Độ ẩm (%)",
+                        data: chartData.humidity,
+                        borderColor: "#34C759",
+                        backgroundColor: "rgba(52, 199, 89, 0.1)",
+                        borderWidth: 3,
+                        fill: false,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 0,
+                        yAxisID: "y1",
+                    },
+                    {
+                        label: "Ánh sáng (%)",
+                        data: chartData.light,
+                        borderColor: "#FEBC2F",
+                        backgroundColor: "rgba(254, 188, 47, 0.1)",
+                        borderWidth: 3,
+                        fill: false,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 0,
+                        yAxisID: "y1",
+                    },
+                ],
             },
-            ticks: {
-                color: "#666",
-                font: {
-                    size: 11,
-                },
-                callback: function (value) {
-                    return Math.round(value) + unit;
-                },
+            options: this.getCombinedChartOptions(),
+        });
+
+        this.updateChartUnit("°C / %");
+        this.updateChartTitle("Tất cả cảm biến theo thời gian");
+
+        console.log("Combined chart created successfully");
+    }
+
+    getSingleChartConfig(sensorType) {
+        const configs = {
+            temperature: {
+                label: "Nhiệt độ (°C)",
+                title: "nhiệt độ",
+                borderColor: "#FF383C",
+                backgroundColor: "rgba(255, 56, 60, 0.1)",
+                unit: "°C",
+            },
+            humidity: {
+                label: "Độ ẩm (%)",
+                title: "độ ẩm",
+                borderColor: "#34C759",
+                backgroundColor: "rgba(52, 199, 89, 0.1)",
+                unit: "%",
+            },
+            light: {
+                label: "Ánh sáng (%)",
+                title: "ánh sáng",
+                borderColor: "#FEBC2F",
+                backgroundColor: "rgba(254, 188, 47, 0.1)",
+                unit: "%",
             },
         };
-
-        if (sensorType === "temperature") {
-            config.min = 0;
-            config.max = 50;
-            config.ticks.stepSize = 5;
-            config.beginAtZero = true;
-        } else if (sensorType === "light" || sensorType === "humidity") {
-            config.min = 0;
-            config.max = 100;
-            config.ticks.stepSize = 10;
-            config.beginAtZero = true;
-        }
-
-        return config;
+        return configs[sensorType] || configs.temperature;
     }
 
-    getChartOptions(unit, sensorType, dataValues = []) {
-        const yAxisConfig = this.getYAxisConfig(sensorType, unit, dataValues);
-
+    getSingleChartOptions(unit, sensorType) {
         return {
             responsive: true,
             maintainAspectRatio: false,
@@ -227,7 +219,7 @@ class HomePageChart {
                 mode: "index",
             },
             scales: {
-                y: yAxisConfig,
+                y: this.getYAxisConfig(sensorType, unit),
                 x: {
                     grid: {
                         color: "rgba(0, 0, 0, 0.05)",
@@ -235,10 +227,8 @@ class HomePageChart {
                     },
                     ticks: {
                         color: "#666",
-                        font: {
-                            size: 10,
-                        },
-                        maxTicksLimit: 6,
+                        font: { size: 10 },
+                        maxTicksLimit: 8,
                     },
                 },
             },
@@ -268,154 +258,207 @@ class HomePageChart {
                 },
             },
             animation: {
-                duration: 500,
+                duration: 300,
                 easing: "easeInOutQuart",
-            },
-            elements: {
-                point: {
-                    radius: 0,
-                    hoverRadius: 0,
-                },
+                animateRotate: false,
+                animateScale: false,
             },
         };
     }
 
-    showNoDataMessage(canvasId, message) {
-        const ctx = document.getElementById(canvasId);
+    getCombinedChartOptions() {
+        return {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: "index",
+            },
+            scales: {
+                y: {
+                    type: "linear",
+                    display: true,
+                    position: "left",
+                    title: {
+                        display: true,
+                        text: "Nhiệt độ (°C)",
+                        color: "#666",
+                        font: {
+                            size: 12,
+                            weight: "bold",
+                        },
+                    },
+                    grid: {
+                        color: "rgba(255, 107, 53, 0.1)",
+                        lineWidth: 1,
+                    },
+                    ticks: {
+                        color: "#666",
+                        font: { size: 10 },
+                        callback: function (value) {
+                            return Math.round(value) + "°C";
+                        },
+                    },
+                    min: 0,
+                    max: 50,
+                },
+                y1: {
+                    type: "linear",
+                    display: true,
+                    position: "right",
+                    title: {
+                        display: true,
+                        text: "Độ ẩm & Ánh sáng (%)",
+                        color: "#666",
+                        font: {
+                            size: 12,
+                            weight: "bold",
+                        },
+                    },
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                    ticks: {
+                        color: "#666",
+                        font: { size: 10 },
+                        callback: function (value) {
+                            return Math.round(value) + "%";
+                        },
+                    },
+                    min: 0,
+                    max: 100,
+                },
+                x: {
+                    grid: {
+                        color: "rgba(0, 0, 0, 0.05)",
+                        lineWidth: 1,
+                    },
+                    ticks: {
+                        color: "#666",
+                        font: { size: 10 },
+                        maxTicksLimit: 8,
+                    },
+                },
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: "top",
+                    labels: {
+                        usePointStyle: true,
+                        pointStyle: "line",
+                        font: {
+                            size: 11,
+                        },
+                    },
+                },
+                tooltip: {
+                    backgroundColor: "rgba(0, 0, 0, 0.8)",
+                    titleColor: "#fff",
+                    bodyColor: "#fff",
+                    cornerRadius: 8,
+                    displayColors: true,
+                    callbacks: {
+                        title: function (context) {
+                            return "Thời gian: " + context[0].label;
+                        },
+                    },
+                },
+            },
+            animation: {
+                duration: 300,
+                easing: "easeInOutQuart",
+                animateRotate: false,
+                animateScale: false,
+            },
+        };
+    }
+
+    getYAxisConfig(sensorType, unit) {
+        let config = {
+            grid: {
+                color: "rgba(0, 0, 0, 0.05)",
+                lineWidth: 1,
+            },
+            ticks: {
+                color: "#666",
+                font: { size: 11 },
+                callback: function (value) {
+                    return Math.round(value) + unit;
+                },
+            },
+        };
+
+        if (sensorType === "temperature") {
+            config.min = 0;
+            config.max = 50;
+            config.ticks.stepSize = 5;
+        } else {
+            config.min = 0;
+            config.max = 100;
+            config.ticks.stepSize = 10;
+        }
+
+        return config;
+    }
+
+    updateChartUnit(unit) {
+        const unitElement = document.getElementById("chartUnit");
+        if (unitElement) {
+            unitElement.textContent = unit;
+        }
+    }
+
+    updateChartTitle(title) {
+        const titleElement = document.getElementById("chartTitle");
+        if (titleElement) {
+            titleElement.textContent = title;
+        }
+    }
+
+    showNoDataMessage() {
+        const ctx = document.getElementById("sensorChart");
         if (!ctx) return;
 
-        if (canvasId === "temperatureChart" && this.temperatureChart) {
-            this.temperatureChart.destroy();
-            this.temperatureChart = null;
-        } else if (canvasId === "lightChart" && this.lightChart) {
-            this.lightChart.destroy();
-            this.lightChart = null;
-        } else if (canvasId === "humidityChart" && this.humidityChart) {
-            this.humidityChart.destroy();
-            this.humidityChart = null;
+        if (this.sensorChart) {
+            this.sensorChart.destroy();
+            this.sensorChart = null;
         }
 
-        const emptyChartData = { labels: [], values: [] };
+        const emptyChartData = {
+            labels: [],
+            temperature: [],
+            humidity: [],
+            light: [],
+            values: [],
+        };
 
-        if (canvasId === "temperatureChart") {
-            this.createEmptyTemperatureChart(ctx, emptyChartData);
-        } else if (canvasId === "lightChart") {
-            this.createEmptyLightChart(ctx, emptyChartData);
-        } else if (canvasId === "humidityChart") {
-            this.createEmptyHumidityChart(ctx, emptyChartData);
+        if (this.currentSensorType === "all") {
+            this.createCombinedChart(ctx, emptyChartData);
+        } else {
+            this.createSingleChart(
+                ctx,
+                emptyChartData,
+                this.currentSensorType || "temperature"
+            );
         }
     }
 
-    createEmptyTemperatureChart(ctx, chartData) {
-        this.temperatureChart = new Chart(ctx, {
-            type: "line",
-            data: {
-                labels: chartData.labels,
-                datasets: [
-                    {
-                        label: "Nhiệt độ (°C)",
-                        data: chartData.values,
-                        borderColor: "#FF383C",
-                        backgroundColor: "rgba(255, 56, 60, 0.1)",
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 0,
-                        pointHoverRadius: 0,
-                    },
-                ],
-            },
-            options: this.getChartOptions(
-                "°C",
-                "temperature",
-                chartData.values
-            ),
-        });
+    showError() {
+        if (this.sensorChart) {
+            this.sensorChart.destroy();
+            this.sensorChart = null;
+        }
+        this.currentSensorType = null;
+        console.error("Không thể load dữ liệu biểu đồ");
     }
 
-    createEmptyLightChart(ctx, chartData) {
-        this.lightChart = new Chart(ctx, {
-            type: "line",
-            data: {
-                labels: chartData.labels,
-                datasets: [
-                    {
-                        label: "Ánh sáng (%)",
-                        data: chartData.values,
-                        borderColor: "#FEBC2F",
-                        backgroundColor: "rgba(254, 188, 47, 0.1)",
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 0,
-                        pointHoverRadius: 0,
-                    },
-                ],
-            },
-            options: this.getChartOptions("%", "light", chartData.values),
-        });
-    }
-
-    createEmptyHumidityChart(ctx, chartData) {
-        this.humidityChart = new Chart(ctx, {
-            type: "line",
-            data: {
-                labels: chartData.labels,
-                datasets: [
-                    {
-                        label: "Độ ẩm (%)",
-                        data: chartData.values,
-                        borderColor: "#34C759",
-                        backgroundColor: "rgba(52, 199, 89, 0.1)",
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 0,
-                        pointHoverRadius: 0,
-                    },
-                ],
-            },
-            options: this.getChartOptions("%", "humidity", chartData.values),
-        });
-    }
-
-    showTemperatureError() {
-        const ctx = document.getElementById("temperatureChart");
-        if (ctx && this.temperatureChart) {
-            this.temperatureChart.destroy();
+    destroy() {
+        if (this.sensorChart) {
+            this.sensorChart.destroy();
+            this.sensorChart = null;
         }
-        console.error("Không thể load dữ liệu biểu đồ nhiệt độ");
-    }
-
-    showLightError() {
-        const ctx = document.getElementById("lightChart");
-        if (ctx && this.lightChart) {
-            this.lightChart.destroy();
-        }
-        console.error("Không thể load dữ liệu biểu đồ ánh sáng");
-    }
-
-    showHumidityError() {
-        const ctx = document.getElementById("humidityChart");
-        if (ctx && this.humidityChart) {
-            this.humidityChart.destroy();
-        }
-        console.error("Không thể load dữ liệu biểu đồ độ ẩm");
-    }
-
-    destroyCharts() {
-        if (this.temperatureChart) {
-            this.temperatureChart.destroy();
-            this.temperatureChart = null;
-        }
-        if (this.lightChart) {
-            this.lightChart.destroy();
-            this.lightChart = null;
-        }
-        if (this.humidityChart) {
-            this.humidityChart.destroy();
-            this.humidityChart = null;
-        }
+        this.currentSensorType = null;
     }
 }
 
