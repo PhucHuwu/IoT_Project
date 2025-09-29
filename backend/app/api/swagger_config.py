@@ -7,12 +7,12 @@ api = Api(
     swagger_bp,
     version='1.0',
     title='IoT Monitoring System API',
-    description='API REST cho hệ thống giám sát IoT với các chức năng quản lý dữ liệu cảm biến và điều khiển LED',
+    description='API REST cho hệ thống giám sát IoT với các chức năng quản lý dữ liệu cảm biến, điều khiển LED, phân trang, sắp xếp và tìm kiếm dữ liệu',
     doc='/docs/',
     prefix='/api/v1'
 )
 
-sensors_ns = api.namespace('sensors', description='Quản lý dữ liệu cảm biến và điều khiển LED')
+sensors_ns = api.namespace('sensors', description='API quản lý dữ liệu cảm biến, điều khiển LED, phân trang, sắp xếp và tìm kiếm')
 
 sensor_data_model = api.model('SensorData', {
     'temperature': fields.Float(required=True, description='Nhiệt độ (Celsius)', example=25.5),

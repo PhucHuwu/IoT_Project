@@ -25,7 +25,7 @@ def create_app():
         app,
         version='1.0',
         title='IoT Monitoring System API',
-        description='API REST cho hệ thống giám sát IoT với các chức năng quản lý dữ liệu cảm biến, điều khiển LED và truy vấn dữ liệu',
+        description='API REST cho hệ thống giám sát IoT với các chức năng quản lý dữ liệu cảm biến, điều khiển LED, phân trang, sắp xếp và tìm kiếm dữ liệu',
         doc='/docs/',
         prefix='/api/v1'
     )
@@ -108,11 +108,12 @@ def create_app():
     @sensors_ns.route('/sensor-data-list')
     class SensorDataListResource(Resource):
         @sensors_ns.doc('get_sensor_data_list',
-                        description='Lấy danh sách dữ liệu cảm biến với phân trang và bộ lọc',
+                        description='Lấy danh sách dữ liệu cảm biến với phân trang, sắp xếp và tìm kiếm',
                         params={
                             'page': 'Số trang (mặc định: 1)',
                             'per_page': 'Số bản ghi mỗi trang (mặc định: 10)',
                             'limit': 'Giới hạn số bản ghi (có thể là số hoặc "all")',
+                            'sample': 'Tỷ lệ lấy mẫu dữ liệu (mặc định: 1)',
                             'sort_field': 'Trường sắp xếp (timestamp, temperature, humidity, light)',
                             'sort_order': 'Thứ tự sắp xếp (asc, desc)',
                             'search': 'Từ khóa tìm kiếm',
