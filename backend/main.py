@@ -1,6 +1,8 @@
 from app.api.routes import api_bp
 from app.services.data_service import IoTMQTTReceiver
 from app.core.config import Config
+from app.core.database import DatabaseManager
+from app.core.logger_config import logger
 from flask import Flask, send_from_directory
 from flask_cors import CORS
 from flask_restx import Api, Resource, fields
@@ -137,6 +139,13 @@ def create_app():
                 sort_field = request.args.get('sort_field', 'timestamp')
                 sort_order = request.args.get('sort_order', 'desc')
 
+                try:
+                    sample = int(request.args.get('sample', 1))
+                    if sample < 1:
+                        sample = 1
+                except ValueError:
+                    sample = 1
+
                 db = DatabaseManager()
 
                 if search_term:
@@ -155,6 +164,9 @@ def create_app():
                     else:
                         criteria = {'text_search': search_term}
                         data = db.search_by_multiple_criteria(criteria)
+
+                    if sample and sample > 1:
+                        data = data[::sample]
                 else:
                     if limit == 'all':
                         data = db.get_recent_data(limit=None)
@@ -164,6 +176,9 @@ def create_app():
                             data = db.get_recent_data(limit=limit_int)
                         except ValueError:
                             data = db.get_recent_data(limit=10)
+
+                if sample and sample > 1:
+                    data = data[::sample]
 
                 if sort_field in ['temperature', 'humidity', 'light']:
                     reverse = sort_order == 'desc'
@@ -479,6 +494,56 @@ def create_app():
 
             except Exception as e:
                 return {"error": f"Lỗi khi lấy dữ liệu biểu đồ: {str(e)}"}, 500
+
+    @sensors_ns.route('/available-dates')
+    class AvailableDates(Resource):
+        @sensors_ns.doc('get_available_dates',
+                        description='Lấy danh sách các ngày có dữ liệu cảm biến',
+                        responses={
+                            200: 'Thành công',
+                            500: 'Lỗi server'
+                        })
+        def get(self):
+            """Lấy danh sách các ngày có dữ liệu cảm biến"""
+            try:
+                db = DatabaseManager()
+                collection = db.collection
+
+                cursor = collection.find({}, {"timestamp": 1}).sort("timestamp", -1)
+                data = list(cursor)
+
+                available_dates = set()
+                for item in data:
+                    if 'timestamp' in item:
+                        timestamp = item['timestamp']
+                        if isinstance(timestamp, datetime):
+                            date_str = timestamp.strftime("%Y-%m-%d")
+                            available_dates.add(date_str)
+                        elif isinstance(timestamp, str):
+                            try:
+                                dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+                                date_str = dt.strftime("%Y-%m-%d")
+                                available_dates.add(date_str)
+                            except:
+                                continue
+
+                available_dates = sorted(list(available_dates), reverse=True)
+
+                logger.info(f"Found {len(available_dates)} dates with sensor data")
+
+                return {
+                    "status": "success",
+                    "data": available_dates,
+                    "count": len(available_dates)
+                }
+
+            except Exception as e:
+                logger.error(f"Error getting available dates: {e}")
+                return {
+                    "status": "error",
+                    "message": str(e),
+                    "data": []
+                }, 500
 
     api.add_namespace(sensors_ns)
 

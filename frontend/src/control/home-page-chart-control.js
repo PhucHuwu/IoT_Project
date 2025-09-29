@@ -17,18 +17,48 @@ class HomePageChartController {
 
     async init() {
         this.setupEventListeners();
-        this.initializeDatePicker();
+        await this.initializeDatePicker();
         await this.loadChart();
         this.startAutoRefresh();
     }
 
-    initializeDatePicker() {
+    async initializeDatePicker() {
         const today = new Date();
         const formattedDate = this.getLocalDateString(today);
-        this.datePicker.value = formattedDate;
         this.selectedDate = formattedDate;
 
-        this.datePicker.max = formattedDate;
+        let availableDates = [];
+        try {
+            const response = await SensorDataService.getAvailableDates();
+            if (response.status === "success" && response.data) {
+                availableDates = response.data;
+                console.log("Available dates:", availableDates);
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy danh sách ngày có dữ liệu:", error);
+        }
+
+        // Khởi tạo Flatpickr
+        if (this.datePicker) {
+            flatpickr(this.datePicker, {
+                dateFormat: "Y-m-d",
+                maxDate: formattedDate,
+                defaultDate: formattedDate,
+                enable: availableDates,
+                onChange: (selectedDates, dateStr) => {
+                    if (selectedDates.length > 0) {
+                        this.selectedDate = dateStr;
+                        console.log(
+                            "Selected date changed to:",
+                            this.selectedDate
+                        );
+                        this.stopAutoRefresh();
+                        this.loadChart();
+                        this.startAutoRefresh();
+                    }
+                },
+            });
+        }
 
         console.log("Date picker initialized with:", this.selectedDate);
     }
@@ -47,16 +77,6 @@ class HomePageChartController {
                 console.log("Data limit changed to:", this.dataLimit);
                 this.loadChart();
                 this.checkAndUpdateAutoRefresh();
-            });
-        }
-
-        if (this.datePicker) {
-            this.datePicker.addEventListener("change", (e) => {
-                this.selectedDate = e.target.value;
-                console.log("Selected date changed to:", this.selectedDate);
-                this.stopAutoRefresh();
-                this.loadChart();
-                this.startAutoRefresh();
             });
         }
     }

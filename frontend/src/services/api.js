@@ -14,7 +14,7 @@ class SensorDataService {
         }
     }
 
-    static async getSensorDataList(limit = 5, sample = 1, crudParams = {}) {
+    static async getSensorDataList(limit = 5, sample = 20, crudParams = {}) {
         try {
             const limitParam =
                 typeof limit === "string" && limit.toLowerCase() === "all"
@@ -160,6 +160,19 @@ class SensorDataService {
             return await response.json();
         } catch (error) {
             console.error("Lỗi khi lấy lịch sử hành động:", error);
+            throw error;
+        }
+    }
+
+    static async getAvailableDates() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/available-dates`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error("Lỗi khi lấy danh sách ngày có dữ liệu:", error);
             throw error;
         }
     }

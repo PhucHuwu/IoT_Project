@@ -5,6 +5,7 @@ from app.core.logger_config import logger
 from app.services.led_control_service import LEDControlService
 from app.services.status_service import StatusService
 from app.core.timezone_utils import get_vietnam_timezone, create_vietnam_datetime
+from bson import ObjectId
 
 sensors_bp = Blueprint('sensors', __name__)
 db = DatabaseManager()
@@ -69,6 +70,9 @@ def sensor_data_list():
             if is_time_search:
                 data = db.search_by_time_string(search_term)
 
+                if sample and sample > 1:
+                    data = data[::sample]
+
                 if sort_field in ['temperature', 'humidity', 'light']:
                     reverse = sort_order == 'desc'
                     data.sort(key=lambda x: x.get(sort_field, 0), reverse=reverse)
@@ -88,9 +92,6 @@ def sensor_data_list():
                         else:
                             return datetime.min
                     data.sort(key=get_timestamp_for_sort, reverse=reverse)
-
-                if sample and sample > 1:
-                    data = data[::sample]
 
                 total_count = len(data)
                 start_idx = (page - 1) * per_page
@@ -170,6 +171,9 @@ def sensor_data_list():
 
                 data = db.search_by_multiple_criteria(criteria)
 
+                if sample and sample > 1:
+                    data = data[::sample]
+
                 if sort_field in ['temperature', 'humidity', 'light']:
                     reverse = sort_order == 'desc'
                     data.sort(key=lambda x: x.get(sort_field, 0), reverse=reverse)
@@ -189,9 +193,6 @@ def sensor_data_list():
                         else:
                             return datetime.min
                     data.sort(key=get_timestamp_for_sort, reverse=reverse)
-
-                if sample and sample > 1:
-                    data = data[::sample]
 
                 total_count = len(data)
                 start_idx = (page - 1) * per_page
@@ -214,6 +215,9 @@ def sensor_data_list():
         else:
             data = db.get_recent_data(limit=None)
 
+            if sample and sample > 1:
+                data = data[::sample]
+
             if sort_field in ['temperature', 'humidity', 'light']:
                 reverse = sort_order == 'desc'
                 data.sort(key=lambda x: x.get(sort_field, 0), reverse=reverse)
@@ -233,9 +237,6 @@ def sensor_data_list():
                     else:
                         return datetime.min
                 data.sort(key=get_timestamp_for_sort, reverse=reverse)
-
-            if sample and sample > 1:
-                data = data[::sample]
 
             total_count = len(data)
             start_idx = (page - 1) * per_page
