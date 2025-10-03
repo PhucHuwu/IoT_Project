@@ -2,8 +2,11 @@ import paho.mqtt.client as mqtt
 import ssl
 import threading
 import time
-from app.core.config import MQTT_BROKER_HOST, MQTT_BROKER_PORT, MQTT_USERNAME, MQTT_PASSWORD, MQTT_CONTROL_TOPIC
+from datetime import datetime
+from typing import Dict, Optional
+from app.core.config import MQTT_BROKER_HOST, MQTT_BROKER_PORT, MQTT_USERNAME, MQTT_PASSWORD, MQTT_CONTROL_TOPIC, MQTT_ACTION_HISTORY_TOPIC
 from app.core.logger_config import logger
+from app.core.database import DatabaseManager
 
 
 class LEDControlService:
@@ -25,6 +28,13 @@ class LEDControlService:
         self.client = None
         self.is_connected = False
         self._initialized = True
+        self.db_manager = DatabaseManager()
+        self.led_states = {
+            'LED1': 'OFF',
+            'LED2': 'OFF',
+            'LED3': 'OFF'
+        }
+        self.pending_commands = {}
         self._setup_persistent_connection()
 
     def _setup_persistent_connection(self):
@@ -61,6 +71,7 @@ class LEDControlService:
 
         client.on_connect = self._on_connect
         client.on_disconnect = self._on_disconnect
+        client.on_message = self._on_message
 
         return client
 
@@ -68,6 +79,8 @@ class LEDControlService:
         if rc == 0:
             self.is_connected = True
             logger.info("LED Control Service: MQTT Connected")
+            client.subscribe(MQTT_ACTION_HISTORY_TOPIC)
+            logger.info(f"LED Control Service: Subscribed to {MQTT_ACTION_HISTORY_TOPIC}")
         else:
             self.is_connected = False
             logger.error(f"LED Control Service: MQTT Connection failed, rc={rc}")
@@ -89,6 +102,47 @@ class LEDControlService:
                 logger.error(f"LED Control Service: Reconnect attempt {attempt + 1} failed: {e}")
                 time.sleep(3)
 
+    def _on_message(self, client, userdata, msg):
+        try:
+            import json
+            topic = msg.topic
+            payload = msg.payload.decode('utf-8')
+
+            if topic == MQTT_ACTION_HISTORY_TOPIC:
+                status_data = json.loads(payload)
+                self._handle_led_status_confirmation(status_data)
+
+        except Exception as e:
+            logger.error(f"LED Control Service: Error processing message: {e}")
+
+    def _handle_led_status_confirmation(self, status_data: Dict):
+        try:
+            led = status_data.get('led')
+            state = status_data.get('state')
+            msg_type = status_data.get('type')
+
+            if msg_type == 'led_status' and led and state:
+                logger.info(f"LED Control Service: Received confirmation for {led} = {state}")
+
+                if led in self.led_states:
+                    self.led_states[led] = state
+
+                    if led in self.pending_commands:
+                        del self.pending_commands[led]
+                        logger.info(f"LED Control Service: Removed pending command for {led}")
+
+                    action_record = {
+                        'type': 'led_status',
+                        'led': led,
+                        'state': state,
+                        'timestamp': datetime.now()
+                    }
+                    self.db_manager.insert_action_history(action_record)
+                    logger.info(f"LED Control Service: LED status updated and saved to database")
+
+        except Exception as e:
+            logger.error(f"LED Control Service: Error handling LED status confirmation: {e}")
+
     def send_led_command(self, led_id: str, action: str) -> bool:
         try:
             if not self.is_connected:
@@ -98,15 +152,44 @@ class LEDControlService:
 
             mqtt_command = f"{led_id}_{action}"
 
+            self.pending_commands[led_id] = {
+                'action': action,
+                'timestamp': datetime.now(),
+                'timeout': 3
+            }
+
             result = self.client.publish(MQTT_CONTROL_TOPIC, mqtt_command)
 
             if result.rc == mqtt.MQTT_ERR_SUCCESS:
-                logger.info(f"LED Control: Command '{mqtt_command}' sent successfully")
+                logger.info(f"LED Control: Command '{mqtt_command}' sent successfully, waiting for confirmation")
                 return True
             else:
                 logger.error(f"LED Control: Failed to publish command, rc={result.rc}")
+                if led_id in self.pending_commands:
+                    del self.pending_commands[led_id]
                 return False
 
         except Exception as e:
             logger.error(f"LED Control Service error: {e}")
             return False
+
+    def get_led_status(self, led_id: str = None) -> Dict:
+        if led_id:
+            return {led_id: self.led_states.get(led_id, 'OFF')}
+        return self.led_states.copy()
+
+    def is_led_pending(self, led_id: str) -> bool:
+        return led_id in self.pending_commands
+
+    def cleanup_expired_pending_commands(self):
+        current_time = datetime.now()
+        expired_leds = []
+
+        for led_id, command_info in self.pending_commands.items():
+            time_diff = (current_time - command_info['timestamp']).total_seconds()
+            if time_diff > command_info['timeout']:
+                expired_leds.append(led_id)
+
+        for led_id in expired_leds:
+            del self.pending_commands[led_id]
+            logger.warning(f"LED Control Service: Pending command for {led_id} expired")

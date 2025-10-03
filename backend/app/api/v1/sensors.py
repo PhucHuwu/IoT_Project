@@ -67,7 +67,7 @@ def sensor_data_list():
 
             is_time_search = any(re.match(pattern, search_term) for pattern in time_patterns)
 
-            if is_time_search:
+            if is_time_search or search_criteria == 'time':
                 data = db.search_by_time_string(search_term)
 
                 if sample and sample > 1:
@@ -536,7 +536,21 @@ def led_control():
 @sensors_bp.route("/led-status")
 def led_status():
     try:
-        response_data = db.get_latest_led_status()
+        led_states = led_service.get_led_status()
+
+        pending_info = {}
+        for led_id in ['LED1', 'LED2', 'LED3']:
+            if led_service.is_led_pending(led_id):
+                pending_info[led_id] = True
+            else:
+                pending_info[led_id] = False
+
+        led_service.cleanup_expired_pending_commands()
+
+        response_data = {
+            'led_states': led_states,
+            'pending_commands': pending_info
+        }
 
         logger.info(f"LED status retrieved: {response_data}")
         return jsonify({"status": "success", "data": response_data})

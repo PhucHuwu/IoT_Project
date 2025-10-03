@@ -50,6 +50,7 @@ class ActionHistoryTable {
         const thead = document.createElement("thead");
         thead.innerHTML = `
       <tr>
+        <th>STT</th>
         <th>Thiết bị</th>
         <th>Trạng thái</th>
         <th>Thời gian</th>
@@ -63,12 +64,12 @@ class ActionHistoryTable {
         if (this.currentItems.length === 0) {
             const tr = document.createElement("tr");
             tr.innerHTML = `
-                <td colspan="3" class="no-data">Không có dữ liệu để hiển thị</td>
+                <td colspan="4" class="no-data">Không có dữ liệu để hiển thị</td>
             `;
             tbody.appendChild(tr);
         } else {
-            this.currentItems.forEach((item) => {
-                const tr = this._createRow(item);
+            this.currentItems.forEach((item, index) => {
+                const tr = this._createRow(item, index, this.pagination);
                 tbody.appendChild(tr);
             });
         }
@@ -138,8 +139,15 @@ class ActionHistoryTable {
         container.appendChild(card);
     }
 
-    _createRow(item) {
+    _createRow(item, index, pagination = {}) {
         const tr = document.createElement("tr");
+
+        const sttTd = document.createElement("td");
+        let stt = index + 1;
+        if (pagination && pagination.page && pagination.per_page) {
+            stt = (pagination.page - 1) * pagination.per_page + index + 1;
+        }
+        sttTd.textContent = stt;
 
         const ledTd = document.createElement("td");
         ledTd.textContent = item.led || "";
@@ -179,6 +187,7 @@ class ActionHistoryTable {
         }
         tsTd.textContent = ts;
 
+        tr.appendChild(sttTd);
         tr.appendChild(ledTd);
         tr.appendChild(stateTd);
         tr.appendChild(tsTd);
@@ -216,8 +225,8 @@ class ActionHistoryTable {
             );
 
         tbody.innerHTML = "";
-        this.currentItems.forEach((item) => {
-            tbody.appendChild(this._createRow(item));
+        this.currentItems.forEach((item, index) => {
+            tbody.appendChild(this._createRow(item, index, this.pagination));
         });
 
         window.scrollTo(0, oldScroll);

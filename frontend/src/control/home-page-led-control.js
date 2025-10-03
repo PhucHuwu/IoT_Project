@@ -11,9 +11,12 @@ class LEDController {
         this._listeners = [];
         this._processingLEDs = new Set();
         this._hasInitializedFromBackend = false;
+        this._pollingInterval = null;
+        this._pollingEnabled = true;
 
         this.initializeLEDControls();
         this.loadLEDStatesFromBackend();
+        this.startPeriodicStatusCheck();
     }
 
     initializeLEDControls() {
@@ -71,27 +74,43 @@ class LEDController {
         const newAction = newState ? "ON" : "OFF";
 
         this._processingLEDs.add(ledId);
-
-        this.ledStates[ledId] = newState;
-        this.updateLEDUI(toggleElement, statusElement, newState);
         toggleElement.classList.add("loading");
+
+        this.updateLEDUI(toggleElement, statusElement, currentState, true);
 
         try {
             const result = await SensorDataService.controlLED(ledId, newAction);
 
             if (result.status === "success") {
                 console.log(
-                    `${ledId} đã ${newAction === "ON" ? "bật" : "tắt"}`
+                    `Lệnh ${ledId} ${
+                        newAction === "ON" ? "bật" : "tắt"
+                    } đã được gửi, đang chờ xác nhận từ hardware...`
+                );
+
+                this.startStatusPolling(
+                    ledId,
+                    toggleElement,
+                    statusElement,
+                    newState
                 );
             } else {
                 throw new Error(result.message || "Lỗi không xác định");
             }
         } catch (error) {
-            this.ledStates[ledId] = currentState;
-            this.updateLEDUI(toggleElement, statusElement, currentState);
-
             console.error(`Lỗi điều khiển ${ledId}:`, error);
-            alert(`Không thể điều khiển ${ledId}: ${error.message}`);
+
+            this.ledStates[ledId] = currentState;
+
+            if (currentState) {
+                toggleElement.classList.add("active");
+            } else {
+                toggleElement.classList.remove("active");
+            }
+
+            statusElement.textContent = "Mất kết nối với phần cứng";
+            statusElement.style.color = "#FF3B30";
+            statusElement.classList.remove("on");
         } finally {
             toggleElement.classList.remove("loading");
             this._processingLEDs.delete(ledId);
@@ -110,26 +129,29 @@ class LEDController {
             console.log(
                 "Đang khởi tạo trạng thái LED từ backend cho trang Home-page..."
             );
-            const homeDataResult = await SensorDataService.getHomeData();
+            const statusResult = await SensorDataService.getLEDStatus();
 
             if (
-                !homeDataResult ||
-                homeDataResult.status !== "success" ||
-                !homeDataResult.data ||
-                !homeDataResult.data.led_status
+                !statusResult ||
+                statusResult.status !== "success" ||
+                !statusResult.data ||
+                !statusResult.data.led_states
             ) {
                 console.warn(
-                    "Không thể lấy dữ liệu trang chủ từ backend:",
-                    homeDataResult
+                    "Không thể lấy trạng thái LED từ backend:",
+                    statusResult
                 );
                 return;
             }
 
-            const ledStatuses = homeDataResult.data.led_status;
-            console.log("Trạng thái LED cuối cùng từ backend:", ledStatuses);
+            const ledStates = statusResult.data.led_states;
+            const pendingCommands = statusResult.data.pending_commands || {};
+            console.log("Trạng thái LED từ backend:", ledStates);
+            console.log("Pending commands:", pendingCommands);
 
             Object.keys(this.ledStates).forEach((ledId) => {
-                const state = ledStatuses[ledId];
+                const state = ledStates[ledId];
+                const isPending = pendingCommands[ledId] || false;
                 let isOn = false;
 
                 if (state !== undefined && state !== null) {
@@ -138,7 +160,7 @@ class LEDController {
                 }
 
                 console.log(
-                    `Khởi tạo ${ledId}: trạng thái cuối cùng=${state}, toggle=${
+                    `Khởi tạo ${ledId}: trạng thái=${state}, pending=${isPending}, toggle=${
                         isOn ? "ON" : "OFF"
                     }`
                 );
@@ -155,10 +177,19 @@ class LEDController {
                     const toggleSwitch = card.querySelector(".toggle-switch");
                     const statusElement = card.querySelector(".led-status");
                     if (toggleSwitch && statusElement) {
-                        this.updateLEDUI(toggleSwitch, statusElement, isOn);
+                        if (isPending) {
+                            this.updateLEDUI(
+                                toggleSwitch,
+                                statusElement,
+                                isOn,
+                                true
+                            );
+                        } else {
+                            this.updateLEDUI(toggleSwitch, statusElement, isOn);
+                        }
                         console.log(
                             `Toggle ${ledId} đã được khởi tạo: ${
-                                isOn ? "BẬT" : "TẮT"
+                                isPending ? "ĐANG XỬ LÝ" : isOn ? "BẬT" : "TẮT"
                             }`
                         );
                     }
@@ -175,8 +206,13 @@ class LEDController {
         }
     }
 
-    updateLEDUI(toggleElement, statusElement, isOn) {
-        if (isOn) {
+    updateLEDUI(toggleElement, statusElement, isOn, isProcessing = false) {
+        if (isProcessing) {
+            toggleElement.classList.remove("active");
+            statusElement.textContent = "Đang xử lý...";
+            statusElement.style.color = "#FF9500";
+            statusElement.classList.remove("on");
+        } else if (isOn) {
             toggleElement.classList.add("active");
             statusElement.textContent = "BẬT 💡";
             statusElement.style.color = "#34C759";
@@ -189,9 +225,253 @@ class LEDController {
         }
     }
 
+    startStatusPolling(ledId, toggleElement, statusElement, expectedState) {
+        const maxAttempts = 6;
+        let attempts = 0;
+
+        const pollInterval = setInterval(async () => {
+            attempts++;
+
+            try {
+                const statusResult = await SensorDataService.getLEDStatus();
+
+                if (statusResult.status === "success" && statusResult.data) {
+                    const ledStates = statusResult.data.led_states;
+                    const pendingCommands = statusResult.data.pending_commands;
+
+                    if (!pendingCommands[ledId]) {
+                        const actualState = ledStates[ledId] === "ON";
+
+                        if (actualState === expectedState) {
+                            this.ledStates[ledId] = actualState;
+                            this.updateLEDUI(
+                                toggleElement,
+                                statusElement,
+                                actualState
+                            );
+                            console.log(
+                                `${ledId} đã được xác nhận ${
+                                    actualState ? "BẬT" : "TẮT"
+                                }`
+                            );
+                            clearInterval(pollInterval);
+                            return;
+                        } else {
+                            console.warn(
+                                `${ledId} trạng thái không khớp: mong đợi ${expectedState}, thực tế ${actualState}`
+                            );
+                            this.ledStates[ledId] = actualState;
+                            this.updateLEDUI(
+                                toggleElement,
+                                statusElement,
+                                actualState
+                            );
+                            clearInterval(pollInterval);
+                            return;
+                        }
+                    }
+                }
+
+                if (attempts >= maxAttempts) {
+                    console.error(
+                        `${ledId} timeout - không nhận được xác nhận từ hardware`
+                    );
+                    clearInterval(pollInterval);
+
+                    this.ledStates[ledId] = !expectedState;
+
+                    if (!expectedState) {
+                        toggleElement.classList.add("active");
+                    } else {
+                        toggleElement.classList.remove("active");
+                    }
+
+                    statusElement.textContent = "Mất kết nối với phần cứng";
+                    statusElement.style.color = "#FF3B30";
+                    statusElement.classList.remove("on");
+                }
+            } catch (error) {
+                console.error(`Lỗi khi polling trạng thái ${ledId}:`, error);
+
+                if (attempts >= maxAttempts) {
+                    clearInterval(pollInterval);
+
+                    this.ledStates[ledId] = !expectedState;
+
+                    if (!expectedState) {
+                        toggleElement.classList.add("active");
+                    } else {
+                        toggleElement.classList.remove("active");
+                    }
+
+                    statusElement.textContent = "Mất kết nối với phần cứng";
+                    statusElement.style.color = "#FF3B30";
+                    statusElement.classList.remove("on");
+                }
+            }
+        }, 500);
+    }
+
+    startPeriodicStatusCheck() {
+        if (this._pollingInterval) {
+            clearInterval(this._pollingInterval);
+        }
+
+        this._pollingInterval = setInterval(async () => {
+            if (!this._pollingEnabled) return;
+
+            try {
+                await this.checkAndUpdateLEDStatus();
+            } catch (error) {
+                console.error("Lỗi trong periodic status check:", error);
+            }
+        }, 3000);
+    }
+
+    stopPeriodicStatusCheck() {
+        if (this._pollingInterval) {
+            clearInterval(this._pollingInterval);
+            this._pollingInterval = null;
+        }
+    }
+
+    async checkAndUpdateLEDStatus() {
+        try {
+            const statusResult = await SensorDataService.getLEDStatus();
+
+            if (statusResult.status === "success" && statusResult.data) {
+                const ledStates = statusResult.data.led_states;
+                const pendingCommands =
+                    statusResult.data.pending_commands || {};
+
+                this.resetErrorStates();
+
+                Object.keys(this.ledStates).forEach((ledId) => {
+                    const actualState = ledStates[ledId] === "ON";
+                    const isPending = pendingCommands[ledId] || false;
+
+                    if (!this._processingLEDs.has(ledId)) {
+                        const normalizedLower = ledId.toLowerCase();
+                        const card =
+                            document.querySelector(
+                                `.sensor-card.${normalizedLower}`
+                            ) ||
+                            document.querySelector(
+                                `.sensor-card[class*="${normalizedLower}"]`
+                            );
+
+                        if (card) {
+                            const toggleSwitch =
+                                card.querySelector(".toggle-switch");
+                            const statusElement =
+                                card.querySelector(".led-status");
+
+                            if (toggleSwitch && statusElement) {
+                                this.ledStates[ledId] = actualState;
+
+                                if (isPending) {
+                                    this.updateLEDUI(
+                                        toggleSwitch,
+                                        statusElement,
+                                        actualState,
+                                        true
+                                    );
+                                } else {
+                                    this.updateLEDUI(
+                                        toggleSwitch,
+                                        statusElement,
+                                        actualState
+                                    );
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        } catch (error) {
+            console.error("Lỗi khi kiểm tra trạng thái LED:", error);
+
+            Object.keys(this.ledStates).forEach((ledId) => {
+                if (!this._processingLEDs.has(ledId)) {
+                    const normalizedLower = ledId.toLowerCase();
+                    const card =
+                        document.querySelector(
+                            `.sensor-card.${normalizedLower}`
+                        ) ||
+                        document.querySelector(
+                            `.sensor-card[class*="${normalizedLower}"]`
+                        );
+
+                    if (card) {
+                        const statusElement = card.querySelector(".led-status");
+                        if (statusElement) {
+                            statusElement.textContent =
+                                "Mất kết nối với phần cứng";
+                            statusElement.style.color = "#FF3B30";
+                        }
+                    }
+                }
+            });
+        }
+    }
+
     resetInitialization() {
         this._hasInitializedFromBackend = false;
         console.log("Đã reset trạng thái khởi tạo LED controller");
+    }
+
+    resetErrorStates() {
+        Object.keys(this.ledStates).forEach((ledId) => {
+            const normalizedLower = ledId.toLowerCase();
+            const card =
+                document.querySelector(`.sensor-card.${normalizedLower}`) ||
+                document.querySelector(
+                    `.sensor-card[class*="${normalizedLower}"]`
+                );
+
+            if (card) {
+                const toggleSwitch = card.querySelector(".toggle-switch");
+                const statusElement = card.querySelector(".led-status");
+
+                if (toggleSwitch && statusElement) {
+                    if (
+                        statusElement.textContent ===
+                        "Mất kết nối với phần cứng"
+                    ) {
+                        this.updateLEDUI(
+                            toggleSwitch,
+                            statusElement,
+                            this.ledStates[ledId]
+                        );
+                    }
+                }
+            }
+        });
+    }
+
+    testErrorDisplay(ledId) {
+        const normalizedLower = ledId.toLowerCase();
+        const card =
+            document.querySelector(`.sensor-card.${normalizedLower}`) ||
+            document.querySelector(`.sensor-card[class*="${normalizedLower}"]`);
+
+        if (card) {
+            const toggleSwitch = card.querySelector(".toggle-switch");
+            const statusElement = card.querySelector(".led-status");
+
+            if (toggleSwitch && statusElement) {
+                toggleSwitch.classList.remove("active");
+
+                statusElement.textContent = "Mất kết nối với phần cứng";
+                statusElement.style.color = "#FF3B30";
+                statusElement.classList.remove("on");
+
+                console.log(
+                    `Test error display for ${ledId}:`,
+                    statusElement.textContent
+                );
+            }
+        }
     }
 
     destroy() {
@@ -203,9 +483,11 @@ class LEDController {
             });
         }
 
+        this.stopPeriodicStatusCheck();
         this._listeners = [];
         this._initialized = false;
         this._hasInitializedFromBackend = false;
+        this._pollingEnabled = false;
     }
 }
 

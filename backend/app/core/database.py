@@ -649,22 +649,40 @@ class DatabaseManager:
 
             if 'text_search' in criteria and criteria['text_search']:
                 search_term = criteria['text_search']
-                or_conditions = []
 
-                try:
-                    search_value = float(search_term)
-                    or_conditions.extend([
-                        {'temperature': search_value},
-                        {'humidity': search_value},
-                        {'light': search_value}
-                    ])
-                except ValueError:
-                    pass
+                import re
+                time_patterns = [
+                    r'^(\d{1,2}):(\d{1,2}):(\d{1,2})\s+(\d{1,2})/(\d{1,2})/(\d{4})$',
+                    r'^(\d{1,2}):(\d{1,2}):(\d{1,2})$',
+                    r'^(\d{1,2}):(\d{1,2})$',
+                    r'^(\d{1,2})/(\d{1,2})/(\d{4})$',
+                    r'^(\d{1,2}):(\d{1,2})\s+(\d{1,2})/(\d{1,2})/(\d{4})$'
+                ]
 
-                or_conditions.append({'timestamp': {'$regex': search_term, '$options': 'i'}})
+                is_time_format = any(re.match(pattern, search_term) for pattern in time_patterns)
 
-                if or_conditions:
-                    query['$or'] = or_conditions
+                if is_time_format:
+                    time_search_data = self.search_by_time_string(search_term)
+                    if time_search_data:
+                        time_ids = [item['_id'] for item in time_search_data if '_id' in item]
+                        query['_id'] = {'$in': time_ids}
+                else:
+                    or_conditions = []
+
+                    try:
+                        search_value = float(search_term)
+                        or_conditions.extend([
+                            {'temperature': search_value},
+                            {'humidity': search_value},
+                            {'light': search_value}
+                        ])
+                    except ValueError:
+                        pass
+
+                    or_conditions.append({'timestamp': {'$regex': search_term, '$options': 'i'}})
+
+                    if or_conditions:
+                        query['$or'] = or_conditions
 
             cursor = self.collection.find(query).sort("timestamp", -1)
             data = list(cursor)
@@ -869,7 +887,7 @@ class DatabaseManager:
     def save_action_history(self, action_data: Dict[str, Any]) -> bool:
         try:
             action_collection = self.db.get_collection('action_history')
-            
+
             if 'timestamp' in action_data:
                 timestamp = action_data['timestamp']
                 if hasattr(timestamp, 'utctimetuple'):
@@ -877,16 +895,16 @@ class DatabaseManager:
                 else:
                     from app.core.timezone_utils import convert_to_utc
                     action_data['timestamp'] = convert_to_utc(timestamp)
-            
+
             result = action_collection.insert_one(action_data)
-            
+
             if result.inserted_id:
                 logger.info(f"Action history saved: {action_data.get('type', 'unknown')} - {action_data.get('led', 'unknown')}")
                 return True
             else:
                 logger.error("Failed to save action history")
                 return False
-                
+
         except Exception as e:
             logger.error(f"Error saving action history: {e}")
             return False
@@ -894,9 +912,9 @@ class DatabaseManager:
     def get_latest_led_status(self) -> Dict[str, str]:
         try:
             action_collection = self.db.get_collection('action_history')
-            
+
             led_states = {'LED1': 'OFF', 'LED2': 'OFF', 'LED3': 'OFF'}
-            
+
             for led_id in ['LED1', 'LED2', 'LED3']:
                 latest_record = action_collection.find_one(
                     {
@@ -908,7 +926,7 @@ class DatabaseManager:
                     },
                     sort=[('timestamp', -1)]
                 )
-                
+
                 if latest_record:
                     state = None
                     if 'state' in latest_record:
@@ -917,17 +935,17 @@ class DatabaseManager:
                         action = latest_record['action']
                         if '_' in action and action.startswith(led_id):
                             state = action.split('_')[1]
-                    
+
                     if state:
                         state_str = str(state).upper()
                         if state_str in ['ON', '1', 'TRUE']:
                             led_states[led_id] = 'ON'
                         elif state_str in ['OFF', '0', 'FALSE']:
                             led_states[led_id] = 'OFF'
-            
+
             logger.info(f"Latest LED status retrieved: {led_states}")
             return led_states
-            
+
         except Exception as e:
             logger.error(f"Error getting latest LED status: {e}")
             return {'LED1': 'OFF', 'LED2': 'OFF', 'LED3': 'OFF'}

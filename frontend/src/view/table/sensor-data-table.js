@@ -57,7 +57,7 @@ class SensorDataTable {
             console.log("No data to display, showing 'no data' message");
             this.tableBody.innerHTML = `
                 <tr>
-                    <td colspan="4" class="no-data">Không có dữ liệu để hiển thị</td>
+                    <td colspan="5" class="no-data">Không có dữ liệu để hiển thị</td>
                 </tr>
             `;
             return;
@@ -70,12 +70,26 @@ class SensorDataTable {
                 const light = item.light?.toFixed(1) || "N/A";
                 const humidity = item.humidity?.toFixed(1) || "N/A";
 
+                let stt = index + 1;
+                if (
+                    this.paginationData &&
+                    this.paginationData.page &&
+                    this.paginationData.per_page
+                ) {
+                    stt =
+                        (this.paginationData.page - 1) *
+                            this.paginationData.per_page +
+                        index +
+                        1;
+                }
+
                 return `
                     <tr>
-                        <td>${timestamp}</td>
+                        <td>${stt}</td>
                         <td>${temperature}°C</td>
                         <td>${light}%</td>
                         <td>${humidity}%</td>
+                        <td>${timestamp}</td>
                     </tr>
                 `;
             })

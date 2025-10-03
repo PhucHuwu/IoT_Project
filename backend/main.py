@@ -341,15 +341,25 @@ def create_app():
                 from app.services.led_control_service import LEDControlService
                 led_service = LEDControlService()
 
-                status = {
-                    "LED1": "OFF",
-                    "LED2": "OFF",
-                    "LED3": "OFF"
+                led_states = led_service.get_led_status()
+
+                pending_info = {}
+                for led_id in ['LED1', 'LED2', 'LED3']:
+                    if led_service.is_led_pending(led_id):
+                        pending_info[led_id] = True
+                    else:
+                        pending_info[led_id] = False
+
+                led_service.cleanup_expired_pending_commands()
+
+                response_data = {
+                    'led_states': led_states,
+                    'pending_commands': pending_info
                 }
 
                 return {
                     "status": "success",
-                    "data": status
+                    "data": response_data
                 }
 
             except Exception as e:
