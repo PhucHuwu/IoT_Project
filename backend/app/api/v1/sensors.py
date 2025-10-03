@@ -307,6 +307,70 @@ def sensor_data():
     return jsonify({})
 
 
+@sensors_bp.route("/home-data")
+def get_home_data():
+    try:
+        sensor_data = db.get_recent_data(limit=1)
+
+        led_status = db.get_latest_led_status()
+
+        data = {}
+
+        if sensor_data:
+            doc = sensor_data[0]
+            if '_id' in doc:
+                doc['_id'] = str(doc['_id'])
+
+            data.update({
+                'temperature': doc.get('temperature', 0),
+                'humidity': doc.get('humidity', 0),
+                'light': doc.get('light', 0),
+                'timestamp': doc.get('timestamp')
+            })
+
+            if 'temperature' in doc and 'humidity' in doc and 'light' in doc:
+                sensor_statuses = StatusService.get_sensor_statuses(
+                    doc['temperature'], doc['humidity'], doc['light']
+                )
+                data['sensor_statuses'] = sensor_statuses
+
+                overall_status, overall_color = StatusService.get_overall_status(sensor_statuses)
+                data['overall_status'] = {
+                    'status': overall_status,
+                    'color_class': overall_color
+                }
+        else:
+            data.update({
+                'temperature': 0,
+                'humidity': 0,
+                'light': 0,
+                'timestamp': None
+            })
+
+        data['led_status'] = led_status
+
+        logger.info(f"Home data retrieved: sensor={bool(sensor_data)}, led_status={led_status}")
+
+        return jsonify({
+            "status": "success",
+            "data": data
+        })
+
+    except Exception as e:
+        logger.error(f"Error in get_home_data: {e}")
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+            "data": {
+                'temperature': 0,
+                'humidity': 0,
+                'light': 0,
+                'timestamp': None,
+                'led_status': {'LED1': 'OFF', 'LED2': 'OFF', 'LED3': 'OFF'}
+            }
+        }), 500
+
+
 @sensors_bp.route("/sensor-data/chart")
 def chart_data():
     time_period = request.args.get('timePeriod', None)
@@ -444,6 +508,21 @@ def led_control():
         success = led_service.send_led_command(led_id, action)
 
         if success:
+            from app.core.timezone_utils import get_vietnam_timezone
+            current_time = datetime.now(get_vietnam_timezone())
+
+            action_record = {
+                'type': 'led_control',
+                'led': led_id,
+                'action': f"{led_id}_{action}",
+                'state': action,
+                'timestamp': current_time,
+                'device': led_id,
+                'description': f"Điều khiển {led_id} {action}"
+            }
+
+            db.save_action_history(action_record)
+
             logger.info(f"LED control command sent: {led_id}_{action}")
             return jsonify({"status": "success", "message": f"Command {led_id}_{action} sent successfully"})
         else:
@@ -457,28 +536,9 @@ def led_control():
 @sensors_bp.route("/led-status")
 def led_status():
     try:
-        data = db.get_recent_action_history_optimized(limit=100)
+        response_data = db.get_latest_led_status()
 
-        led_states = {'LED1': 'OFF', 'LED2': 'OFF', 'LED3': 'OFF'}
-
-        for record in data:
-            if record.get('type') == 'led_status':
-                led_id = record.get('led')
-                state = record.get('state')
-                timestamp = record.get('timestamp')
-
-                if led_id in led_states:
-                    current_timestamp = led_states.get(f'{led_id}_timestamp')
-                    if not current_timestamp or (timestamp and isinstance(timestamp, datetime) and isinstance(current_timestamp, datetime) and timestamp > current_timestamp):
-                        led_states[led_id] = state
-                        led_states[f'{led_id}_timestamp'] = timestamp
-
-        response_data = {
-            'LED1': led_states['LED1'],
-            'LED2': led_states['LED2'],
-            'LED3': led_states['LED3']
-        }
-
+        logger.info(f"LED status retrieved: {response_data}")
         return jsonify({"status": "success", "data": response_data})
 
     except Exception as e:

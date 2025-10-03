@@ -176,6 +176,19 @@ class SensorDataService {
             throw error;
         }
     }
+
+    static async getHomeData() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/home-data`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error("Lỗi khi lấy dữ liệu trang chủ:", error);
+            throw error;
+        }
+    }
 }
 
 export default SensorDataService;

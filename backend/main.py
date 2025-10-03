@@ -504,7 +504,6 @@ def create_app():
                             500: 'Lỗi server'
                         })
         def get(self):
-            """Lấy danh sách các ngày có dữ liệu cảm biến"""
             try:
                 db = DatabaseManager()
                 collection = db.collection

@@ -38,7 +38,6 @@ class HomePageChartController {
             console.error("Lỗi khi lấy danh sách ngày có dữ liệu:", error);
         }
 
-        // Khởi tạo Flatpickr
         if (this.datePicker) {
             flatpickr(this.datePicker, {
                 dateFormat: "Y-m-d",

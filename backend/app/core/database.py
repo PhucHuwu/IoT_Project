@@ -866,6 +866,72 @@ class DatabaseManager:
             logger.error(f"Error retrieving action history: {e}")
             return []
 
+    def save_action_history(self, action_data: Dict[str, Any]) -> bool:
+        try:
+            action_collection = self.db.get_collection('action_history')
+            
+            if 'timestamp' in action_data:
+                timestamp = action_data['timestamp']
+                if hasattr(timestamp, 'utctimetuple'):
+                    action_data['timestamp'] = timestamp
+                else:
+                    from app.core.timezone_utils import convert_to_utc
+                    action_data['timestamp'] = convert_to_utc(timestamp)
+            
+            result = action_collection.insert_one(action_data)
+            
+            if result.inserted_id:
+                logger.info(f"Action history saved: {action_data.get('type', 'unknown')} - {action_data.get('led', 'unknown')}")
+                return True
+            else:
+                logger.error("Failed to save action history")
+                return False
+                
+        except Exception as e:
+            logger.error(f"Error saving action history: {e}")
+            return False
+
+    def get_latest_led_status(self) -> Dict[str, str]:
+        try:
+            action_collection = self.db.get_collection('action_history')
+            
+            led_states = {'LED1': 'OFF', 'LED2': 'OFF', 'LED3': 'OFF'}
+            
+            for led_id in ['LED1', 'LED2', 'LED3']:
+                latest_record = action_collection.find_one(
+                    {
+                        '$or': [
+                            {'led': led_id},
+                            {'device': led_id},
+                            {'action': {'$regex': f'^{led_id}_'}}
+                        ]
+                    },
+                    sort=[('timestamp', -1)]
+                )
+                
+                if latest_record:
+                    state = None
+                    if 'state' in latest_record:
+                        state = latest_record['state']
+                    elif 'action' in latest_record:
+                        action = latest_record['action']
+                        if '_' in action and action.startswith(led_id):
+                            state = action.split('_')[1]
+                    
+                    if state:
+                        state_str = str(state).upper()
+                        if state_str in ['ON', '1', 'TRUE']:
+                            led_states[led_id] = 'ON'
+                        elif state_str in ['OFF', '0', 'FALSE']:
+                            led_states[led_id] = 'OFF'
+            
+            logger.info(f"Latest LED status retrieved: {led_states}")
+            return led_states
+            
+        except Exception as e:
+            logger.error(f"Error getting latest LED status: {e}")
+            return {'LED1': 'OFF', 'LED2': 'OFF', 'LED3': 'OFF'}
+
     def search_by_time_string(self, time_string: str) -> List[Dict[str, Any]]:
         try:
             import re

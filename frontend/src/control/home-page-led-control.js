@@ -10,22 +10,10 @@ class LEDController {
         this._initialized = false;
         this._listeners = [];
         this._processingLEDs = new Set();
-
-        this._onVisibilityChangeBound = () => {
-            if (document.visibilityState === "visible") {
-                this.loadLEDStatesFromBackend();
-            }
-        };
-        this._onWindowFocusBound = () => this.loadLEDStatesFromBackend();
+        this._hasInitializedFromBackend = false;
 
         this.initializeLEDControls();
         this.loadLEDStatesFromBackend();
-
-        document.addEventListener(
-            "visibilitychange",
-            this._onVisibilityChangeBound
-        );
-        window.addEventListener("focus", this._onWindowFocusBound);
     }
 
     initializeLEDControls() {
@@ -111,19 +99,34 @@ class LEDController {
     }
 
     async loadLEDStatesFromBackend() {
+        if (this._hasInitializedFromBackend) {
+            console.log(
+                "Đã khởi tạo trạng thái LED từ backend, bỏ qua lần gọi này"
+            );
+            return;
+        }
+
         try {
-            const statusResult = await SensorDataService.getLEDStatus();
+            console.log(
+                "Đang khởi tạo trạng thái LED từ backend cho trang Home-page..."
+            );
+            const homeDataResult = await SensorDataService.getHomeData();
 
             if (
-                !statusResult ||
-                statusResult.status !== "success" ||
-                !statusResult.data
+                !homeDataResult ||
+                homeDataResult.status !== "success" ||
+                !homeDataResult.data ||
+                !homeDataResult.data.led_status
             ) {
-                console.warn("Không thể lấy trạng thái LED từ backend");
+                console.warn(
+                    "Không thể lấy dữ liệu trang chủ từ backend:",
+                    homeDataResult
+                );
                 return;
             }
 
-            const ledStatuses = statusResult.data;
+            const ledStatuses = homeDataResult.data.led_status;
+            console.log("Trạng thái LED cuối cùng từ backend:", ledStatuses);
 
             Object.keys(this.ledStates).forEach((ledId) => {
                 const state = ledStatuses[ledId];
@@ -134,31 +137,41 @@ class LEDController {
                     isOn = s === "ON" || s === "1" || s === "TRUE";
                 }
 
-                if (this.ledStates[ledId] !== isOn) {
-                    this.ledStates[ledId] = !!isOn;
+                console.log(
+                    `Khởi tạo ${ledId}: trạng thái cuối cùng=${state}, toggle=${
+                        isOn ? "ON" : "OFF"
+                    }`
+                );
 
-                    const normalizedLower = ledId.toLowerCase();
-                    const card =
-                        document.querySelector(
-                            `.sensor-card.${normalizedLower}`
-                        ) ||
-                        document.querySelector(
-                            `.sensor-card[class*="${normalizedLower}"]`
+                this.ledStates[ledId] = !!isOn;
+
+                const normalizedLower = ledId.toLowerCase();
+                const card =
+                    document.querySelector(`.sensor-card.${normalizedLower}`) ||
+                    document.querySelector(
+                        `.sensor-card[class*="${normalizedLower}"]`
+                    );
+                if (card) {
+                    const toggleSwitch = card.querySelector(".toggle-switch");
+                    const statusElement = card.querySelector(".led-status");
+                    if (toggleSwitch && statusElement) {
+                        this.updateLEDUI(toggleSwitch, statusElement, isOn);
+                        console.log(
+                            `Toggle ${ledId} đã được khởi tạo: ${
+                                isOn ? "BẬT" : "TẮT"
+                            }`
                         );
-                    if (card) {
-                        const toggleSwitch =
-                            card.querySelector(".toggle-switch");
-                        const statusElement = card.querySelector(".led-status");
-                        if (toggleSwitch && statusElement) {
-                            this.updateLEDUI(toggleSwitch, statusElement, isOn);
-                        }
                     }
                 }
             });
 
-            console.log("Trạng thái LED đã được cập nhật:", this.ledStates);
+            this._hasInitializedFromBackend = true;
+            console.log(
+                "Hoàn thành khởi tạo trạng thái LED cho trang Home-page:",
+                this.ledStates
+            );
         } catch (error) {
-            console.error("Lỗi khi tải trạng thái LED từ backend:", error);
+            console.error("Lỗi khi khởi tạo trạng thái LED từ backend:", error);
         }
     }
 
@@ -176,6 +189,11 @@ class LEDController {
         }
     }
 
+    resetInitialization() {
+        this._hasInitializedFromBackend = false;
+        console.log("Đã reset trạng thái khởi tạo LED controller");
+    }
+
     destroy() {
         if (Array.isArray(this._listeners)) {
             this._listeners.forEach((item) => {
@@ -185,14 +203,9 @@ class LEDController {
             });
         }
 
-        document.removeEventListener(
-            "visibilitychange",
-            this._onVisibilityChangeBound
-        );
-        window.removeEventListener("focus", this._onWindowFocusBound);
-
         this._listeners = [];
         this._initialized = false;
+        this._hasInitializedFromBackend = false;
     }
 }
 
