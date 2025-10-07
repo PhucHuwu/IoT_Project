@@ -7,6 +7,7 @@ from flask import Flask, send_from_directory
 from flask_cors import CORS
 from flask_restx import Api, Resource, fields
 from datetime import datetime
+from bson import ObjectId
 import threading
 import sys
 import os
@@ -182,7 +183,16 @@ def create_app():
 
                 if sort_field in ['temperature', 'humidity', 'light']:
                     reverse = sort_order == 'desc'
-                    data.sort(key=lambda x: x.get(sort_field, 0), reverse=reverse)
+
+                    def safe_get_numeric_value(x):
+                        value = x.get(sort_field)
+                        if value is None:
+                            return float('-inf') if reverse else float('inf')
+                        try:
+                            return float(value)
+                        except (TypeError, ValueError):
+                            return float('-inf') if reverse else float('inf')
+                    data.sort(key=safe_get_numeric_value, reverse=reverse)
                 elif sort_field == 'timestamp':
                     reverse = sort_order == 'desc'
 
@@ -200,17 +210,25 @@ def create_app():
                             return datetime.min
                     data.sort(key=get_timestamp_for_sort, reverse=reverse)
 
+                def serialize_document(doc):
+                    serialized = {}
+                    for key, value in doc.items():
+                        if isinstance(value, ObjectId):
+                            serialized[key] = str(value)
+                        elif isinstance(value, datetime):
+                            serialized[key] = value.isoformat()
+                        elif hasattr(value, 'isoformat'):
+                            serialized[key] = value.isoformat()
+                        else:
+                            serialized[key] = value
+                    return serialized
+
+                data = [serialize_document(doc) for doc in data]
+
                 total_count = len(data)
                 start_idx = (page - 1) * per_page
                 end_idx = start_idx + per_page
                 paginated_data = data[start_idx:end_idx]
-
-                for doc in paginated_data:
-                    if '_id' in doc:
-                        doc['_id'] = str(doc['_id'])
-
-                    if 'timestamp' in doc and hasattr(doc['timestamp'], 'isoformat'):
-                        doc['timestamp'] = doc['timestamp'].isoformat()
 
                 return {
                     "status": "success",

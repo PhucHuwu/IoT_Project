@@ -97,21 +97,39 @@ class SensorDataTable {
     }
 
     updateSortHeaders() {
-        if (!this.container || !this.sortData) return;
+        if (!this.container) return;
 
         const ths = this.container.querySelectorAll("thead th");
-        const fieldMap = ["timestamp", "temperature", "light", "humidity"];
+        const fieldMap = [
+            null,
+            "temperature",
+            "light",
+            "humidity",
+            "timestamp",
+        ];
+
+        const headerLabels = {
+            temperature: "Cảm biến nhiệt độ (°C)",
+            light: "Cảm biến ánh sáng (%)",
+            humidity: "Cảm biến độ ẩm (%)",
+            timestamp: "Thời gian",
+        };
 
         ths.forEach((th, idx) => {
             const field = fieldMap[idx];
             if (!field) return;
 
-            th.textContent = th.textContent.replace(/ ↑| ↓/, "");
+            const label = headerLabels[field];
+            let iconHtml = '<i class="fa-solid fa-sort"></i>';
 
-            if (field === this.sortData.field) {
-                const indicator = this.sortData.order === "asc" ? " ↑" : " ↓";
-                th.textContent += indicator;
+            if (this.sortData && field === this.sortData.field) {
+                iconHtml =
+                    this.sortData.order === "asc"
+                        ? '<i class="fa-solid fa-sort-up"></i>'
+                        : '<i class="fa-solid fa-sort-down"></i>';
             }
+
+            th.innerHTML = `${label} ${iconHtml}`;
         });
     }
 

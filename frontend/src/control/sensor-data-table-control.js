@@ -144,7 +144,13 @@ class SensorDataTableController {
 
         if (this.table.container) {
             const ths = this.table.container.querySelectorAll("thead th");
-            const fieldMap = ["timestamp", "temperature", "light", "humidity"];
+            const fieldMap = [
+                null,
+                "temperature",
+                "light",
+                "humidity",
+                "timestamp",
+            ];
 
             ths.forEach((th, idx) => {
                 const field = fieldMap[idx];

@@ -293,7 +293,7 @@ class ActionHistoryTableControl {
         const input = this.container.querySelector("#actionHistorySearchInput");
         if (!input) return;
         input.placeholder =
-            "Tìm kiếm theo thời gian (VD: 00:17:07 21/09/2025, 00:17 21/09/2025, 21/09/2025)";
+            "Tìm kiếm theo thời gian (VD: 00:17:07 21/09/2025, 00:17 21/09/2025)";
     }
 
     _attachSearchListeners() {

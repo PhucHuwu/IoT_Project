@@ -26,7 +26,7 @@ class ActionHistoryTable {
           Làm mới
         </button>
         <button id="actionExportCSV" class="export-btn">
-          <i class="fas fa-download"></i>
+          <i class="fa-solid fa-file-export"></i>
           Xuất CSV
         </button>
       </div>
@@ -99,7 +99,7 @@ class ActionHistoryTable {
           </select>
           <div class="search-input-group">
             <i class="fas fa-search"></i>
-            <input type="text" id="actionHistorySearchInput" placeholder="Tìm kiếm theo thời gian (VD: 00:17:07 21/09/2025, 00:17 21/09/2025, 21/09/2025)">
+            <input type="text" id="actionHistorySearchInput" placeholder="Tìm kiếm theo thời gian (VD: 00:17:07 21/09/2025, 00:17 21/09/2025)">
             <button id="actionHistoryClearSearch" class="clear-btn" style="display:none;"><i class="fas fa-times"></i></button>
           </div>
         </div>
