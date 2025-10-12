@@ -60,17 +60,13 @@ class SensorDataTableController {
                 const newSearchTerm = e.target.value.trim();
                 this.searchTerm = newSearchTerm;
 
-                if (this.isTimeFormat(newSearchTerm)) {
-                    this.searchCriteria = "time";
-                    if (searchCriteria) {
-                        searchCriteria.value = "time";
-                        this.updateSearchPlaceholder("time");
-                    }
-                } else if (this.isNumericFormat(newSearchTerm)) {
-                    this.searchCriteria = "all";
-                    if (searchCriteria) {
-                        searchCriteria.value = "all";
-                        this.updateSearchPlaceholder("all");
+                if (this.searchCriteria === "all") {
+                    if (this.isTimeFormat(newSearchTerm)) {
+                        this.searchCriteria = "time";
+                        if (searchCriteria) {
+                            searchCriteria.value = "time";
+                            this.updateSearchPlaceholder("time");
+                        }
                     }
                 }
 
@@ -230,9 +226,11 @@ class SensorDataTableController {
                 search_criteria: this.searchCriteria,
             };
 
+            const sampleRate = this.searchTerm ? 1 : 10;
+
             const response = await SensorDataService.getSensorDataList(
                 "all",
-                10,
+                sampleRate,
                 crudParams
             );
 

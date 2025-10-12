@@ -181,11 +181,10 @@ class DatabaseManager:
                         year = int(date_part[2])
 
                         try:
-                            search_datetime = datetime(year, month, day, hour, minute, 0)
-                            start_time = search_datetime - timedelta(minutes=1)
-                            end_time = search_datetime + timedelta(minutes=1)
+                            start_time = datetime(year, month, day, hour, minute, 0)
+                            end_time = datetime(year, month, day, hour, minute, 59, 999999)
                             base_query['timestamp'] = {'$gte': start_time, '$lte': end_time}
-                            logger.info(f"Searching for time: {search_datetime}")
+                            logger.info(f"Searching for time: {start_time} to {end_time}")
                         except ValueError:
                             logger.error(f"Invalid datetime: {search_original}")
                             pass
@@ -1017,9 +1016,8 @@ class DatabaseManager:
                 month = int(date_part[1])
                 year = int(date_part[2])
 
-                search_datetime = create_vietnam_datetime(year, month, day, hour, minute, 0)
-                start_time = search_datetime
-                end_time = search_datetime.replace(second=59, microsecond=999999)
+                start_time = create_vietnam_datetime(year, month, day, hour, minute, 0)
+                end_time = create_vietnam_datetime(year, month, day, hour, minute, 59, 999999)
                 query['timestamp'] = {'$gte': convert_from_vietnam_time(start_time), '$lte': convert_from_vietnam_time(end_time)}
 
             else:
