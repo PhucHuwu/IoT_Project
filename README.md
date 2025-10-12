@@ -200,68 +200,60 @@ Complete API documentation is available at `http://localhost:5000/docs/` when th
 -   **GET** `/api/v1/sensors/sensor-data` - Get latest sensor data with status information
 -   **GET** `/api/v1/sensors/sensor-data-list` - Get paginated sensor data with advanced filtering, sorting, and search
 -   **GET** `/api/v1/sensors/sensor-data/chart` - Get chart data with time-based filtering and date selection
--   **POST** `/api/v1/sensors/sensor-data` - Add new sensor data (used by ESP32)
--   **GET** `/api/v1/sensors/available-dates` - Get list of dates with available sensor data
+-   **GET** `/api/v1/sensors/home-data` - Get combined home page data (latest sensor data + LED status)
 
 #### LED Control Endpoints
 
 -   **POST** `/api/v1/sensors/led-control` - Control LED (ON/OFF) via MQTT
--   **GET** `/api/v1/sensors/led-status` - Get current LED status from action history
+-   **GET** `/api/v1/sensors/led-status` - Get current LED status and pending commands
 -   **GET** `/api/v1/sensors/action-history` - Get LED action history with filtering and pagination
 
 ### Query Parameters
 
 #### Sensor Data List (`/api/v1/sensors/sensor-data-list`)
 
--   `page`: Page number (default: 1)
--   `per_page`: Records per page (default: 10, max: 100)
--   `sort_field`: Sort field (timestamp, temperature, humidity, light)
--   `sort_order`: Sort order (asc, desc)
--   `limit`: Limit number of records or "all"
--   `search`: Search term for filtering
--   `search_criteria`: Search criteria (all, temperature, humidity, light, time)
--   `sample`: Sampling frequency (1, 2, 3, etc.)
+-   `page`: Page number (default: 1, min: 1)
+-   `per_page`: Records per page (default: 10, min: 1, max: 100)
+-   `sort_field`: Sort field - `timestamp`, `temperature`, `humidity`, `light` (default: `timestamp`)
+-   `sort_order`: Sort order - `asc`, `desc` (default: `desc`)
+-   `limit`: Limit number of records (positive integer) or `"all"` for all records
+-   `search`: Search term for filtering (supports text search and time-based search)
+-   `search_criteria`: Search criteria - `all`, `temperature`, `humidity`, `light`, `time` (default: `all`)
+-   `sample`: Sampling frequency - every nth record (default: 1, min: 1)
+
+**Search Examples:**
+
+-   Text search: `search=25.5&search_criteria=temperature` - Find records with temperature = 25.5
+-   Time search: `search=10:30:00 15/01/2024&search_criteria=time` - Find records at specific time
+-   Time patterns: `HH:MM:SS DD/MM/YYYY`, `HH:MM:SS`, `HH:MM`, `DD/MM/YYYY`, `HH:MM DD/MM/YYYY`
 
 #### Chart Data (`/api/v1/sensors/sensor-data/chart`)
 
--   `limit`: Number of records (default: 50, can be "all")
--   `date`: Specific date (YYYY-MM-DD format)
--   `timePeriod`: Time period filter (optional)
+-   `limit`: Number of records (default: 50, positive integer) or `"all"` for all records
+-   `date`: Specific date in `YYYY-MM-DD` format (returns all records for that day)
+-   `timePeriod`: Time period filter (deprecated - use `date` instead)
+
+**Modes:**
+
+-   **Real-time mode** (no `date` parameter): Returns most recent records up to `limit`
+-   **Historical mode** (`date` parameter): Returns all records for specified date (or limited by `limit`)
 
 #### Action History (`/api/v1/sensors/action-history`)
 
--   `page`: Page number (default: 1)
--   `per_page`: Records per page (default: 10, max: 100)
--   `sort_field`: Sort field (timestamp, led, state)
--   `sort_order`: Sort order (asc, desc)
+-   `page`: Page number (default: 1, min: 1)
+-   `per_page`: Records per page (default: 10, min: 1, max: 100)
+-   `sort_field`: Sort field - `timestamp`, `led`, `state` (default: `timestamp`)
+-   `sort_order`: Sort order - `asc`, `desc` (default: `desc`)
 -   `search`: Search term for filtering
--   `device_filter`: Filter by device (all, LED1, LED2, LED3)
--   `state_filter`: Filter by state (all, ON, OFF)
--   `limit`: Limit number of records
+-   `device_filter`: Filter by device - `all`, `LED1`, `LED2`, `LED3` (default: `all`)
+-   `state_filter`: Filter by state - `all`, `ON`, `OFF` (default: `all`)
+-   `limit`: Limit number of records (will reduce `per_page` if lower)
 
 ### Request/Response Examples
 
-#### LED Control (`/api/v1/sensors/led-control`)
+#### GET `/api/v1/sensors/sensor-data`
 
-**Request Body:**
-
-```json
-{
-    "led_id": "LED1",
-    "action": "ON"
-}
-```
-
-**Response:**
-
-```json
-{
-    "status": "success",
-    "message": "Command LED1_ON sent successfully"
-}
-```
-
-#### Sensor Data (`/api/v1/sensors/sensor-data`)
+Get the latest sensor reading with status information.
 
 **Response:**
 
@@ -284,7 +276,19 @@ Complete API documentation is available at `http://localhost:5000/docs/` when th
 }
 ```
 
-#### Sensor Data List (`/api/v1/sensors/sensor-data-list`)
+#### GET `/api/v1/sensors/sensor-data-list`
+
+Get paginated list of sensor data with advanced filtering.
+
+**Request Examples:**
+
+```
+GET /api/v1/sensors/sensor-data-list?page=1&per_page=20
+GET /api/v1/sensors/sensor-data-list?search=25.5&search_criteria=temperature
+GET /api/v1/sensors/sensor-data-list?search=10:30:00&search_criteria=time
+GET /api/v1/sensors/sensor-data-list?sort_field=temperature&sort_order=desc
+GET /api/v1/sensors/sensor-data-list?sample=5&limit=100
+```
 
 **Response:**
 
@@ -318,6 +322,185 @@ Complete API documentation is available at `http://localhost:5000/docs/` when th
     },
     "count": 10,
     "total_count": 150
+}
+```
+
+#### GET `/api/v1/sensors/sensor-data/chart`
+
+Get sensor data for charts with time-based filtering.
+
+**Request Examples:**
+
+```
+GET /api/v1/sensors/sensor-data/chart?limit=50
+GET /api/v1/sensors/sensor-data/chart?limit=all
+GET /api/v1/sensors/sensor-data/chart?date=2024-01-15
+GET /api/v1/sensors/sensor-data/chart?date=2024-01-15&limit=100
+```
+
+**Response:**
+
+```json
+[
+    {
+        "_id": "507f1f77bcf86cd799439011",
+        "temperature": 25.5,
+        "humidity": 60.2,
+        "light": 45.8,
+        "timestamp": "2024-01-15T10:30:00+07:00"
+    },
+    {
+        "_id": "507f1f77bcf86cd799439012",
+        "temperature": 26.0,
+        "humidity": 58.5,
+        "light": 50.2,
+        "timestamp": "2024-01-15T10:31:00+07:00"
+    }
+]
+```
+
+#### GET `/api/v1/sensors/home-data`
+
+Get combined data for home page (latest sensor data + LED status).
+
+**Response:**
+
+```json
+{
+    "status": "success",
+    "data": {
+        "temperature": 25.5,
+        "humidity": 60.2,
+        "light": 45.8,
+        "timestamp": "2024-01-15T10:30:00+07:00",
+        "sensor_statuses": {
+            "temperature": "normal",
+            "humidity": "normal",
+            "light": "normal"
+        },
+        "overall_status": {
+            "status": "normal",
+            "color_class": "status-normal"
+        },
+        "led_status": {
+            "LED1": "ON",
+            "LED2": "OFF",
+            "LED3": "ON"
+        }
+    }
+}
+```
+
+#### POST `/api/v1/sensors/led-control`
+
+Control LED state via MQTT.
+
+**Request Body:**
+
+```json
+{
+    "led_id": "LED1",
+    "action": "ON"
+}
+```
+
+**Validation:**
+
+-   `led_id`: Must be `LED1`, `LED2`, or `LED3`
+-   `action`: Must be `ON` or `OFF`
+
+**Success Response:**
+
+```json
+{
+    "status": "success",
+    "message": "Command LED1_ON sent successfully"
+}
+```
+
+**Error Response:**
+
+```json
+{
+    "status": "error",
+    "message": "Invalid led_id"
+}
+```
+
+#### GET `/api/v1/sensors/led-status`
+
+Get current LED status and pending commands.
+
+**Response:**
+
+```json
+{
+    "status": "success",
+    "data": {
+        "led_states": {
+            "LED1": "ON",
+            "LED2": "OFF",
+            "LED3": "ON"
+        },
+        "pending_commands": {
+            "LED1": false,
+            "LED2": true,
+            "LED3": false
+        }
+    }
+}
+```
+
+#### GET `/api/v1/sensors/action-history`
+
+Get LED action history with filtering and pagination.
+
+**Request Examples:**
+
+```
+GET /api/v1/sensors/action-history?page=1&per_page=20
+GET /api/v1/sensors/action-history?device_filter=LED1
+GET /api/v1/sensors/action-history?state_filter=ON
+GET /api/v1/sensors/action-history?search=LED1&device_filter=LED1&state_filter=ON
+GET /api/v1/sensors/action-history?sort_field=timestamp&sort_order=asc
+```
+
+**Response:**
+
+```json
+{
+    "status": "success",
+    "data": [
+        {
+            "_id": "507f1f77bcf86cd799439013",
+            "type": "led_control",
+            "led": "LED1",
+            "action": "LED1_ON",
+            "state": "ON",
+            "timestamp": "2024-01-15T10:30:00+07:00",
+            "device": "LED1",
+            "description": "Điều khiển LED1 ON"
+        }
+    ],
+    "pagination": {
+        "page": 1,
+        "per_page": 10,
+        "total_count": 50,
+        "total_pages": 5,
+        "has_prev": false,
+        "has_next": true
+    },
+    "filters": {
+        "search": "",
+        "device": "all",
+        "state": "all"
+    },
+    "sort": {
+        "field": "timestamp",
+        "order": "desc"
+    },
+    "count": 10,
+    "total_count": 50
 }
 ```
 

@@ -200,68 +200,60 @@ Tài liệu API đầy đủ có sẵn tại `http://localhost:5000/docs/` khi b
 -   **GET** `/api/v1/sensors/sensor-data` - Lấy dữ liệu cảm biến mới nhất với thông tin trạng thái
 -   **GET** `/api/v1/sensors/sensor-data-list` - Lấy danh sách dữ liệu cảm biến với phân trang, sắp xếp và tìm kiếm nâng cao
 -   **GET** `/api/v1/sensors/sensor-data/chart` - Lấy dữ liệu biểu đồ với lọc theo thời gian và chọn ngày
--   **POST** `/api/v1/sensors/sensor-data` - Thêm dữ liệu cảm biến mới (sử dụng bởi ESP32)
--   **GET** `/api/v1/sensors/available-dates` - Lấy danh sách các ngày có dữ liệu cảm biến
+-   **GET** `/api/v1/sensors/home-data` - Lấy dữ liệu kết hợp cho trang chủ (dữ liệu cảm biến mới nhất + trạng thái LED)
 
 #### Endpoint Điều Khiển LED
 
 -   **POST** `/api/v1/sensors/led-control` - Điều khiển LED (BẬT/TẮT) qua MQTT
--   **GET** `/api/v1/sensors/led-status` - Lấy trạng thái LED hiện tại từ lịch sử hành động
+-   **GET** `/api/v1/sensors/led-status` - Lấy trạng thái LED hiện tại và lệnh đang chờ xử lý
 -   **GET** `/api/v1/sensors/action-history` - Lấy lịch sử hành động LED với lọc và phân trang
 
 ### Tham Số Truy Vấn
 
 #### Danh Sách Dữ Liệu Cảm Biến (`/api/v1/sensors/sensor-data-list`)
 
--   `page`: Số trang (mặc định: 1)
--   `per_page`: Bản ghi mỗi trang (mặc định: 10, tối đa: 100)
--   `sort_field`: Trường sắp xếp (timestamp, temperature, humidity, light)
--   `sort_order`: Thứ tự sắp xếp (asc, desc)
--   `limit`: Giới hạn số bản ghi hoặc "all"
--   `search`: Thuật ngữ tìm kiếm để lọc
--   `search_criteria`: Tiêu chí tìm kiếm (all, temperature, humidity, light, time)
--   `sample`: Tần suất lấy mẫu (1, 2, 3, v.v.)
+-   `page`: Số trang (mặc định: 1, tối thiểu: 1)
+-   `per_page`: Bản ghi mỗi trang (mặc định: 10, tối thiểu: 1, tối đa: 100)
+-   `sort_field`: Trường sắp xếp - `timestamp`, `temperature`, `humidity`, `light` (mặc định: `timestamp`)
+-   `sort_order`: Thứ tự sắp xếp - `asc`, `desc` (mặc định: `desc`)
+-   `limit`: Giới hạn số bản ghi (số nguyên dương) hoặc `"all"` để lấy tất cả
+-   `search`: Thuật ngữ tìm kiếm để lọc (hỗ trợ tìm kiếm văn bản và theo thời gian)
+-   `search_criteria`: Tiêu chí tìm kiếm - `all`, `temperature`, `humidity`, `light`, `time` (mặc định: `all`)
+-   `sample`: Tần suất lấy mẫu - lấy mỗi bản ghi thứ n (mặc định: 1, tối thiểu: 1)
+
+**Ví Dụ Tìm Kiếm:**
+
+-   Tìm kiếm văn bản: `search=25.5&search_criteria=temperature` - Tìm bản ghi có nhiệt độ = 25.5
+-   Tìm kiếm thời gian: `search=10:30:00 15/01/2024&search_criteria=time` - Tìm bản ghi tại thời điểm cụ thể
+-   Định dạng thời gian: `HH:MM:SS DD/MM/YYYY`, `HH:MM:SS`, `HH:MM`, `DD/MM/YYYY`, `HH:MM DD/MM/YYYY`
 
 #### Dữ Liệu Biểu Đồ (`/api/v1/sensors/sensor-data/chart`)
 
--   `limit`: Số lượng bản ghi (mặc định: 50, có thể là "all")
--   `date`: Ngày cụ thể (định dạng YYYY-MM-DD)
--   `timePeriod`: Bộ lọc khoảng thời gian (tùy chọn)
+-   `limit`: Số lượng bản ghi (mặc định: 50, số nguyên dương) hoặc `"all"` để lấy tất cả
+-   `date`: Ngày cụ thể theo định dạng `YYYY-MM-DD` (trả về tất cả bản ghi trong ngày đó)
+-   `timePeriod`: Bộ lọc khoảng thời gian (không khuyến khích - sử dụng `date` thay thế)
+
+**Chế Độ:**
+
+-   **Chế độ thời gian thực** (không có tham số `date`): Trả về các bản ghi mới nhất cho đến giới hạn `limit`
+-   **Chế độ lịch sử** (có tham số `date`): Trả về tất cả bản ghi cho ngày được chỉ định (hoặc giới hạn bởi `limit`)
 
 #### Lịch Sử Hành Động (`/api/v1/sensors/action-history`)
 
--   `page`: Số trang (mặc định: 1)
--   `per_page`: Bản ghi mỗi trang (mặc định: 10, tối đa: 100)
--   `sort_field`: Trường sắp xếp (timestamp, led, state)
--   `sort_order`: Thứ tự sắp xếp (asc, desc)
+-   `page`: Số trang (mặc định: 1, tối thiểu: 1)
+-   `per_page`: Bản ghi mỗi trang (mặc định: 10, tối thiểu: 1, tối đa: 100)
+-   `sort_field`: Trường sắp xếp - `timestamp`, `led`, `state` (mặc định: `timestamp`)
+-   `sort_order`: Thứ tự sắp xếp - `asc`, `desc` (mặc định: `desc`)
 -   `search`: Thuật ngữ tìm kiếm để lọc
--   `device_filter`: Lọc theo thiết bị (all, LED1, LED2, LED3)
--   `state_filter`: Lọc theo trạng thái (all, ON, OFF)
--   `limit`: Giới hạn số bản ghi
+-   `device_filter`: Lọc theo thiết bị - `all`, `LED1`, `LED2`, `LED3` (mặc định: `all`)
+-   `state_filter`: Lọc theo trạng thái - `all`, `ON`, `OFF` (mặc định: `all`)
+-   `limit`: Giới hạn số bản ghi (sẽ giảm `per_page` nếu nhỏ hơn)
 
 ### Ví Dụ Request/Response
 
-#### Điều Khiển LED (`/api/v1/sensors/led-control`)
+#### GET `/api/v1/sensors/sensor-data`
 
-**Nội Dung Yêu Cầu:**
-
-```json
-{
-    "led_id": "LED1",
-    "action": "ON"
-}
-```
-
-**Response:**
-
-```json
-{
-    "status": "success",
-    "message": "Command LED1_ON sent successfully"
-}
-```
-
-#### Dữ Liệu Cảm Biến (`/api/v1/sensors/sensor-data`)
+Lấy dữ liệu cảm biến mới nhất với thông tin trạng thái.
 
 **Response:**
 
@@ -284,7 +276,19 @@ Tài liệu API đầy đủ có sẵn tại `http://localhost:5000/docs/` khi b
 }
 ```
 
-#### Danh Sách Dữ Liệu Cảm Biến (`/api/v1/sensors/sensor-data-list`)
+#### GET `/api/v1/sensors/sensor-data-list`
+
+Lấy danh sách dữ liệu cảm biến phân trang với lọc nâng cao.
+
+**Ví Dụ Request:**
+
+```
+GET /api/v1/sensors/sensor-data-list?page=1&per_page=20
+GET /api/v1/sensors/sensor-data-list?search=25.5&search_criteria=temperature
+GET /api/v1/sensors/sensor-data-list?search=10:30:00&search_criteria=time
+GET /api/v1/sensors/sensor-data-list?sort_field=temperature&sort_order=desc
+GET /api/v1/sensors/sensor-data-list?sample=5&limit=100
+```
 
 **Response:**
 
@@ -318,6 +322,185 @@ Tài liệu API đầy đủ có sẵn tại `http://localhost:5000/docs/` khi b
     },
     "count": 10,
     "total_count": 150
+}
+```
+
+#### GET `/api/v1/sensors/sensor-data/chart`
+
+Lấy dữ liệu cảm biến cho biểu đồ với lọc theo thời gian.
+
+**Ví Dụ Request:**
+
+```
+GET /api/v1/sensors/sensor-data/chart?limit=50
+GET /api/v1/sensors/sensor-data/chart?limit=all
+GET /api/v1/sensors/sensor-data/chart?date=2024-01-15
+GET /api/v1/sensors/sensor-data/chart?date=2024-01-15&limit=100
+```
+
+**Response:**
+
+```json
+[
+    {
+        "_id": "507f1f77bcf86cd799439011",
+        "temperature": 25.5,
+        "humidity": 60.2,
+        "light": 45.8,
+        "timestamp": "2024-01-15T10:30:00+07:00"
+    },
+    {
+        "_id": "507f1f77bcf86cd799439012",
+        "temperature": 26.0,
+        "humidity": 58.5,
+        "light": 50.2,
+        "timestamp": "2024-01-15T10:31:00+07:00"
+    }
+]
+```
+
+#### GET `/api/v1/sensors/home-data`
+
+Lấy dữ liệu kết hợp cho trang chủ (dữ liệu cảm biến mới nhất + trạng thái LED).
+
+**Response:**
+
+```json
+{
+    "status": "success",
+    "data": {
+        "temperature": 25.5,
+        "humidity": 60.2,
+        "light": 45.8,
+        "timestamp": "2024-01-15T10:30:00+07:00",
+        "sensor_statuses": {
+            "temperature": "normal",
+            "humidity": "normal",
+            "light": "normal"
+        },
+        "overall_status": {
+            "status": "normal",
+            "color_class": "status-normal"
+        },
+        "led_status": {
+            "LED1": "ON",
+            "LED2": "OFF",
+            "LED3": "ON"
+        }
+    }
+}
+```
+
+#### POST `/api/v1/sensors/led-control`
+
+Điều khiển trạng thái LED qua MQTT.
+
+**Nội Dung Yêu Cầu:**
+
+```json
+{
+    "led_id": "LED1",
+    "action": "ON"
+}
+```
+
+**Xác Thực:**
+
+-   `led_id`: Phải là `LED1`, `LED2`, hoặc `LED3`
+-   `action`: Phải là `ON` hoặc `OFF`
+
+**Response Thành Công:**
+
+```json
+{
+    "status": "success",
+    "message": "Command LED1_ON sent successfully"
+}
+```
+
+**Response Lỗi:**
+
+```json
+{
+    "status": "error",
+    "message": "Invalid led_id"
+}
+```
+
+#### GET `/api/v1/sensors/led-status`
+
+Lấy trạng thái LED hiện tại và lệnh đang chờ xử lý.
+
+**Response:**
+
+```json
+{
+    "status": "success",
+    "data": {
+        "led_states": {
+            "LED1": "ON",
+            "LED2": "OFF",
+            "LED3": "ON"
+        },
+        "pending_commands": {
+            "LED1": false,
+            "LED2": true,
+            "LED3": false
+        }
+    }
+}
+```
+
+#### GET `/api/v1/sensors/action-history`
+
+Lấy lịch sử hành động LED với lọc và phân trang.
+
+**Ví Dụ Request:**
+
+```
+GET /api/v1/sensors/action-history?page=1&per_page=20
+GET /api/v1/sensors/action-history?device_filter=LED1
+GET /api/v1/sensors/action-history?state_filter=ON
+GET /api/v1/sensors/action-history?search=LED1&device_filter=LED1&state_filter=ON
+GET /api/v1/sensors/action-history?sort_field=timestamp&sort_order=asc
+```
+
+**Response:**
+
+```json
+{
+    "status": "success",
+    "data": [
+        {
+            "_id": "507f1f77bcf86cd799439013",
+            "type": "led_control",
+            "led": "LED1",
+            "action": "LED1_ON",
+            "state": "ON",
+            "timestamp": "2024-01-15T10:30:00+07:00",
+            "device": "LED1",
+            "description": "Điều khiển LED1 ON"
+        }
+    ],
+    "pagination": {
+        "page": 1,
+        "per_page": 10,
+        "total_count": 50,
+        "total_pages": 5,
+        "has_prev": false,
+        "has_next": true
+    },
+    "filters": {
+        "search": "",
+        "device": "all",
+        "state": "all"
+    },
+    "sort": {
+        "field": "timestamp",
+        "order": "desc"
+    },
+    "count": 10,
+    "total_count": 50
 }
 ```
 
