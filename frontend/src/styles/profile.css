@@ -318,7 +318,7 @@
     gap: 8px;
     font-size: 14px;
     font-weight: 600;
-    color: rgba(15, 15, 15, 0.7);
+    color: #666;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -615,7 +615,7 @@
 .new-avatar h4 {
     font-size: 14px;
     font-weight: 600;
-    color: rgba(15, 15, 15, 0.7);
+    color: #666;
     margin: 0;
     text-transform: uppercase;
     letter-spacing: 0.5px;
