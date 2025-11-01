@@ -1,6 +1,7 @@
 class LEDStatsPanel {
     constructor() {
         this.stats = null;
+        this.selectedDate = null;
     }
 
     showLoading() {
@@ -17,8 +18,18 @@ class LEDStatsPanel {
         if (contentEl) contentEl.style.display = 'block';
     }
 
-    render(statsData) {
+    formatDateForDisplay(dateStr) {
+        if (!dateStr) return '';
+        const date = new Date(dateStr);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    render(statsData, selectedDate = null) {
         this.stats = statsData;
+        this.selectedDate = selectedDate;
         const contentEl = document.getElementById('statsContent');
         if (!contentEl) return;
 
@@ -48,12 +59,14 @@ class LEDStatsPanel {
     createStatsItem(ledId, count) {
         const ledNumber = ledId.replace('LED', '');
         const ledClass = ledId.toLowerCase();
+        const dateDisplay = this.selectedDate ? this.formatDateForDisplay(this.selectedDate) : '';
+        const label = dateDisplay ? `Số lượt bật ngày ${dateDisplay}` : 'Số lượt bật hôm nay';
         
         return `
             <div class="stats-item">
                 <div class="stats-item-content">
                     <div class="stats-device-name">${ledId}</div>
-                    <div class="stats-label">Số lượt bật hôm nay</div>
+                    <div class="stats-label">${label}</div>
                 </div>
                 <div class="stats-count-badge">${count}</div>
             </div>

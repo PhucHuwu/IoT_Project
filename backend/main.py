@@ -572,6 +572,55 @@ def create_app():
                     "data": []
                 }, 500
 
+    @sensors_ns.route('/available-led-dates')
+    class AvailableLEDDates(Resource):
+        @sensors_ns.doc('get_available_led_dates',
+                        description='Lấy danh sách các ngày có dữ liệu bật tắt LED',
+                        responses={
+                            200: 'Thành công',
+                            500: 'Lỗi server'
+                        })
+        def get(self):
+            try:
+                db = DatabaseManager()
+                action_collection = db.db.get_collection('action_history')
+
+                cursor = action_collection.find({}, {"timestamp": 1}).sort("timestamp", -1)
+                data = list(cursor)
+
+                available_dates = set()
+                for item in data:
+                    if 'timestamp' in item:
+                        timestamp = item['timestamp']
+                        if isinstance(timestamp, datetime):
+                            date_str = timestamp.strftime("%Y-%m-%d")
+                            available_dates.add(date_str)
+                        elif isinstance(timestamp, str):
+                            try:
+                                dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+                                date_str = dt.strftime("%Y-%m-%d")
+                                available_dates.add(date_str)
+                            except:
+                                continue
+
+                available_dates = sorted(list(available_dates), reverse=True)
+
+                logger.info(f"Found {len(available_dates)} dates with LED action history data")
+
+                return {
+                    "status": "success",
+                    "data": available_dates,
+                    "count": len(available_dates)
+                }
+
+            except Exception as e:
+                logger.error(f"Error getting available LED dates: {e}")
+                return {
+                    "status": "error",
+                    "message": str(e),
+                    "data": []
+                }, 500
+
     api.add_namespace(sensors_ns)
 
     app.register_blueprint(api_bp)

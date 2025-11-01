@@ -136,9 +136,12 @@ class SensorDataService {
         }
     }
 
-    static async getLEDStats(useCache = true) {
+    static async getLEDStats(useCache = true, date = null) {
         try {
-            const url = `${API_BASE_URL}/led-stats?cache=${useCache}`;
+            let url = `${API_BASE_URL}/led-stats?cache=${useCache}`;
+            if (date) {
+                url += `&date=${date}`;
+            }
             const response = await fetch(url);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -187,6 +190,19 @@ class SensorDataService {
             return await response.json();
         } catch (error) {
             console.error("Lỗi khi lấy danh sách ngày có dữ liệu:", error);
+            throw error;
+        }
+    }
+
+    static async getAvailableLEDDates() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/available-led-dates`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error("Lỗi khi lấy danh sách ngày có dữ liệu LED:", error);
             throw error;
         }
     }

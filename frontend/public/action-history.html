@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="../src/styles/main.css">
     <link rel="stylesheet" href="../src/styles/pages.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 
 <body>
@@ -143,9 +144,12 @@
                 <div id="led-stats-container">
                     <div class="stats-card">
                         <div class="stats-header">
-                            <h3>Thống kê bật thiết bị trong ngày</h3>
+                            <h3>Thống kê lượt bật thiết bị trong ngày</h3>
+                        </div>
+                        <div class="stats-controls">
+                            <input type="date" id="statsDatePicker" class="date-picker" />
                             <button id="statsRefresh" class="refresh-btn">
-                                <i class="fas fa-sync-alt"></i>
+                                <i class="fas fa-sync-alt"></i>Làm mới
                             </button>
                         </div>
                         <div class="stats-loading" id="statsLoading" style="display: none;">
@@ -160,6 +164,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script type="module">
         import ActionHistoryLoader from '../src/pages/action-history-loader.js';
 
