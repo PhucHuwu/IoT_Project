@@ -32,14 +32,15 @@ sensor_data_response_model = api.model('SensorDataResponse', {
 })
 
 led_control_model = api.model('LEDControl', {
-    'led_id': fields.String(required=True, description='ID của LED', enum=['LED1', 'LED2', 'LED3'], example='LED1'),
+    'led_id': fields.String(required=True, description='ID của LED', enum=['LED1', 'LED2', 'LED3', 'LED4'], example='LED1'),
     'action': fields.String(required=True, description='Hành động', enum=['ON', 'OFF'], example='ON')
 })
 
 led_status_model = api.model('LEDStatus', {
     'LED1': fields.String(description='Trạng thái LED1', enum=['ON', 'OFF']),
     'LED2': fields.String(description='Trạng thái LED2', enum=['ON', 'OFF']),
-    'LED3': fields.String(description='Trạng thái LED3', enum=['ON', 'OFF'])
+    'LED3': fields.String(description='Trạng thái LED3', enum=['ON', 'OFF']),
+    'LED4': fields.String(description='Trạng thái LED4', enum=['ON', 'OFF'])
 })
 
 action_history_model = api.model('ActionHistory', {

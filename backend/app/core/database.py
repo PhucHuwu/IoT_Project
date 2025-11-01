@@ -912,9 +912,9 @@ class DatabaseManager:
         try:
             action_collection = self.db.get_collection('action_history')
 
-            led_states = {'LED1': 'OFF', 'LED2': 'OFF', 'LED3': 'OFF'}
+            led_states = {'LED1': 'OFF', 'LED2': 'OFF', 'LED3': 'OFF', 'LED4': 'OFF'}
 
-            for led_id in ['LED1', 'LED2', 'LED3']:
+            for led_id in ['LED1', 'LED2', 'LED3', 'LED4']:
                 latest_record = action_collection.find_one(
                     {
                         '$or': [
@@ -947,7 +947,7 @@ class DatabaseManager:
 
         except Exception as e:
             logger.error(f"Error getting latest LED status: {e}")
-            return {'LED1': 'OFF', 'LED2': 'OFF', 'LED3': 'OFF'}
+            return {'LED1': 'OFF', 'LED2': 'OFF', 'LED3': 'OFF', 'LED4': 'OFF'}
 
     def search_by_time_string(self, time_string: str) -> List[Dict[str, Any]]:
         try:

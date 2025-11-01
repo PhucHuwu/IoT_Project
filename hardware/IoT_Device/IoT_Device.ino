@@ -7,9 +7,10 @@
 #define DHT_TYPE DHT11
 #define LIGHT_SENSOR_ADC_PIN 34
 
-#define LED1_PIN 25
+#define LED1_PIN 27
 #define LED2_PIN 26
-#define LED3_PIN 27
+#define LED3_PIN 25
+#define LED4_PIN 33
 
 const char *wifiSsid = "FreeWife24GHz";
 const char *wifiPassword = "0977910920";
@@ -82,6 +83,18 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
       Serial.println("LED3 turned OFF");
       publishLedStatus("LED3", "OFF");
     }
+    else if (message == "LED4_ON")
+    {
+      digitalWrite(LED4_PIN, HIGH);
+      Serial.println("LED4 turned ON");
+      publishLedStatus("LED4", "ON");
+    }
+    else if (message == "LED4_OFF")
+    {
+      digitalWrite(LED4_PIN, LOW);
+      Serial.println("LED4 turned OFF");
+      publishLedStatus("LED4", "OFF");
+    }
   }
 }
 
@@ -132,10 +145,12 @@ void setup()
   pinMode(LED1_PIN, OUTPUT);
   pinMode(LED2_PIN, OUTPUT);
   pinMode(LED3_PIN, OUTPUT);
+  pinMode(LED4_PIN, OUTPUT);
 
   digitalWrite(LED1_PIN, LOW);
   digitalWrite(LED2_PIN, LOW);
   digitalWrite(LED3_PIN, LOW);
+  digitalWrite(LED4_PIN, LOW);
 
   WiFi.begin(wifiSsid, wifiPassword);
   Serial.print("Connecting to WiFi");

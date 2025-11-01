@@ -143,7 +143,8 @@ class ActionHistoryTableControl {
         const hasLEDOptions =
             select.querySelector('option[value="LED1"]') &&
             select.querySelector('option[value="LED2"]') &&
-            select.querySelector('option[value="LED3"]');
+            select.querySelector('option[value="LED3"]') &&
+            select.querySelector('option[value="LED4"]');
 
         if (!hasLEDOptions || newDeviceCount > oldDeviceCount) {
             this.renderDeviceFilter();
@@ -159,7 +160,8 @@ class ActionHistoryTableControl {
         const hasLEDOptions =
             select.querySelector('option[value="LED1"]') &&
             select.querySelector('option[value="LED2"]') &&
-            select.querySelector('option[value="LED3"]');
+            select.querySelector('option[value="LED3"]') &&
+            select.querySelector('option[value="LED4"]');
 
         if (!hasLEDOptions) {
             select.innerHTML = "";
@@ -168,7 +170,7 @@ class ActionHistoryTableControl {
             defaultOpt.textContent = "Tất cả";
             select.appendChild(defaultOpt);
 
-            const ledOptions = ["LED1", "LED2", "LED3"];
+            const ledOptions = ["LED1", "LED2", "LED3", "LED4"];
             ledOptions.forEach((led) => {
                 const opt = document.createElement("option");
                 opt.value = led;

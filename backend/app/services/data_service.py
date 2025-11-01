@@ -40,24 +40,7 @@ class IoTMQTTReceiver:
                 logger.warning(f"Missing led/state in status message: {status_data}")
                 return
 
-            action_record = {
-                'type': status_data.get('type', 'led_status'),
-                'led': led,
-                'state': state
-            }
-
-            def _write_action(record):
-                try:
-                    res = self.db_manager.insert_action_history(record)
-                    if res:
-                        logger.info(f"Action status stored successfully at {get_current_vietnam_time().isoformat()}: {res}")
-                    else:
-                        logger.error(f"Failed to store action status in database at {get_current_vietnam_time().isoformat()}")
-                except Exception as e:
-                    logger.error(f"Background write error at {get_current_vietnam_time().isoformat()}: {e}")
-
-            self._executor.submit(_write_action, action_record)
-            logger.info(f"Submitted action history write to background at {current_time.isoformat()}")
+            logger.info(f"LED status message validated: {led}={state}. LEDControlService will handle database storage.")
 
         except Exception as e:
             logger.error(f"Error processing action status: {e}")

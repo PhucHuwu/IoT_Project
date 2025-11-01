@@ -90,6 +90,7 @@ class ActionHistoryTable {
             <option value="LED1">LED1</option>
             <option value="LED2">LED2</option>
             <option value="LED3">LED3</option>
+            <option value="LED4">LED4</option>
           </select>
           <label class="filter-label">Trạng thái</label>
           <select id="actionFilterState" class="filter-select">

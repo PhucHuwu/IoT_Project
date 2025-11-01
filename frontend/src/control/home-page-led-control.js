@@ -6,6 +6,7 @@ class LEDController {
             LED1: false,
             LED2: false,
             LED3: false,
+            LED4: false,
         };
         this._initialized = false;
         this._listeners = [];
@@ -61,6 +62,7 @@ class LEDController {
         if (className.includes("led1")) return "1";
         if (className.includes("led2")) return "2";
         if (className.includes("led3")) return "3";
+        if (className.includes("led4")) return "4";
         return "1";
     }
 

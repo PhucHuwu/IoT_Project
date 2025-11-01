@@ -3,6 +3,7 @@ __pycache__/
 /backend/tests/
 .github/
 .cursor/
+.vscode/
 .DS_Store
 diagram/
 *.docx

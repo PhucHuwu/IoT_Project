@@ -43,7 +43,7 @@ def create_app():
     })
 
     led_control_model = api.model('LEDControl', {
-        'led_id': fields.String(required=True, description='ID của LED', enum=['LED1', 'LED2', 'LED3'], example='LED1'),
+        'led_id': fields.String(required=True, description='ID của LED', enum=['LED1', 'LED2', 'LED3', 'LED4'], example='LED1'),
         'action': fields.String(required=True, description='Hành động', enum=['ON', 'OFF'], example='ON')
     })
 
@@ -362,7 +362,7 @@ def create_app():
                 led_states = led_service.get_led_status()
 
                 pending_info = {}
-                for led_id in ['LED1', 'LED2', 'LED3']:
+                for led_id in ['LED1', 'LED2', 'LED3', 'LED4']:
                     if led_service.is_led_pending(led_id):
                         pending_info[led_id] = True
                     else:
@@ -394,7 +394,7 @@ def create_app():
                             'sort_field': 'Trường sắp xếp (timestamp, led, state)',
                             'sort_order': 'Thứ tự sắp xếp (asc, desc)',
                             'search': 'Từ khóa tìm kiếm',
-                            'device_filter': 'Lọc theo thiết bị (all, LED1, LED2, LED3)',
+                            'device_filter': 'Lọc theo thiết bị (all, LED1, LED2, LED3, LED4)',
                             'state_filter': 'Lọc theo trạng thái (all, ON, OFF)'
                         },
                         responses={

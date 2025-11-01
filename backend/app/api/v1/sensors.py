@@ -366,7 +366,7 @@ def get_home_data():
                 'humidity': 0,
                 'light': 0,
                 'timestamp': None,
-                'led_status': {'LED1': 'OFF', 'LED2': 'OFF', 'LED3': 'OFF'}
+                'led_status': {'LED1': 'OFF', 'LED2': 'OFF', 'LED3': 'OFF', 'LED4': 'OFF'}
             }
         }), 500
 
@@ -499,7 +499,7 @@ def led_control():
         if not led_id or not action:
             return jsonify({"status": "error", "message": "Missing led_id or action"}), 400
 
-        if led_id not in ['LED1', 'LED2', 'LED3']:
+        if led_id not in ['LED1', 'LED2', 'LED3', 'LED4']:
             return jsonify({"status": "error", "message": "Invalid led_id"}), 400
 
         if action not in ['ON', 'OFF']:
@@ -508,22 +508,7 @@ def led_control():
         success = led_service.send_led_command(led_id, action)
 
         if success:
-            from app.core.timezone_utils import get_vietnam_timezone
-            current_time = datetime.now(get_vietnam_timezone())
-
-            action_record = {
-                'type': 'led_control',
-                'led': led_id,
-                'action': f"{led_id}_{action}",
-                'state': action,
-                'timestamp': current_time,
-                'device': led_id,
-                'description': f"Điều khiển {led_id} {action}"
-            }
-
-            db.save_action_history(action_record)
-
-            logger.info(f"LED control command sent: {led_id}_{action}")
+            logger.info(f"LED control command sent: {led_id}_{action}, waiting for hardware confirmation")
             return jsonify({"status": "success", "message": f"Command {led_id}_{action} sent successfully"})
         else:
             return jsonify({"status": "error", "message": "Failed to send command"}), 500
@@ -539,7 +524,7 @@ def led_status():
         led_states = led_service.get_led_status()
 
         pending_info = {}
-        for led_id in ['LED1', 'LED2', 'LED3']:
+        for led_id in ['LED1', 'LED2', 'LED3', 'LED4']:
             if led_service.is_led_pending(led_id):
                 pending_info[led_id] = True
             else:

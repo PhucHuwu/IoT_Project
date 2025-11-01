@@ -496,6 +496,13 @@ body {
     margin-bottom: 20px;
 }
 
+.led-control-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
 .sensor-card {
     background: var(--liquid-glass-gradient), var(--liquid-glass-radial-light),
         var(--liquid-glass-radial-lightblue);

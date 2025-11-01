@@ -32,7 +32,8 @@ class LEDControlService:
         self.led_states = {
             'LED1': 'OFF',
             'LED2': 'OFF',
-            'LED3': 'OFF'
+            'LED3': 'OFF',
+            'LED4': 'OFF'
         }
         self.pending_commands = {}
         self._setup_persistent_connection()
@@ -131,14 +132,20 @@ class LEDControlService:
                         del self.pending_commands[led]
                         logger.info(f"LED Control Service: Removed pending command for {led}")
 
+                    from app.core.timezone_utils import get_vietnam_timezone
+                    from datetime import datetime
+                    
                     action_record = {
                         'type': 'led_status',
                         'led': led,
+                        'action': f"{led}_{state}",
                         'state': state,
-                        'timestamp': datetime.now()
+                        'timestamp': datetime.now(get_vietnam_timezone()),
+                        'device': led,
+                        'description': f"Điều khiển {led} {state}"
                     }
-                    self.db_manager.insert_action_history(action_record)
-                    logger.info(f"LED Control Service: LED status updated and saved to database")
+                    self.db_manager.save_action_history(action_record)
+                    logger.info(f"LED Control Service: LED status confirmed and saved to database - {led} = {state}")
 
         except Exception as e:
             logger.error(f"LED Control Service: Error handling LED status confirmation: {e}")
