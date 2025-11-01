@@ -891,7 +891,7 @@ body {
 .led-stats-badge .stats-count {
     font-weight: 600;
     font-size: 15px;
-    color: #999
+    color: #999;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 

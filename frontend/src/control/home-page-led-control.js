@@ -350,7 +350,7 @@ class LEDController {
 
         this._statsPollingInterval = setInterval(async () => {
             await this.loadLEDStats();
-        }, 5000);
+        }, 3000);
     }
 
     async loadLEDStats() {
