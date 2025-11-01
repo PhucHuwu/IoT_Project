@@ -48,7 +48,95 @@
 
             <div class="content action-history-page">
                 <div id="action-history-container">
-                    Loading...
+                    <div class="data-table-section">
+                        <div class="table-card">
+                            <div class="table-header">
+                                <h3>Bảng lịch sử hoạt động</h3>
+                                <div class="table-controls">
+                                    <button id="actionManualRefresh" class="refresh-btn">
+                                        <i class="fas fa-sync-alt"></i>
+                                        Làm mới
+                                    </button>
+                                    <button id="actionExportCSV" class="export-btn">
+                                        <i class="fa-solid fa-file-export"></i>
+                                        Xuất CSV
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="table-search-controls">
+                                <div class="search-section">
+                                    <label class="filter-label">Thiết bị</label>
+                                    <div class="search-criteria-group">
+                                        <select id="actionFilterDevice" class="search-criteria-select">
+                                            <option value="all">Tất cả</option>
+                                            <option value="LED1">LED 1</option>
+                                            <option value="LED2">LED 2</option>
+                                            <option value="LED3">LED 3</option>
+                                            <option value="LED4">LED 4</option>
+                                        </select>
+                                    </div>
+                                    <label class="filter-label">Trạng thái</label>
+                                    <div class="search-criteria-group">
+                                        <select id="actionFilterState" class="search-criteria-select">
+                                            <option value="all">Tất cả</option>
+                                            <option value="ON">Bật</option>
+                                            <option value="OFF">Tắt</option>
+                                        </select>
+                                    </div>
+                                    <div class="search-input-group">
+                                        <i class="fas fa-search"></i>
+                                        <input type="text" id="actionHistorySearchInput" placeholder="Tìm kiếm theo thời gian">
+                                        <button id="actionHistoryClearSearch" class="clear-btn" style="display: none;">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="table-container">
+                                <div class="table-loading" id="actionTableLoading" style="display: none;">
+                                    <div class="loading-spinner"></div>
+                                    <p>Đang tải dữ liệu...</p>
+                                </div>
+                                <table id="actionHistoryTable" class="sensor-data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>STT</th>
+                                            <th>Thiết bị</th>
+                                            <th>Trạng thái</th>
+                                            <th>Thời gian</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="actionHistoryTableBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="table-pagination" id="actionTablePagination">
+                                <div class="pagination-info">
+                                    <span id="actionPaginationInfo">Hiển thị 0 - 0 của 0 bản ghi</span>
+                                </div>
+                                <div class="pagination-controls">
+                                    <select id="actionTablePageSize" class="page-size-select">
+                                        <option value="10">10 dòng</option>
+                                        <option value="25">25 dòng</option>
+                                        <option value="50">50 dòng</option>
+                                        <option value="100">100 dòng</option>
+                                    </select>
+                                    <button id="actionPrevPage" class="page-btn" disabled>
+                                        <i class="fas fa-chevron-left"></i>
+                                        Trước
+                                    </button>
+                                    <div class="page-numbers" id="actionPageNumbers">
+                                    </div>
+                                    <button id="actionNextPage" class="page-btn" disabled>
+                                        Sau
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
