@@ -297,7 +297,7 @@ body {
     backdrop-filter: blur(60px) saturate(200%) brightness(115%) contrast(110%);
     -webkit-backdrop-filter: blur(60px) saturate(200%) brightness(115%)
         contrast(110%);
-    color: #0f0f0f;
+    color: #333;
     box-shadow: 0 20px 60px rgba(255, 255, 255, 0.25),
         0 8px 30px rgba(0, 0, 0, 0.1), 0 4px 15px rgba(255, 255, 255, 0.15),
         inset 0 2px 0 rgba(255, 255, 255, 0.95),
@@ -1120,7 +1120,7 @@ body {
     font-size: var(--font-size-footnote);
     font-weight: var(--font-weight-regular);
     font-family: var(--font-family-system);
-    color: rgba(15, 15, 15, 0.8);
+    color: #666;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2),
@@ -1219,7 +1219,7 @@ body {
     font-size: var(--font-size-footnote);
     font-weight: var(--font-weight-regular);
     font-family: var(--font-family-system);
-    color: rgba(15, 15, 15, 0.8);
+    color: #666;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2),
@@ -1975,7 +1975,7 @@ body {
     gap: 8px;
     font-size: 14px;
     font-weight: 600;
-    color: rgba(15, 15, 15, 0.8);
+    color: #666;
     margin-bottom: 16px;
 }
 
@@ -2048,7 +2048,7 @@ body {
 .range-label span {
     font-size: 13px;
     font-weight: 500;
-    color: rgba(15, 15, 15, 0.8);
+    color: #666;
 }
 
 .range-inputs {

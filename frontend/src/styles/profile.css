@@ -221,7 +221,7 @@
     border-radius: 30px;
     padding: 10px 20px;
     font-size: 14px;
-    color: rgba(15, 15, 15, 0.8);
+    color: #666;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -718,7 +718,7 @@
 .upload-area p {
     font-size: 16px;
     font-weight: 600;
-    color: rgba(15, 15, 15, 0.8);
+    color: #666;
     margin: 0 0 8px 0;
 }
 .upload-area span {
@@ -822,7 +822,7 @@
     border: 1px solid rgba(255, 255, 255, 0.6);
     border-radius: 30px;
     padding: 10px 24px;
-    color: rgba(15, 15, 15, 0.8);
+    color: #666;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
