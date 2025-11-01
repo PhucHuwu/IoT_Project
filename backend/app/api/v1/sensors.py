@@ -3,6 +3,7 @@ from app.core.database import DatabaseManager
 from datetime import datetime, timedelta, timezone
 from app.core.logger_config import logger
 from app.services.led_control_service import LEDControlService
+from app.services.led_stats_service import LEDStatsService
 from app.services.status_service import StatusService
 from app.core.timezone_utils import get_vietnam_timezone, create_vietnam_datetime
 from bson import ObjectId
@@ -10,6 +11,7 @@ from bson import ObjectId
 sensors_bp = Blueprint('sensors', __name__)
 db = DatabaseManager()
 led_service = LEDControlService()
+led_stats_service = LEDStatsService()
 
 
 @sensors_bp.route("/sensor-data-list")
@@ -600,3 +602,26 @@ def action_history():
     except Exception as e:
         logger.error(f"Error in action_history: {e}")
         return jsonify({"status": "error", "message": str(e), "data": []}), 500
+
+
+@sensors_bp.route("/led-stats", methods=['GET'])
+def led_stats():
+    try:
+        use_cache = request.args.get('cache', 'true').lower() == 'true'
+        
+        stats = led_stats_service.get_led_stats(use_cache=use_cache)
+        
+        return jsonify({
+            "status": "success",
+            "data": stats,
+            "timestamp": datetime.now(get_vietnam_timezone()).isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in led_stats: {e}")
+        return jsonify({
+            "status": "error", 
+            "message": str(e),
+            "data": {'LED1': 0, 'LED2': 0, 'LED3': 0, 'LED4': 0}
+        }), 500
+

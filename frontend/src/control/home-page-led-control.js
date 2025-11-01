@@ -1,4 +1,5 @@
 import SensorDataService from "../services/api.js";
+import LEDStatsBadge from "../components/led-stats-badge.js";
 
 class LEDController {
     constructor() {
@@ -14,10 +15,13 @@ class LEDController {
         this._hasInitializedFromBackend = false;
         this._pollingInterval = null;
         this._pollingEnabled = true;
+        this._statsPollingInterval = null;
+        this.statsBadge = new LEDStatsBadge();
 
         this.initializeLEDControls();
         this.loadLEDStatesFromBackend();
         this.startPeriodicStatusCheck();
+        this.startStatsPolling();
     }
 
     initializeLEDControls() {
@@ -337,6 +341,38 @@ class LEDController {
         }
     }
 
+    startStatsPolling() {
+        this.loadLEDStats();
+
+        if (this._statsPollingInterval) {
+            clearInterval(this._statsPollingInterval);
+        }
+
+        this._statsPollingInterval = setInterval(async () => {
+            await this.loadLEDStats();
+        }, 5000);
+    }
+
+    async loadLEDStats() {
+        try {
+            const result = await SensorDataService.getLEDStats(true);
+
+            if (result.status === "success" && result.data) {
+                this.statsBadge.updateAllBadges(result.data);
+                console.log("LED stats updated:", result.data);
+            }
+        } catch (error) {
+            console.error("Lỗi khi tải thống kê LED:", error);
+        }
+    }
+
+    stopStatsPolling() {
+        if (this._statsPollingInterval) {
+            clearInterval(this._statsPollingInterval);
+            this._statsPollingInterval = null;
+        }
+    }
+
     async checkAndUpdateLEDStatus() {
         try {
             const statusResult = await SensorDataService.getLEDStatus();
@@ -486,6 +522,7 @@ class LEDController {
         }
 
         this.stopPeriodicStatusCheck();
+        this.stopStatsPolling();
         this._listeners = [];
         this._initialized = false;
         this._hasInitializedFromBackend = false;

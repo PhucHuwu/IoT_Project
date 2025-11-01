@@ -949,6 +949,31 @@ class DatabaseManager:
             logger.error(f"Error getting latest LED status: {e}")
             return {'LED1': 'OFF', 'LED2': 'OFF', 'LED3': 'OFF', 'LED4': 'OFF'}
 
+    def get_led_toggle_stats(self) -> Dict[str, int]:
+        try:
+            action_collection = self.db.get_collection('action_history')
+            
+            led_stats = {
+                'LED1': 0,
+                'LED2': 0,
+                'LED3': 0,
+                'LED4': 0
+            }
+            
+            for led_id in ['LED1', 'LED2', 'LED3', 'LED4']:
+                count = action_collection.count_documents({
+                    'led': led_id,
+                    'state': {'$in': ['ON', 'on', '1', 'true', 'TRUE']}
+                })
+                led_stats[led_id] = count
+            
+            logger.info(f"LED toggle stats retrieved: {led_stats}")
+            return led_stats
+            
+        except Exception as e:
+            logger.error(f"Error getting LED toggle stats: {e}")
+            return {'LED1': 0, 'LED2': 0, 'LED3': 0, 'LED4': 0}
+
     def search_by_time_string(self, time_string: str) -> List[Dict[str, Any]]:
         try:
             import re

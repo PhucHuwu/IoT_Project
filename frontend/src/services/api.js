@@ -136,6 +136,20 @@ class SensorDataService {
         }
     }
 
+    static async getLEDStats(useCache = true) {
+        try {
+            const url = `${API_BASE_URL}/led-stats?cache=${useCache}`;
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error("Lỗi khi lấy thống kê LED:", error);
+            throw error;
+        }
+    }
+
     static async getActionHistory(limit = 50, crudParams = {}) {
         try {
             let url = `${API_BASE_URL}/action-history?limit=${limit}`;
