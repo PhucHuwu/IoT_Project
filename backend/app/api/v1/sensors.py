@@ -608,12 +608,14 @@ def action_history():
 def led_stats():
     try:
         use_cache = request.args.get('cache', 'true').lower() == 'true'
+        date = request.args.get('date', None)
         
-        stats = led_stats_service.get_led_stats(use_cache=use_cache)
+        stats = led_stats_service.get_led_stats(use_cache=use_cache, date=date)
         
         return jsonify({
             "status": "success",
             "data": stats,
+            "date": date,
             "timestamp": datetime.now(get_vietnam_timezone()).isoformat()
         })
         

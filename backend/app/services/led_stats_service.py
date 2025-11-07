@@ -25,22 +25,25 @@ class LEDStatsService:
         self.db_manager = DatabaseManager()
         self._initialized = True
 
-    def get_led_stats(self, use_cache: bool = True) -> Dict[str, int]:
+    def get_led_stats(self, use_cache: bool = True, date: str = None) -> Dict[str, int]:
         try:
             current_time = time.time()
             
-            if use_cache and self._cache['data'] is not None:
+            cache_key = date if date else 'today'
+            
+            if use_cache and self._cache['data'] is not None and not date:
                 cache_age = current_time - self._cache['timestamp']
                 if cache_age < self._cache['ttl']:
                     logger.info(f"Returning cached LED stats (age: {cache_age:.2f}s)")
                     return self._cache['data']
             
-            stats = self.db_manager.get_led_toggle_stats()
+            stats = self.db_manager.get_led_toggle_stats(date=date)
             
-            self._cache['data'] = stats
-            self._cache['timestamp'] = current_time
+            if not date:
+                self._cache['data'] = stats
+                self._cache['timestamp'] = current_time
             
-            logger.info(f"LED stats refreshed from database: {stats}")
+            logger.info(f"LED stats refreshed from database (date={date}): {stats}")
             return stats
             
         except Exception as e:

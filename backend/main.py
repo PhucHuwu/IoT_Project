@@ -621,6 +621,120 @@ def create_app():
                     "data": []
                 }, 500
 
+    @sensors_ns.route('/sensor-data-by-date/<string:date>')
+    class SensorDataByDate(Resource):
+        @sensors_ns.doc('get_sensor_data_by_date',
+                        description='Lấy tất cả dữ liệu cảm biến trong một ngày cụ thể',
+                        params={'date': 'Ngày cần lấy dữ liệu (format: YYYY-MM-DD)'},
+                        responses={
+                            200: 'Thành công',
+                            400: 'Format ngày không hợp lệ',
+                            500: 'Lỗi server'
+                        })
+        def get(self, date):
+            try:
+                import re
+                if not re.match(r'^\d{4}-\d{2}-\d{2}$', date):
+                    return {
+                        "status": "error",
+                        "message": "Format ngày không hợp lệ. Vui lòng dùng format: YYYY-MM-DD"
+                    }, 400
+                
+                db = DatabaseManager()
+                data = db.get_data_by_date(date)
+                
+                def serialize_document(doc):
+                    serialized = {}
+                    for key, value in doc.items():
+                        if isinstance(value, ObjectId):
+                            serialized[key] = str(value)
+                        elif isinstance(value, datetime):
+                            serialized[key] = value.isoformat()
+                        elif hasattr(value, 'isoformat'):
+                            serialized[key] = value.isoformat()
+                        else:
+                            serialized[key] = value
+                    return serialized
+                
+                data = [serialize_document(doc) for doc in data]
+                
+                return {
+                    "status": "success",
+                    "data": data,
+                    "count": len(data),
+                    "date": date
+                }
+                
+            except Exception as e:
+                logger.error(f"Error getting sensor data by date: {e}")
+                return {
+                    "status": "error",
+                    "message": str(e)
+                }, 500
+
+    @sensors_ns.route('/thresholds')
+    class ThresholdResource(Resource):
+        @sensors_ns.doc('get_thresholds',
+                        description='Lấy cấu hình ngưỡng cảm biến hiện tại',
+                        responses={
+                            200: 'Thành công',
+                            500: 'Lỗi server'
+                        })
+        def get(self):
+            try:
+                from app.services.threshold_service import ThresholdService
+                thresholds = ThresholdService.get_thresholds()
+                return {
+                    "status": "success",
+                    "data": thresholds
+                }
+            except Exception as e:
+                logger.error(f"Error getting thresholds: {e}")
+                return {
+                    "status": "error",
+                    "message": str(e)
+                }, 500
+        
+        @sensors_ns.doc('update_thresholds',
+                        description='Cập nhật cấu hình ngưỡng cảm biến',
+                        responses={
+                            200: 'Thành công',
+                            400: 'Dữ liệu không hợp lệ',
+                            500: 'Lỗi server'
+                        })
+        @sensors_ns.expect(api.model('ThresholdUpdate', {
+            'temperature': fields.Raw(description='Ngưỡng nhiệt độ'),
+            'humidity': fields.Raw(description='Ngưỡng độ ẩm'),
+            'light': fields.Raw(description='Ngưỡng ánh sáng')
+        }))
+        def post(self):
+            try:
+                from app.services.threshold_service import ThresholdService
+                from flask import request
+                
+                data = request.get_json()
+                
+                is_valid, message = ThresholdService.validate_thresholds(data)
+                if not is_valid:
+                    return {
+                        "status": "error",
+                        "message": message
+                    }, 400
+                
+                result = ThresholdService.update_thresholds(data)
+                
+                if result.get("status") == "success":
+                    return result, 200
+                else:
+                    return result, 500
+                    
+            except Exception as e:
+                logger.error(f"Error updating thresholds: {e}")
+                return {
+                    "status": "error",
+                    "message": str(e)
+                }, 500
+
     api.add_namespace(sensors_ns)
 
     app.register_blueprint(api_bp)

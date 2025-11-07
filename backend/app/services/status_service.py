@@ -10,11 +10,47 @@ from app.core.logger_config import logger
 class StatusService:
 
     @staticmethod
+    def _get_thresholds():
+        try:
+            from app.services.threshold_service import ThresholdService
+            return ThresholdService.get_thresholds()
+        except Exception as e:
+            logger.error(f"Error loading dynamic thresholds: {e}, using defaults")
+            return {
+                'temperature': {
+                    'normal_min': TEMP_NORMAL_MIN,
+                    'normal_max': TEMP_NORMAL_MAX,
+                    'warning_min': TEMP_WARNING_MIN,
+                    'warning_max': TEMP_WARNING_MAX
+                },
+                'humidity': {
+                    'normal_min': HUMIDITY_NORMAL_MIN,
+                    'normal_max': HUMIDITY_NORMAL_MAX,
+                    'warning_min': HUMIDITY_WARNING_MIN,
+                    'warning_max': HUMIDITY_WARNING_MAX
+                },
+                'light': {
+                    'normal_min': LIGHT_NORMAL_MIN,
+                    'normal_max': LIGHT_NORMAL_MAX,
+                    'warning_min': LIGHT_WARNING_MIN,
+                    'warning_max': LIGHT_WARNING_MAX
+                }
+            }
+
+    @staticmethod
     def get_temperature_status(temperature: float) -> Tuple[str, str]:
         try:
-            if TEMP_NORMAL_MIN <= temperature <= TEMP_NORMAL_MAX:
+            thresholds = StatusService._get_thresholds()
+            temp_thresholds = thresholds.get('temperature', {})
+            
+            normal_min = temp_thresholds.get('normal_min', TEMP_NORMAL_MIN)
+            normal_max = temp_thresholds.get('normal_max', TEMP_NORMAL_MAX)
+            warning_min = temp_thresholds.get('warning_min', TEMP_WARNING_MIN)
+            warning_max = temp_thresholds.get('warning_max', TEMP_WARNING_MAX)
+            
+            if normal_min <= temperature <= normal_max:
                 return "bình thường", "status-normal"
-            elif TEMP_WARNING_MIN <= temperature < TEMP_NORMAL_MIN or TEMP_NORMAL_MAX < temperature <= TEMP_WARNING_MAX:
+            elif warning_min <= temperature < normal_min or normal_max < temperature <= warning_max:
                 return "cảnh báo", "status-warning"
             else:
                 return "nguy hiểm", "status-danger"
@@ -25,9 +61,17 @@ class StatusService:
     @staticmethod
     def get_humidity_status(humidity: float) -> Tuple[str, str]:
         try:
-            if HUMIDITY_NORMAL_MIN <= humidity <= HUMIDITY_NORMAL_MAX:
+            thresholds = StatusService._get_thresholds()
+            hum_thresholds = thresholds.get('humidity', {})
+            
+            normal_min = hum_thresholds.get('normal_min', HUMIDITY_NORMAL_MIN)
+            normal_max = hum_thresholds.get('normal_max', HUMIDITY_NORMAL_MAX)
+            warning_min = hum_thresholds.get('warning_min', HUMIDITY_WARNING_MIN)
+            warning_max = hum_thresholds.get('warning_max', HUMIDITY_WARNING_MAX)
+            
+            if normal_min <= humidity <= normal_max:
                 return "bình thường", "status-normal"
-            elif HUMIDITY_WARNING_MIN <= humidity < HUMIDITY_NORMAL_MIN or HUMIDITY_NORMAL_MAX < humidity <= HUMIDITY_WARNING_MAX:
+            elif warning_min <= humidity < normal_min or normal_max < humidity <= warning_max:
                 return "cảnh báo", "status-warning"
             else:
                 return "nguy hiểm", "status-danger"
@@ -38,9 +82,17 @@ class StatusService:
     @staticmethod
     def get_light_status(light: float) -> Tuple[str, str]:
         try:
-            if LIGHT_NORMAL_MIN <= light <= LIGHT_NORMAL_MAX:
+            thresholds = StatusService._get_thresholds()
+            light_thresholds = thresholds.get('light', {})
+            
+            normal_min = light_thresholds.get('normal_min', LIGHT_NORMAL_MIN)
+            normal_max = light_thresholds.get('normal_max', LIGHT_NORMAL_MAX)
+            warning_min = light_thresholds.get('warning_min', LIGHT_WARNING_MIN)
+            warning_max = light_thresholds.get('warning_max', LIGHT_WARNING_MAX)
+            
+            if normal_min <= light <= normal_max:
                 return "bình thường", "status-normal"
-            elif LIGHT_WARNING_MIN <= light < LIGHT_NORMAL_MIN or LIGHT_NORMAL_MAX < light <= LIGHT_WARNING_MAX:
+            elif warning_min <= light < normal_min or normal_max < light <= warning_max:
                 return "cảnh báo", "status-warning"
             else:
                 return "nguy hiểm", "status-danger"

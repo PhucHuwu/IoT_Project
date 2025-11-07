@@ -219,6 +219,53 @@ class SensorDataService {
             throw error;
         }
     }
+
+    static async getSensorDataByDate(date) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/sensor-data-by-date/${date}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error(`Lỗi khi lấy dữ liệu ngày ${date}:`, error);
+            throw error;
+        }
+    }
+
+    static async getThresholds() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/thresholds`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error("Lỗi khi lấy cấu hình ngưỡng:", error);
+            throw error;
+        }
+    }
+
+    static async updateThresholds(thresholds) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/thresholds`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(thresholds),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error("Lỗi khi cập nhật cấu hình ngưỡng:", error);
+            throw error;
+        }
+    }
 }
 
 export default SensorDataService;

@@ -30,6 +30,10 @@
                     <i class="fas fa-history"></i>
                     <span>Lịch sử hoạt động</span>
                 </a>
+                <a href="statistics.html" class="nav-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Thống kê</span>
+                </a>
             </nav>
         </div>
 
@@ -48,9 +52,8 @@
             </div>
 
             <div class="content action-history-page">
-                <div class="action-history-grid">
-                    <div id="action-history-container">
-                        <div class="data-table-section">
+                <div id="action-history-container">
+                    <div class="data-table-section">
                             <div class="table-card">
                                 <div class="table-header">
                                     <h3>Bảng lịch sử hoạt động</h3>
@@ -137,26 +140,6 @@
                                     </button>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="led-stats-container">
-                    <div class="stats-card">
-                        <div class="stats-header">
-                            <h3>Thống kê lượt bật thiết bị trong ngày</h3>
-                        </div>
-                        <div class="stats-controls">
-                            <input type="date" id="statsDatePicker" class="date-picker" />
-                            <button id="statsRefresh" class="refresh-btn">
-                                <i class="fas fa-sync-alt"></i>Làm mới
-                            </button>
-                        </div>
-                        <div class="stats-loading" id="statsLoading" style="display: none;">
-                            <div class="loading-spinner"></div>
-                            <p>Đang tải...</p>
-                        </div>
-                        <div class="stats-content" id="statsContent">
                         </div>
                     </div>
                 </div>

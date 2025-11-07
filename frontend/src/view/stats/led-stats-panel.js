@@ -34,14 +34,20 @@ class LEDStatsPanel {
         if (!contentEl) return;
 
         let totalCount = 0;
-        const statsItems = [];
+        const statsArray = [];
 
         const ledOrder = ['LED1', 'LED2', 'LED3', 'LED4'];
         ledOrder.forEach(ledId => {
             const count = statsData[ledId] || 0;
             totalCount += count;
-            statsItems.push(this.createStatsItem(ledId, count));
+            statsArray.push({ ledId, count });
         });
+
+        statsArray.sort((a, b) => b.count - a.count);
+
+        const statsItems = statsArray.map(item => 
+            this.createStatsItem(item.ledId, item.count)
+        );
 
         contentEl.innerHTML = `
             ${statsItems.join('')}

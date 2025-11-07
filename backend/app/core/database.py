@@ -949,8 +949,9 @@ class DatabaseManager:
             logger.error(f"Error getting latest LED status: {e}")
             return {'LED1': 'OFF', 'LED2': 'OFF', 'LED3': 'OFF', 'LED4': 'OFF'}
 
-    def get_led_toggle_stats(self) -> Dict[str, int]:
+    def get_led_toggle_stats(self, date: str = None) -> Dict[str, int]:
         try:
+            from app.core.timezone_utils import get_vietnam_timezone, create_vietnam_datetime
             action_collection = self.db.get_collection('action_history')
             
             led_stats = {
@@ -960,14 +961,35 @@ class DatabaseManager:
                 'LED4': 0
             }
             
+            query_base = {}
+            if date:
+                try:
+                    vn_tz = get_vietnam_timezone()
+                    selected_date = datetime.strptime(date, '%Y-%m-%d')
+                    start_time = create_vietnam_datetime(
+                        selected_date.year, selected_date.month, selected_date.day,
+                        hour=0, minute=0, second=0, microsecond=0
+                    )
+                    end_time = start_time.replace(hour=23, minute=59, second=59, microsecond=999999)
+                    
+                    query_base['timestamp'] = {
+                        '$gte': convert_from_vietnam_time(start_time),
+                        '$lte': convert_from_vietnam_time(end_time)
+                    }
+                    logger.info(f"Filtering LED stats by date: {date} ({start_time} to {end_time})")
+                except ValueError as e:
+                    logger.warning(f"Invalid date format: {date}, using all data. Error: {e}")
+            
             for led_id in ['LED1', 'LED2', 'LED3', 'LED4']:
-                count = action_collection.count_documents({
+                query = {
+                    **query_base,
                     'led': led_id,
                     'state': {'$in': ['ON', 'on', '1', 'true', 'TRUE']}
-                })
+                }
+                count = action_collection.count_documents(query)
                 led_stats[led_id] = count
             
-            logger.info(f"LED toggle stats retrieved: {led_stats}")
+            logger.info(f"LED toggle stats retrieved (date={date}): {led_stats}")
             return led_stats
             
         except Exception as e:
@@ -1072,3 +1094,33 @@ class DatabaseManager:
         except Exception as e:
             logger.error(f"Time string search error: {e}")
             return []
+
+    def get_data_by_date(self, date_str: str) -> List[Dict[str, Any]]:
+        try:
+            from datetime import datetime
+            from app.core.timezone_utils import create_vietnam_datetime, convert_from_vietnam_time
+            
+            year, month, day = map(int, date_str.split('-'))
+            
+            start_date = create_vietnam_datetime(year, month, day, 0, 0, 0)
+            end_date = create_vietnam_datetime(year, month, day, 23, 59, 59, 999999)
+            
+            query = {
+                'timestamp': {
+                    '$gte': convert_from_vietnam_time(start_date),
+                    '$lte': convert_from_vietnam_time(end_date)
+                }
+            }
+            
+            cursor = self.collection.find(query).sort("timestamp", -1)
+            data = list(cursor)
+            
+            data = self._convert_timestamps_to_vietnam(data)
+            
+            logger.info(f"Retrieved {len(data)} records for date: {date_str}")
+            return data
+            
+        except Exception as e:
+            logger.error(f"Error getting data by date {date_str}: {e}")
+            return []
+

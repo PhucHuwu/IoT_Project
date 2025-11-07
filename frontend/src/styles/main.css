@@ -389,6 +389,33 @@ body {
     gap: 16px;
 }
 
+.settings-btn {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, rgba(0, 122, 255, 0.1) 0%, rgba(0, 122, 255, 0.05) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 122, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.1);
+}
+
+.settings-btn:hover {
+    background: linear-gradient(135deg, rgba(0, 122, 255, 0.2) 0%, rgba(0, 122, 255, 0.1) 100%);
+    border-color: rgba(0, 122, 255, 0.4);
+    transform: translateY(-2px) rotate(90deg);
+    box-shadow: 0 8px 20px rgba(0, 122, 255, 0.2);
+}
+
+.settings-btn i {
+    font-size: 20px;
+    color: #007AFF;
+}
+
 .avatar {
     width: 45px;
     height: 45px;
@@ -1780,6 +1807,666 @@ body {
     100% {
         transform: rotate(360deg);
     }
+}
+
+.threshold-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.threshold-popup-overlay.active {
+    opacity: 1;
+}
+
+.threshold-popup {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.3) inset;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.threshold-popup-overlay.active .threshold-popup {
+    transform: scale(1);
+}
+
+.threshold-popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, rgba(0, 122, 255, 0.05) 0%, rgba(0, 122, 255, 0.02) 100%);
+}
+
+.threshold-popup-header h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.threshold-close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.threshold-close-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.threshold-popup-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+}
+
+.threshold-section {
+    margin-bottom: 32px;
+}
+
+.threshold-section:last-child {
+    margin-bottom: 0;
+}
+
+.threshold-section h3 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.87);
+    margin-bottom: 16px;
+}
+
+.threshold-section h3 i {
+    font-size: 20px;
+    color: #007AFF;
+}
+
+.threshold-inputs {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.threshold-input-group {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.03);
+    padding: 12px;
+    border-radius: 12px;
+}
+
+.threshold-input-group label {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.6);
+    white-space: nowrap;
+}
+
+.threshold-input-group input {
+    flex: 1;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    background: white;
+    transition: all 0.2s ease;
+}
+
+.threshold-input-group input:focus {
+    outline: none;
+    border-color: #007AFF;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+.threshold-input-group .unit {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.threshold-popup-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.threshold-reset-btn {
+    background: none;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.threshold-reset-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.3);
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.threshold-action-btns {
+    display: flex;
+    gap: 12px;
+}
+
+.threshold-cancel-btn,
+.threshold-save-btn {
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.threshold-cancel-btn {
+    background: rgba(0, 0, 0, 0.05);
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.threshold-cancel-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.threshold-save-btn {
+    background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.threshold-save-btn:hover {
+    background: linear-gradient(135deg, #0051D5 0%, #003D99 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+
+.threshold-save-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.threshold-stats-card .stats-header {
+    position: relative;
+}
+
+.threshold-settings-btn {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, rgba(0, 122, 255, 0.1) 0%, rgba(0, 122, 255, 0.05) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 122, 255, 0.2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.1);
+}
+
+.threshold-settings-btn:hover {
+    background: linear-gradient(135deg, rgba(0, 122, 255, 0.2) 0%, rgba(0, 122, 255, 0.1) 100%);
+    border-color: rgba(0, 122, 255, 0.4);
+    transform: translateY(-50%);
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+}
+
+.threshold-settings-btn i {
+    font-size: 18px;
+    color: #007AFF;
+}
+
+.threshold-stats-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px 0;
+}
+
+.threshold-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.threshold-stat-item:hover {
+    background: rgba(0, 0, 0, 0.04);
+    transform: translateX(4px);
+}
+
+.threshold-stat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.threshold-stat-icon.temperature {
+    background: linear-gradient(135deg, #FF6B6B 0%, #FF5252 100%);
+}
+
+.threshold-stat-icon.humidity {
+    background: linear-gradient(135deg, #4FC3F7 0%, #29B6F6 100%);
+}
+
+.threshold-stat-icon.light {
+    background: linear-gradient(135deg, #FFD54F 0%, #FFC107 100%);
+}
+
+.threshold-stat-info {
+    flex: 1;
+}
+
+.threshold-stat-info h4 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.threshold-stat-values {
+    display: flex;
+    gap: 24px;
+}
+
+.stat-value {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.stat-value .count {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.stat-value .label {
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-value.warning .count {
+    color: #FF9500;
+}
+
+.stat-value.danger .count {
+    color: #FF3B30;
+}
+
+.debug-btn {
+    background: linear-gradient(
+            -45deg,
+            rgba(52, 199, 89, 0.9) 0%,
+            rgba(52, 199, 89, 0.8) 25%,
+            rgba(62, 209, 99, 0.9) 50%,
+            rgba(52, 199, 89, 0.85) 75%,
+            rgba(52, 199, 89, 0.7) 100%
+        ),
+        radial-gradient(
+            ellipse 80px 40px at 50% 50%,
+            rgba(255, 255, 255, 0.3) 0%,
+            transparent 60%
+        );
+    backdrop-filter: blur(20px) saturate(180%) brightness(110%) contrast(105%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(110%) contrast(105%);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 30px;
+    padding: 8px 16px;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 6px 20px rgba(52, 199, 89, 0.4),
+        0 3px 12px rgba(52, 199, 89, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.debug-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(52, 199, 89, 0.5),
+        0 4px 15px rgba(52, 199, 89, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.debug-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10001;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.debug-modal {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 90%;
+    width: 1200px;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.debug-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, rgba(52, 199, 89, 0.05) 0%, rgba(52, 199, 89, 0.02) 100%);
+}
+
+.debug-modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.debug-close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.debug-close-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.debug-modal-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+}
+
+.debug-threshold-info {
+    background: rgba(0, 122, 255, 0.05);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+}
+
+.debug-threshold-info h4 {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.threshold-display {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.threshold-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
+}
+
+.threshold-item strong {
+    color: #007AFF;
+    font-size: 14px;
+}
+
+.threshold-item span {
+    font-size: 13px;
+    color: rgba(0, 0, 0, 0.6);
+    margin-left: 12px;
+}
+
+.debug-summary {
+    background: rgba(52, 199, 89, 0.05);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+}
+
+.debug-summary h4 {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+    background: white;
+    border-radius: 8px;
+    border-left: 4px solid;
+}
+
+.summary-item.temp {
+    border-color: #FF6B6B;
+}
+
+.summary-item.hum {
+    border-color: #4FC3F7;
+}
+
+.summary-item.light {
+    border-color: #FFD54F;
+}
+
+.summary-item .label {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.summary-item .value {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.summary-item .value.warning {
+    color: #FF9500;
+}
+
+.summary-item .value.danger {
+    color: #FF3B30;
+}
+
+.debug-data-table {
+    margin-top: 24px;
+}
+
+.debug-data-table h4 {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.debug-data-table table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.debug-data-table th {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 12px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.87);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.debug-data-table td {
+    padding: 12px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.debug-data-table tbody tr:hover {
+    background: rgba(0, 122, 255, 0.05);
+}
+
+.debug-data-table tbody tr.violation-row {
+    background: rgba(255, 149, 0, 0.08);
+}
+
+.debug-data-table tbody tr.violation-row:hover {
+    background: rgba(255, 149, 0, 0.12);
+}
+
+.status-normal {
+    color: #34C759;
+    font-weight: 600;
+}
+
+.status-warning {
+    color: #FF9500;
+    font-weight: 600;
+}
+
+.status-danger {
+    color: #FF3B30;
+    font-weight: 600;
+}
+
+.debug-footer {
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 8px;
+    margin-top: 16px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.debug-footer p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.87);
 }
 
 .data-update-indicator {
