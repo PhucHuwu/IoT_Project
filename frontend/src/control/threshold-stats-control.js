@@ -60,13 +60,47 @@ class ThresholdStatsControl {
             locale: {
                 firstDayOfWeek: 1,
                 weekdays: {
-                    shorthand: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'],
-                    longhand: ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy']
+                    shorthand: ["CN", "T2", "T3", "T4", "T5", "T6", "T7"],
+                    longhand: [
+                        "Chủ nhật",
+                        "Thứ hai",
+                        "Thứ ba",
+                        "Thứ tư",
+                        "Thứ năm",
+                        "Thứ sáu",
+                        "Thứ bảy",
+                    ],
                 },
                 months: {
-                    shorthand: ['Th1', 'Th2', 'Th3', 'Th4', 'Th5', 'Th6', 'Th7', 'Th8', 'Th9', 'Th10', 'Th11', 'Th12'],
-                    longhand: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12']
-                }
+                    shorthand: [
+                        "Th1",
+                        "Th2",
+                        "Th3",
+                        "Th4",
+                        "Th5",
+                        "Th6",
+                        "Th7",
+                        "Th8",
+                        "Th9",
+                        "Th10",
+                        "Th11",
+                        "Th12",
+                    ],
+                    longhand: [
+                        "Tháng 1",
+                        "Tháng 2",
+                        "Tháng 3",
+                        "Tháng 4",
+                        "Tháng 5",
+                        "Tháng 6",
+                        "Tháng 7",
+                        "Tháng 8",
+                        "Tháng 9",
+                        "Tháng 10",
+                        "Tháng 11",
+                        "Tháng 12",
+                    ],
+                },
             },
             onChange: async (selectedDates, dateStr) => {
                 if (selectedDates.length > 0) {
@@ -84,7 +118,8 @@ class ThresholdStatsControl {
                 refreshBtn.classList.add("spinning");
                 refreshBtn.disabled = true;
                 try {
-                    const selectedDate = this.selectedDate || this.getFormattedDate();
+                    const selectedDate =
+                        this.selectedDate || this.getFormattedDate();
                     await this.loadStats(selectedDate);
                 } finally {
                     setTimeout(() => {
@@ -105,32 +140,63 @@ class ThresholdStatsControl {
 
     async loadStats(date = null) {
         const loadingEl = document.getElementById("thresholdStatsLoading");
-        
+
         try {
             if (loadingEl) loadingEl.style.display = "flex";
 
             const selectedDate = date || this.getFormattedDate();
-            
+
             console.log(`🔍 Đang tải dữ liệu cho ngày: ${selectedDate}`);
-            
-            const result = await SensorDataService.getSensorDataByDate(selectedDate);
+
+            const result = await SensorDataService.getSensorDataByDate(
+                selectedDate
+            );
 
             if (result && result.status === "success") {
                 this.debugData = result.data;
                 this.selectedDate = selectedDate;
-                
-                console.log(`📊 Tổng số bản ghi trong ngày ${selectedDate}:`, this.debugData.length);
-                console.log(`⏰ Khoảng thời gian:`, 
-                    this.debugData.length > 0 ? 
-                    `${new Date(this.debugData[this.debugData.length-1].timestamp).toLocaleString('vi-VN')} - ${new Date(this.debugData[0].timestamp).toLocaleString('vi-VN')}` 
-                    : 'Không có dữ liệu');
-                
+
+                console.log(
+                    `📊 Tổng số bản ghi trong ngày ${selectedDate}:`,
+                    this.debugData.length
+                );
+                console.log(
+                    `⏰ Khoảng thời gian:`,
+                    this.debugData.length > 0
+                        ? `${new Date(
+                              this.debugData[
+                                  this.debugData.length - 1
+                              ].timestamp
+                          ).toLocaleString("vi-VN")} - ${new Date(
+                              this.debugData[0].timestamp
+                          ).toLocaleString("vi-VN")}`
+                        : "Không có dữ liệu"
+                );
+
                 const stats = this.calculateStats(this.debugData);
                 console.log("📈 Thống kê vượt ngưỡng (theo phút):", stats);
-                console.log("├─ Nhiệt độ: ", stats.temperature.warning, "phút cảnh báo,", stats.temperature.danger, "phút nguy hiểm");
-                console.log("├─ Độ ẩm: ", stats.humidity.warning, "phút cảnh báo,", stats.humidity.danger, "phút nguy hiểm");
-                console.log("└─ Ánh sáng: ", stats.light.warning, "phút cảnh báo,", stats.light.danger, "phút nguy hiểm");
-                
+                console.log(
+                    "├─ Nhiệt độ: ",
+                    stats.temperature.warning,
+                    "phút cảnh báo,",
+                    stats.temperature.danger,
+                    "phút nguy hiểm"
+                );
+                console.log(
+                    "├─ Độ ẩm: ",
+                    stats.humidity.warning,
+                    "phút cảnh báo,",
+                    stats.humidity.danger,
+                    "phút nguy hiểm"
+                );
+                console.log(
+                    "└─ Ánh sáng: ",
+                    stats.light.warning,
+                    "phút cảnh báo,",
+                    stats.light.danger,
+                    "phút nguy hiểm"
+                );
+
                 this.renderStats(stats);
             }
         } catch (error) {
@@ -153,7 +219,7 @@ class ThresholdStatsControl {
             return {
                 temperature: { warning: 0, danger: 0 },
                 humidity: { warning: 0, danger: 0 },
-                light: { warning: 0, danger: 0 }
+                light: { warning: 0, danger: 0 },
             };
         }
 
@@ -165,17 +231,25 @@ class ThresholdStatsControl {
         const stats = {
             temperature: { warning: 0, danger: 0 },
             humidity: { warning: 0, danger: 0 },
-            light: { warning: 0, danger: 0 }
+            light: { warning: 0, danger: 0 },
         };
 
-        groupedByMinute.forEach(minuteData => {
-            if (minuteData.temperature !== undefined && minuteData.temperature !== null) {
-                const status = this.getTemperatureStatus(minuteData.temperature);
+        groupedByMinute.forEach((minuteData) => {
+            if (
+                minuteData.temperature !== undefined &&
+                minuteData.temperature !== null
+            ) {
+                const status = this.getTemperatureStatus(
+                    minuteData.temperature
+                );
                 if (status === "warning") stats.temperature.warning++;
                 else if (status === "danger") stats.temperature.danger++;
             }
 
-            if (minuteData.humidity !== undefined && minuteData.humidity !== null) {
+            if (
+                minuteData.humidity !== undefined &&
+                minuteData.humidity !== null
+            ) {
                 const status = this.getHumidityStatus(minuteData.humidity);
                 if (status === "warning") stats.humidity.warning++;
                 else if (status === "danger") stats.humidity.danger++;
@@ -194,12 +268,19 @@ class ThresholdStatsControl {
     groupDataByMinute(data) {
         const minuteMap = new Map();
 
-        data.forEach(item => {
+        data.forEach((item) => {
             if (!item.timestamp) return;
 
             try {
                 const date = new Date(item.timestamp);
-                const minuteKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+                const minuteKey = `${date.getFullYear()}-${String(
+                    date.getMonth() + 1
+                ).padStart(2, "0")}-${String(date.getDate()).padStart(
+                    2,
+                    "0"
+                )} ${String(date.getHours()).padStart(2, "0")}:${String(
+                    date.getMinutes()
+                ).padStart(2, "0")}`;
 
                 if (!minuteMap.has(minuteKey)) {
                     minuteMap.set(minuteKey, {
@@ -207,14 +288,17 @@ class ThresholdStatsControl {
                         temperatures: [],
                         humidities: [],
                         lights: [],
-                        count: 0
+                        count: 0,
                     });
                 }
 
                 const minuteData = minuteMap.get(minuteKey);
                 minuteData.count++;
 
-                if (item.temperature !== undefined && item.temperature !== null) {
+                if (
+                    item.temperature !== undefined &&
+                    item.temperature !== null
+                ) {
                     minuteData.temperatures.push(item.temperature);
                 }
                 if (item.humidity !== undefined && item.humidity !== null) {
@@ -228,27 +312,37 @@ class ThresholdStatsControl {
             }
         });
 
-        const groupedData = Array.from(minuteMap.values()).map(minuteData => {
+        const groupedData = Array.from(minuteMap.values()).map((minuteData) => {
             return {
                 timestamp: minuteData.timestamp,
-                temperature: minuteData.temperatures.length > 0 
-                    ? minuteData.temperatures.reduce((a, b) => a + b, 0) / minuteData.temperatures.length 
-                    : null,
-                humidity: minuteData.humidities.length > 0 
-                    ? minuteData.humidities.reduce((a, b) => a + b, 0) / minuteData.humidities.length 
-                    : null,
-                light: minuteData.lights.length > 0 
-                    ? minuteData.lights.reduce((a, b) => a + b, 0) / minuteData.lights.length 
-                    : null,
-                recordCount: minuteData.count
+                temperature:
+                    minuteData.temperatures.length > 0
+                        ? minuteData.temperatures.reduce((a, b) => a + b, 0) /
+                          minuteData.temperatures.length
+                        : null,
+                humidity:
+                    minuteData.humidities.length > 0
+                        ? minuteData.humidities.reduce((a, b) => a + b, 0) /
+                          minuteData.humidities.length
+                        : null,
+                light:
+                    minuteData.lights.length > 0
+                        ? minuteData.lights.reduce((a, b) => a + b, 0) /
+                          minuteData.lights.length
+                        : null,
+                recordCount: minuteData.count,
             };
         });
 
         groupedData.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
 
-        console.log(`✅ Đã nhóm ${data.length} bản ghi thành ${groupedData.length} phút`);
+        console.log(
+            `✅ Đã nhóm ${data.length} bản ghi thành ${groupedData.length} phút`
+        );
         if (groupedData.length > 0) {
-            console.log(`📝 Ví dụ phút đầu: ${groupedData[0].timestamp} - ${groupedData[0].recordCount} bản ghi`);
+            console.log(
+                `📝 Ví dụ phút đầu: ${groupedData[0].timestamp} - ${groupedData[0].recordCount} bản ghi`
+            );
         }
 
         return groupedData;
@@ -257,61 +351,73 @@ class ThresholdStatsControl {
     getTemperatureStatus(value) {
         const t = this.thresholds.temperature;
         if (value >= t.normal_min && value <= t.normal_max) return "normal";
-        if ((value >= t.warning_min && value < t.normal_min) || 
-            (value > t.normal_max && value <= t.warning_max)) return "warning";
+        if (
+            (value >= t.warning_min && value < t.normal_min) ||
+            (value > t.normal_max && value <= t.warning_max)
+        )
+            return "warning";
         return "danger";
     }
 
     getHumidityStatus(value) {
         const h = this.thresholds.humidity;
         if (value >= h.normal_min && value <= h.normal_max) return "normal";
-        if ((value >= h.warning_min && value < h.normal_min) || 
-            (value > h.normal_max && value <= h.warning_max)) return "warning";
+        if (
+            (value >= h.warning_min && value < h.normal_min) ||
+            (value > h.normal_max && value <= h.warning_max)
+        )
+            return "warning";
         return "danger";
     }
 
     getLightStatus(value) {
         const l = this.thresholds.light;
         if (value >= l.normal_min && value <= l.normal_max) return "normal";
-        if ((value >= l.warning_min && value < l.normal_min) || 
-            (value > l.normal_max && value <= l.warning_max)) return "warning";
+        if (
+            (value >= l.warning_min && value < l.normal_min) ||
+            (value > l.normal_max && value <= l.warning_max)
+        )
+            return "warning";
         return "danger";
     }
 
     renderStats(stats) {
         const sensorOrder = [
-            { 
-                type: 'temperature', 
-                label: 'Nhiệt độ',
-                icon: 'fas fa-thermometer-half',
-                warningId: 'tempWarningCount',
-                dangerId: 'tempDangerCount'
+            {
+                type: "temperature",
+                label: "Nhiệt độ",
+                icon: "fas fa-thermometer-half",
+                warningId: "tempWarningCount",
+                dangerId: "tempDangerCount",
             },
-            { 
-                type: 'humidity', 
-                label: 'Độ ẩm',
-                icon: 'fas fa-tint',
-                warningId: 'humidityWarningCount',
-                dangerId: 'humidityDangerCount'
+            {
+                type: "humidity",
+                label: "Độ ẩm",
+                icon: "fas fa-tint",
+                warningId: "humidityWarningCount",
+                dangerId: "humidityDangerCount",
             },
-            { 
-                type: 'light', 
-                label: 'Ánh sáng',
-                icon: 'fas fa-sun',
-                warningId: 'lightWarningCount',
-                dangerId: 'lightDangerCount'
-            }
+            {
+                type: "light",
+                label: "Ánh sáng",
+                icon: "fas fa-sun",
+                warningId: "lightWarningCount",
+                dangerId: "lightDangerCount",
+            },
         ];
 
-        sensorOrder.forEach(sensor => {
-            sensor.total = stats[sensor.type].warning + stats[sensor.type].danger;
+        sensorOrder.forEach((sensor) => {
+            sensor.total =
+                stats[sensor.type].warning + stats[sensor.type].danger;
         });
 
         sensorOrder.sort((a, b) => b.total - a.total);
 
-        const contentEl = document.getElementById('thresholdStatsContent');
+        const contentEl = document.getElementById("thresholdStatsContent");
         if (contentEl) {
-            contentEl.innerHTML = sensorOrder.map(sensor => `
+            contentEl.innerHTML = sensorOrder
+                .map(
+                    (sensor) => `
                 <div class="threshold-stat-item">
                     <div class="threshold-stat-icon ${sensor.type}">
                         <i class="${sensor.icon}"></i>
@@ -320,17 +426,23 @@ class ThresholdStatsControl {
                         <h4>${sensor.label}</h4>
                         <div class="threshold-stat-values">
                             <div class="stat-value warning">
-                                <span class="count" id="${sensor.warningId}">${stats[sensor.type].warning}</span>
+                                <span class="count" id="${sensor.warningId}">${
+                        stats[sensor.type].warning
+                    }</span>
                                 <span class="label">Cảnh báo</span>
                             </div>
                             <div class="stat-value danger">
-                                <span class="count" id="${sensor.dangerId}">${stats[sensor.type].danger}</span>
+                                <span class="count" id="${sensor.dangerId}">${
+                        stats[sensor.type].danger
+                    }</span>
                                 <span class="label">Nguy hiểm</span>
                             </div>
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `
+                )
+                .join("");
         }
 
         this.currentStats = stats;
@@ -360,18 +472,42 @@ class ThresholdStatsControl {
                             <div class="threshold-display">
                                 <div class="threshold-item">
                                     <strong>Nhiệt độ:</strong>
-                                    <span>Bình thường: ${this.thresholds.temperature.normal_min}°C - ${this.thresholds.temperature.normal_max}°C</span>
-                                    <span>Cảnh báo: ${this.thresholds.temperature.warning_min}°C - ${this.thresholds.temperature.warning_max}°C</span>
+                                    <span>Bình thường: ${
+                                        this.thresholds.temperature.normal_min
+                                    }°C - ${
+            this.thresholds.temperature.normal_max
+        }°C</span>
+                                    <span>Cảnh báo: ${
+                                        this.thresholds.temperature.warning_min
+                                    }°C - ${
+            this.thresholds.temperature.warning_max
+        }°C</span>
                                 </div>
                                 <div class="threshold-item">
                                     <strong>Độ ẩm:</strong>
-                                    <span>Bình thường: ${this.thresholds.humidity.normal_min}% - ${this.thresholds.humidity.normal_max}%</span>
-                                    <span>Cảnh báo: ${this.thresholds.humidity.warning_min}% - ${this.thresholds.humidity.warning_max}%</span>
+                                    <span>Bình thường: ${
+                                        this.thresholds.humidity.normal_min
+                                    }% - ${
+            this.thresholds.humidity.normal_max
+        }%</span>
+                                    <span>Cảnh báo: ${
+                                        this.thresholds.humidity.warning_min
+                                    }% - ${
+            this.thresholds.humidity.warning_max
+        }%</span>
                                 </div>
                                 <div class="threshold-item">
                                     <strong>Ánh sáng:</strong>
-                                    <span>Bình thường: ${this.thresholds.light.normal_min}% - ${this.thresholds.light.normal_max}%</span>
-                                    <span>Cảnh báo: ${this.thresholds.light.warning_min}% - ${this.thresholds.light.warning_max}%</span>
+                                    <span>Bình thường: ${
+                                        this.thresholds.light.normal_min
+                                    }% - ${
+            this.thresholds.light.normal_max
+        }%</span>
+                                    <span>Cảnh báo: ${
+                                        this.thresholds.light.warning_min
+                                    }% - ${
+            this.thresholds.light.warning_max
+        }%</span>
                                 </div>
                             </div>
                         </div>
@@ -381,30 +517,51 @@ class ThresholdStatsControl {
                             <div class="summary-grid">
                                 <div class="summary-item temp">
                                     <span class="label">Nhiệt độ:</span>
-                                    <span class="value warning">${this.currentStats.temperature.warning} phút cảnh báo</span>
-                                    <span class="value danger">${this.currentStats.temperature.danger} phút nguy hiểm</span>
+                                    <span class="value warning">${
+                                        this.currentStats.temperature.warning
+                                    } phút cảnh báo</span>
+                                    <span class="value danger">${
+                                        this.currentStats.temperature.danger
+                                    } phút nguy hiểm</span>
                                 </div>
                                 <div class="summary-item hum">
                                     <span class="label">Độ ẩm:</span>
-                                    <span class="value warning">${this.currentStats.humidity.warning} phút cảnh báo</span>
-                                    <span class="value danger">${this.currentStats.humidity.danger} phút nguy hiểm</span>
+                                    <span class="value warning">${
+                                        this.currentStats.humidity.warning
+                                    } phút cảnh báo</span>
+                                    <span class="value danger">${
+                                        this.currentStats.humidity.danger
+                                    } phút nguy hiểm</span>
                                 </div>
                                 <div class="summary-item light">
                                     <span class="label">Ánh sáng:</span>
-                                    <span class="value warning">${this.currentStats.light.warning} phút cảnh báo</span>
-                                    <span class="value danger">${this.currentStats.light.danger} phút nguy hiểm</span>
+                                    <span class="value warning">${
+                                        this.currentStats.light.warning
+                                    } phút cảnh báo</span>
+                                    <span class="value danger">${
+                                        this.currentStats.light.danger
+                                    } phút nguy hiểm</span>
                                 </div>
                             </div>
                             <div style="margin-top: 12px; padding: 12px; background: rgba(0, 122, 255, 0.1); border-radius: 8px;">
                                 <p style="margin: 0; font-size: 13px; color: rgba(0, 0, 0, 0.7);">
-                                    📊 <strong>Thống kê:</strong> ${this.debugData.length} bản ghi thô được nhóm thành ${groupedData.length} phút 
-                                    (tỷ lệ nén: ${(this.debugData.length / groupedData.length).toFixed(1)}x)
+                                    📊 <strong>Thống kê:</strong> ${
+                                        this.debugData.length
+                                    } bản ghi thô được nhóm thành ${
+            groupedData.length
+        } phút 
+                                    (tỷ lệ nén: ${(
+                                        this.debugData.length /
+                                        groupedData.length
+                                    ).toFixed(1)}x)
                                 </p>
                             </div>
                         </div>
 
                         <div class="debug-data-table">
-                            <h4>Chi tiết theo phút (${groupedData.length} phút):</h4>
+                            <h4>Chi tiết theo phút (${
+                                groupedData.length
+                            } phút):</h4>
                             <div style="margin-bottom: 12px; padding: 12px; background: rgba(0, 122, 255, 0.1); border-radius: 8px;">
                                 <p style="margin: 0; font-size: 13px; color: rgba(0, 0, 0, 0.7);">
                                     💡 <strong>Lưu ý:</strong> Dữ liệu đã được nhóm theo phút và tính trung bình. 
@@ -430,26 +587,49 @@ class ThresholdStatsControl {
 
         let violationCount = 0;
         groupedData.forEach((item, index) => {
-            const tempStatus = item.temperature ? this.getTemperatureStatus(item.temperature) : 'normal';
-            const humStatus = item.humidity ? this.getHumidityStatus(item.humidity) : 'normal';
-            const lightStatus = item.light ? this.getLightStatus(item.light) : 'normal';
+            const tempStatus = item.temperature
+                ? this.getTemperatureStatus(item.temperature)
+                : "normal";
+            const humStatus = item.humidity
+                ? this.getHumidityStatus(item.humidity)
+                : "normal";
+            const lightStatus = item.light
+                ? this.getLightStatus(item.light)
+                : "normal";
 
-            const hasViolation = tempStatus !== "normal" || humStatus !== "normal" || lightStatus !== "normal";
+            const hasViolation =
+                tempStatus !== "normal" ||
+                humStatus !== "normal" ||
+                lightStatus !== "normal";
             if (hasViolation) violationCount++;
 
-            const rowClass = hasViolation ? 'violation-row' : '';
-            
+            const rowClass = hasViolation ? "violation-row" : "";
+
             debugHTML += `
                 <tr class="${rowClass}">
                     <td>${index + 1}</td>
                     <td>${item.timestamp}</td>
-                    <td><span style="background: #6c757d; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px;">${item.recordCount}</span></td>
-                    <td>${item.temperature ? item.temperature.toFixed(1) + '°C' : '-'}</td>
-                    <td class="status-${tempStatus}">${this.getStatusLabel(tempStatus)}</td>
-                    <td>${item.humidity ? item.humidity.toFixed(1) + '%' : '-'}</td>
-                    <td class="status-${humStatus}">${this.getStatusLabel(humStatus)}</td>
-                    <td>${item.light ? item.light.toFixed(1) + '%' : '-'}</td>
-                    <td class="status-${lightStatus}">${this.getStatusLabel(lightStatus)}</td>
+                    <td><span style="background: #6c757d; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px;">${
+                        item.recordCount
+                    }</span></td>
+                    <td>${
+                        item.temperature
+                            ? item.temperature.toFixed(1) + "°C"
+                            : "-"
+                    }</td>
+                    <td class="status-${tempStatus}">${this.getStatusLabel(
+                tempStatus
+            )}</td>
+                    <td>${
+                        item.humidity ? item.humidity.toFixed(1) + "%" : "-"
+                    }</td>
+                    <td class="status-${humStatus}">${this.getStatusLabel(
+                humStatus
+            )}</td>
+                    <td>${item.light ? item.light.toFixed(1) + "%" : "-"}</td>
+                    <td class="status-${lightStatus}">${this.getStatusLabel(
+                lightStatus
+            )}</td>
                 </tr>
             `;
         });
@@ -468,10 +648,16 @@ class ThresholdStatsControl {
                                 </tbody>
                             </table>
                             <div class="debug-footer">
-                                <p><strong>Tổng số bản ghi thô:</strong> ${this.debugData.length}</p>
-                                <p><strong>Số phút có dữ liệu:</strong> ${groupedData.length}</p>
+                                <p><strong>Tổng số bản ghi thô:</strong> ${
+                                    this.debugData.length
+                                }</p>
+                                <p><strong>Số phút có dữ liệu:</strong> ${
+                                    groupedData.length
+                                }</p>
                                 <p><strong>Số phút vượt ngưỡng:</strong> ${violationCount}</p>
-                                <p><strong>Số phút bình thường:</strong> ${groupedData.length - violationCount}</p>
+                                <p><strong>Số phút bình thường:</strong> ${
+                                    groupedData.length - violationCount
+                                }</p>
                             </div>
                         </div>
                     </div>
@@ -479,15 +665,19 @@ class ThresholdStatsControl {
             </div>
         `;
 
-        document.body.insertAdjacentHTML('beforeend', debugHTML);
+        document.body.insertAdjacentHTML("beforeend", debugHTML);
     }
 
     getStatusLabel(status) {
-        switch(status) {
-            case "normal": return "Bình thường";
-            case "warning": return "Cảnh báo";
-            case "danger": return "Nguy hiểm";
-            default: return "Không xác định";
+        switch (status) {
+            case "normal":
+                return "Bình thường";
+            case "warning":
+                return "Cảnh báo";
+            case "danger":
+                return "Nguy hiểm";
+            default:
+                return "Không xác định";
         }
     }
 

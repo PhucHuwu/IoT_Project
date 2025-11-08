@@ -391,7 +391,11 @@ body {
 .settings-btn {
     width: 45px;
     height: 45px;
-    background: linear-gradient(135deg, rgba(0, 122, 255, 0.1) 0%, rgba(0, 122, 255, 0.05) 100%);
+    background: linear-gradient(
+        135deg,
+        rgba(0, 122, 255, 0.1) 0%,
+        rgba(0, 122, 255, 0.05) 100%
+    );
     backdrop-filter: blur(20px);
     border: 1px solid rgba(0, 122, 255, 0.2);
     border-radius: 50%;
@@ -404,7 +408,11 @@ body {
 }
 
 .settings-btn:hover {
-    background: linear-gradient(135deg, rgba(0, 122, 255, 0.2) 0%, rgba(0, 122, 255, 0.1) 100%);
+    background: linear-gradient(
+        135deg,
+        rgba(0, 122, 255, 0.2) 0%,
+        rgba(0, 122, 255, 0.1) 100%
+    );
     border-color: rgba(0, 122, 255, 0.4);
     transform: translateY(-2px) rotate(90deg);
     box-shadow: 0 8px 20px rgba(0, 122, 255, 0.2);
@@ -412,7 +420,7 @@ body {
 
 .settings-btn i {
     font-size: 20px;
-    color: #007AFF;
+    color: #007aff;
 }
 
 .avatar {
@@ -457,8 +465,7 @@ body {
 .avatar:hover {
     transform: scale(1.08);
     box-shadow: 0 15px 45px rgba(173, 216, 230, 0.6),
-        0 8px 25px rgba(173, 216, 230, 0.5), 
-        0 4px 12px rgba(255, 255, 255, 0.3),
+        0 8px 25px rgba(173, 216, 230, 0.5), 0 4px 12px rgba(255, 255, 255, 0.3),
         inset 0 2px 0 rgba(255, 255, 255, 0.8),
         inset 0 -2px 0 rgba(255, 255, 255, 0.4);
     background: linear-gradient(
@@ -568,8 +575,7 @@ body {
 .sensor-card:hover {
     transform: translateY(-4px) scale(1.02);
     box-shadow: 0 25px 70px rgba(255, 255, 255, 0.2),
-        0 15px 50px rgba(0, 0, 0, 0.1), 
-        0 6px 25px rgba(255, 255, 255, 0.15),
+        0 15px 50px rgba(0, 0, 0, 0.1), 0 6px 25px rgba(255, 255, 255, 0.15),
         inset 0 2px 0 rgba(255, 255, 255, 0.98),
         inset 0 -2px 0 rgba(255, 255, 255, 0.5),
         inset 2px 0 0 rgba(255, 255, 255, 0.5),
@@ -583,8 +589,7 @@ body {
             rgba(255, 255, 255, 0.42) 75%,
             rgba(255, 255, 255, 0.3) 100%
         ),
-        var(--liquid-glass-radial-light),
-        var(--liquid-glass-radial-lightblue);
+        var(--liquid-glass-radial-light), var(--liquid-glass-radial-lightblue);
 }
 
 .card-header {
@@ -941,8 +946,7 @@ body {
     );
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 
-        0 4px 12px rgba(0, 0, 0, 0.08),
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08),
         inset 0 1px 0 rgba(255, 255, 255, 0.3);
     font-family: var(--font-family-system);
     font-size: 13px;
@@ -958,10 +962,8 @@ body {
         rgba(255, 255, 255, 0.25) 0%,
         rgba(255, 255, 255, 0.15) 100%
     );
-    box-shadow: 
-        0 6px 16px rgba(0, 122, 255, 0.15),
-        0 4px 12px rgba(0, 0, 0, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    box-shadow: 0 6px 16px rgba(0, 122, 255, 0.15),
+        0 4px 12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.4);
     border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
@@ -990,14 +992,12 @@ body {
 @keyframes statsBadgePulse {
     0% {
         transform: scale(1);
-        box-shadow: 
-            0 4px 12px rgba(0, 0, 0, 0.08),
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08),
             inset 0 1px 0 rgba(255, 255, 255, 0.3);
     }
     50% {
         transform: scale(1.05);
-        box-shadow: 
-            0 6px 16px rgba(52, 199, 89, 0.3),
+        box-shadow: 0 6px 16px rgba(52, 199, 89, 0.3),
             0 4px 12px rgba(0, 0, 0, 0.08),
             inset 0 1px 0 rgba(255, 255, 255, 0.5);
         background: linear-gradient(
@@ -1008,8 +1008,7 @@ body {
     }
     100% {
         transform: scale(1);
-        box-shadow: 
-            0 4px 12px rgba(0, 0, 0, 0.08),
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08),
             inset 0 1px 0 rgba(255, 255, 255, 0.3);
     }
 }
@@ -1135,8 +1134,7 @@ body {
 .chart-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 25px 70px rgba(255, 255, 255, 0.2),
-        0 12px 40px rgba(0, 0, 0, 0.1), 
-        0 6px 25px rgba(255, 255, 255, 0.15),
+        0 12px 40px rgba(0, 0, 0, 0.1), 0 6px 25px rgba(255, 255, 255, 0.15),
         inset 0 2px 0 rgba(255, 255, 255, 0.98),
         inset 0 -2px 0 rgba(255, 255, 255, 0.5),
         inset 2px 0 0 rgba(255, 255, 255, 0.5),
@@ -1833,7 +1831,7 @@ body {
     backdrop-filter: blur(20px);
     border-radius: 20px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
-                0 0 0 1px rgba(255, 255, 255, 0.3) inset;
+        0 0 0 1px rgba(255, 255, 255, 0.3) inset;
     max-width: 600px;
     width: 90%;
     max-height: 80vh;
@@ -1854,7 +1852,11 @@ body {
     align-items: center;
     padding: 24px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    background: linear-gradient(135deg, rgba(0, 122, 255, 0.05) 0%, rgba(0, 122, 255, 0.02) 100%);
+    background: linear-gradient(
+        135deg,
+        rgba(0, 122, 255, 0.05) 0%,
+        rgba(0, 122, 255, 0.02) 100%
+    );
 }
 
 .threshold-popup-header h2 {
@@ -1910,7 +1912,7 @@ body {
 
 .threshold-section h3 i {
     font-size: 20px;
-    color: #007AFF;
+    color: #007aff;
 }
 
 .threshold-inputs {
@@ -1949,7 +1951,7 @@ body {
 
 .threshold-input-group input:focus {
     outline: none;
-    border-color: #007AFF;
+    border-color: #007aff;
     box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
 }
 
@@ -2016,7 +2018,7 @@ body {
 }
 
 .threshold-save-btn {
-    background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%);
+    background: linear-gradient(135deg, #007aff 0%, #0051d5 100%);
     color: white;
     display: flex;
     align-items: center;
@@ -2024,7 +2026,7 @@ body {
 }
 
 .threshold-save-btn:hover {
-    background: linear-gradient(135deg, #0051D5 0%, #003D99 100%);
+    background: linear-gradient(135deg, #0051d5 0%, #003d99 100%);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
 }
@@ -2131,15 +2133,15 @@ body {
 }
 
 .threshold-stat-icon.temperature {
-    background: linear-gradient(135deg, #FF6B6B 0%, #FF5252 100%);
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
 }
 
 .threshold-stat-icon.humidity {
-    background: linear-gradient(135deg, #4FC3F7 0%, #29B6F6 100%);
+    background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
 }
 
 .threshold-stat-icon.light {
-    background: linear-gradient(135deg, #FFD54F 0%, #FFC107 100%);
+    background: linear-gradient(135deg, #ffd54f 0%, #ffc107 100%);
 }
 
 .threshold-stat-info {
@@ -2180,11 +2182,11 @@ body {
 }
 
 .stat-value.warning .count {
-    color: #FF9500;
+    color: #ff9500;
 }
 
 .stat-value.danger .count {
-    color: #FF3B30;
+    color: #ff3b30;
 }
 
 .debug-btn {
@@ -2202,7 +2204,8 @@ body {
             transparent 60%
         );
     backdrop-filter: blur(20px) saturate(180%) brightness(110%) contrast(105%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(110%) contrast(105%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(110%)
+        contrast(105%);
     border: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 30px;
     padding: 8px 16px;
@@ -2244,8 +2247,12 @@ body {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 .debug-modal {
@@ -2279,7 +2286,11 @@ body {
     align-items: center;
     padding: 24px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    background: linear-gradient(135deg, rgba(52, 199, 89, 0.05) 0%, rgba(52, 199, 89, 0.02) 100%);
+    background: linear-gradient(
+        135deg,
+        rgba(52, 199, 89, 0.05) 0%,
+        rgba(52, 199, 89, 0.02) 100%
+    );
 }
 
 .debug-modal-header h3 {
@@ -2345,7 +2356,7 @@ body {
 }
 
 .threshold-item strong {
-    color: #007AFF;
+    color: #007aff;
     font-size: 14px;
 }
 
@@ -2386,15 +2397,15 @@ body {
 }
 
 .summary-item.temp {
-    border-color: #FF6B6B;
+    border-color: #ff6b6b;
 }
 
 .summary-item.hum {
-    border-color: #4FC3F7;
+    border-color: #4fc3f7;
 }
 
 .summary-item.light {
-    border-color: #FFD54F;
+    border-color: #ffd54f;
 }
 
 .summary-item .label {
@@ -2409,11 +2420,11 @@ body {
 }
 
 .summary-item .value.warning {
-    color: #FF9500;
+    color: #ff9500;
 }
 
 .summary-item .value.danger {
-    color: #FF3B30;
+    color: #ff3b30;
 }
 
 .debug-data-table {
@@ -2465,17 +2476,17 @@ body {
 }
 
 .status-normal {
-    color: #34C759;
+    color: #34c759;
     font-weight: 600;
 }
 
 .status-warning {
-    color: #FF9500;
+    color: #ff9500;
     font-weight: 600;
 }
 
 .status-danger {
-    color: #FF3B30;
+    color: #ff3b30;
     font-weight: 600;
 }
 
@@ -2668,8 +2679,7 @@ body {
 #actionHistorySearchInput:hover {
     border-color: rgba(0, 122, 255, 0.4);
     box-shadow: 0 4px 16px rgba(0, 122, 255, 0.1),
-        0 3px 12px rgba(0, 0, 0, 0.06),
-        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        0 3px 12px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 #tableSearchInput:focus,

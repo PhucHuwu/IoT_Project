@@ -10,7 +10,7 @@ class ThresholdSettingsPopup {
 
     async show() {
         if (this.isOpen) return;
-        
+
         try {
             const result = await SensorDataService.getThresholds();
             if (result.status === "success") {
@@ -27,7 +27,7 @@ class ThresholdSettingsPopup {
     render() {
         const overlay = document.createElement("div");
         overlay.className = "threshold-popup-overlay";
-        
+
         overlay.innerHTML = `
             <div class="threshold-popup">
                 <div class="threshold-popup-header">
@@ -192,33 +192,60 @@ class ThresholdSettingsPopup {
     async save() {
         const saveBtn = this.popup.querySelector(".threshold-save-btn");
         const originalContent = saveBtn.innerHTML;
-        
+
         try {
             saveBtn.disabled = true;
-            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang lưu...';
+            saveBtn.innerHTML =
+                '<i class="fas fa-spinner fa-spin"></i> Đang lưu...';
 
             const newThresholds = {
                 temperature: {
-                    normal_min: parseFloat(document.getElementById("temp-normal-min").value),
-                    normal_max: parseFloat(document.getElementById("temp-normal-max").value),
-                    warning_min: parseFloat(document.getElementById("temp-warning-min").value),
-                    warning_max: parseFloat(document.getElementById("temp-warning-max").value),
+                    normal_min: parseFloat(
+                        document.getElementById("temp-normal-min").value
+                    ),
+                    normal_max: parseFloat(
+                        document.getElementById("temp-normal-max").value
+                    ),
+                    warning_min: parseFloat(
+                        document.getElementById("temp-warning-min").value
+                    ),
+                    warning_max: parseFloat(
+                        document.getElementById("temp-warning-max").value
+                    ),
                 },
                 humidity: {
-                    normal_min: parseFloat(document.getElementById("humidity-normal-min").value),
-                    normal_max: parseFloat(document.getElementById("humidity-normal-max").value),
-                    warning_min: parseFloat(document.getElementById("humidity-warning-min").value),
-                    warning_max: parseFloat(document.getElementById("humidity-warning-max").value),
+                    normal_min: parseFloat(
+                        document.getElementById("humidity-normal-min").value
+                    ),
+                    normal_max: parseFloat(
+                        document.getElementById("humidity-normal-max").value
+                    ),
+                    warning_min: parseFloat(
+                        document.getElementById("humidity-warning-min").value
+                    ),
+                    warning_max: parseFloat(
+                        document.getElementById("humidity-warning-max").value
+                    ),
                 },
                 light: {
-                    normal_min: parseFloat(document.getElementById("light-normal-min").value),
-                    normal_max: parseFloat(document.getElementById("light-normal-max").value),
-                    warning_min: parseFloat(document.getElementById("light-warning-min").value),
-                    warning_max: parseFloat(document.getElementById("light-warning-max").value),
+                    normal_min: parseFloat(
+                        document.getElementById("light-normal-min").value
+                    ),
+                    normal_max: parseFloat(
+                        document.getElementById("light-normal-max").value
+                    ),
+                    warning_min: parseFloat(
+                        document.getElementById("light-warning-min").value
+                    ),
+                    warning_max: parseFloat(
+                        document.getElementById("light-warning-max").value
+                    ),
                 },
             };
 
-            const result = await SensorDataService.updateThresholds(newThresholds);
+            const result = await SensorDataService.updateThresholds(
+                newThresholds
+            );
 
             if (result.status === "success") {
                 alert("Cập nhật cấu hình ngưỡng thành công");
@@ -227,7 +254,9 @@ class ThresholdSettingsPopup {
                 }
                 this.close();
             } else {
-                alert(`Lỗi: ${result.message || "Không thể cập nhật cấu hình"}`);
+                alert(
+                    `Lỗi: ${result.message || "Không thể cập nhật cấu hình"}`
+                );
             }
         } catch (error) {
             console.error("Lỗi khi lưu cấu hình:", error);
@@ -264,27 +293,39 @@ class ThresholdSettingsPopup {
             },
         };
 
-        document.getElementById("temp-normal-min").value = defaultThresholds.temperature.normal_min;
-        document.getElementById("temp-normal-max").value = defaultThresholds.temperature.normal_max;
-        document.getElementById("temp-warning-min").value = defaultThresholds.temperature.warning_min;
-        document.getElementById("temp-warning-max").value = defaultThresholds.temperature.warning_max;
+        document.getElementById("temp-normal-min").value =
+            defaultThresholds.temperature.normal_min;
+        document.getElementById("temp-normal-max").value =
+            defaultThresholds.temperature.normal_max;
+        document.getElementById("temp-warning-min").value =
+            defaultThresholds.temperature.warning_min;
+        document.getElementById("temp-warning-max").value =
+            defaultThresholds.temperature.warning_max;
 
-        document.getElementById("humidity-normal-min").value = defaultThresholds.humidity.normal_min;
-        document.getElementById("humidity-normal-max").value = defaultThresholds.humidity.normal_max;
-        document.getElementById("humidity-warning-min").value = defaultThresholds.humidity.warning_min;
-        document.getElementById("humidity-warning-max").value = defaultThresholds.humidity.warning_max;
+        document.getElementById("humidity-normal-min").value =
+            defaultThresholds.humidity.normal_min;
+        document.getElementById("humidity-normal-max").value =
+            defaultThresholds.humidity.normal_max;
+        document.getElementById("humidity-warning-min").value =
+            defaultThresholds.humidity.warning_min;
+        document.getElementById("humidity-warning-max").value =
+            defaultThresholds.humidity.warning_max;
 
-        document.getElementById("light-normal-min").value = defaultThresholds.light.normal_min;
-        document.getElementById("light-normal-max").value = defaultThresholds.light.normal_max;
-        document.getElementById("light-warning-min").value = defaultThresholds.light.warning_min;
-        document.getElementById("light-warning-max").value = defaultThresholds.light.warning_max;
+        document.getElementById("light-normal-min").value =
+            defaultThresholds.light.normal_min;
+        document.getElementById("light-normal-max").value =
+            defaultThresholds.light.normal_max;
+        document.getElementById("light-warning-min").value =
+            defaultThresholds.light.warning_min;
+        document.getElementById("light-warning-max").value =
+            defaultThresholds.light.warning_max;
     }
 
     close() {
         if (!this.popup) return;
 
         this.popup.classList.remove("active");
-        
+
         setTimeout(() => {
             if (this.popup && this.popup.parentNode) {
                 this.popup.parentNode.removeChild(this.popup);

@@ -222,7 +222,9 @@ class SensorDataService {
 
     static async getSensorDataByDate(date) {
         try {
-            const response = await fetch(`${API_BASE_URL}/sensor-data-by-date/${date}`);
+            const response = await fetch(
+                `${API_BASE_URL}/sensor-data-by-date/${date}`
+            );
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }

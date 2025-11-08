@@ -122,9 +122,9 @@
             await thresholdStatsControl.loadThresholds();
             await thresholdStatsControl.loadStats(thresholdStatsControl.selectedDate);
         });
-        
+
         const settingsBtn = document.getElementById('thresholdSettingsBtn');
-        
+
         if (settingsBtn) {
             settingsBtn.addEventListener('click', () => {
                 thresholdPopup.show();

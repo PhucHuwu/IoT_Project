@@ -5,24 +5,24 @@ class LEDStatsPanel {
     }
 
     showLoading() {
-        const loadingEl = document.getElementById('statsLoading');
-        const contentEl = document.getElementById('statsContent');
-        if (loadingEl) loadingEl.style.display = 'flex';
-        if (contentEl) contentEl.style.display = 'none';
+        const loadingEl = document.getElementById("statsLoading");
+        const contentEl = document.getElementById("statsContent");
+        if (loadingEl) loadingEl.style.display = "flex";
+        if (contentEl) contentEl.style.display = "none";
     }
 
     hideLoading() {
-        const loadingEl = document.getElementById('statsLoading');
-        const contentEl = document.getElementById('statsContent');
-        if (loadingEl) loadingEl.style.display = 'none';
-        if (contentEl) contentEl.style.display = 'block';
+        const loadingEl = document.getElementById("statsLoading");
+        const contentEl = document.getElementById("statsContent");
+        if (loadingEl) loadingEl.style.display = "none";
+        if (contentEl) contentEl.style.display = "block";
     }
 
     formatDateForDisplay(dateStr) {
-        if (!dateStr) return '';
+        if (!dateStr) return "";
         const date = new Date(dateStr);
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = String(date.getMonth() + 1).padStart(2, "0");
         const year = date.getFullYear();
         return `${day}/${month}/${year}`;
     }
@@ -30,14 +30,14 @@ class LEDStatsPanel {
     render(statsData, selectedDate = null) {
         this.stats = statsData;
         this.selectedDate = selectedDate;
-        const contentEl = document.getElementById('statsContent');
+        const contentEl = document.getElementById("statsContent");
         if (!contentEl) return;
 
         let totalCount = 0;
         const statsArray = [];
 
-        const ledOrder = ['LED1', 'LED2', 'LED3', 'LED4'];
-        ledOrder.forEach(ledId => {
+        const ledOrder = ["LED1", "LED2", "LED3", "LED4"];
+        ledOrder.forEach((ledId) => {
             const count = statsData[ledId] || 0;
             totalCount += count;
             statsArray.push({ ledId, count });
@@ -45,12 +45,12 @@ class LEDStatsPanel {
 
         statsArray.sort((a, b) => b.count - a.count);
 
-        const statsItems = statsArray.map(item => 
+        const statsItems = statsArray.map((item) =>
             this.createStatsItem(item.ledId, item.count)
         );
 
         contentEl.innerHTML = `
-            ${statsItems.join('')}
+            ${statsItems.join("")}
             <div class="stats-total">
                 <div class="stats-total-item">
                     <div class="stats-total-content">
@@ -63,11 +63,15 @@ class LEDStatsPanel {
     }
 
     createStatsItem(ledId, count) {
-        const ledNumber = ledId.replace('LED', '');
+        const ledNumber = ledId.replace("LED", "");
         const ledClass = ledId.toLowerCase();
-        const dateDisplay = this.selectedDate ? this.formatDateForDisplay(this.selectedDate) : '';
-        const label = dateDisplay ? `Số lượt bật ngày ${dateDisplay}` : 'Số lượt bật hôm nay';
-        
+        const dateDisplay = this.selectedDate
+            ? this.formatDateForDisplay(this.selectedDate)
+            : "";
+        const label = dateDisplay
+            ? `Số lượt bật ngày ${dateDisplay}`
+            : "Số lượt bật hôm nay";
+
         return `
             <div class="stats-item">
                 <div class="stats-item-content">
@@ -86,9 +90,10 @@ class LEDStatsPanel {
     }
 
     clear() {
-        const contentEl = document.getElementById('statsContent');
+        const contentEl = document.getElementById("statsContent");
         if (contentEl) {
-            contentEl.innerHTML = '<p style="text-align: center; color: #999;">Không có dữ liệu</p>';
+            contentEl.innerHTML =
+                '<p style="text-align: center; color: #999;">Không có dữ liệu</p>';
         }
     }
 }

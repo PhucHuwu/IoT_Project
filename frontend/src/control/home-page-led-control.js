@@ -357,11 +357,14 @@ class LEDController {
         try {
             const today = new Date();
             const y = today.getFullYear();
-            const m = String(today.getMonth() + 1).padStart(2, '0');
-            const d = String(today.getDate()).padStart(2, '0');
+            const m = String(today.getMonth() + 1).padStart(2, "0");
+            const d = String(today.getDate()).padStart(2, "0");
             const todayDateString = `${y}-${m}-${d}`;
-            
-            const result = await SensorDataService.getLEDStats(true, todayDateString);
+
+            const result = await SensorDataService.getLEDStats(
+                true,
+                todayDateString
+            );
 
             if (result.status === "success" && result.data) {
                 this.statsBadge.updateAllBadges(result.data);
