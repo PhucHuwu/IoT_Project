@@ -460,30 +460,18 @@ class ThresholdStatsControl {
                             <div class="threshold-display">
                                 <div class="threshold-item">
                                     <strong>Nhiệt độ:</strong>
-                                    <span>Cảnh báo: >= ${
-                                        this.thresholds.temperature.warning
-                                    }°C</span>
-                                    <span>Nguy hiểm: >= ${
-            this.thresholds.temperature.danger
-        }°C</span>
+                                    <span>Cảnh báo: ≥ ${this.thresholds.temperature.warning}°C</span>
+                                    <span>Nguy hiểm: ≥ ${this.thresholds.temperature.danger}°C</span>
                                 </div>
                                 <div class="threshold-item">
                                     <strong>Độ ẩm:</strong>
-                                    <span>Cảnh báo: >= ${
-                                        this.thresholds.humidity.warning
-                                    }%</span>
-                                    <span>Nguy hiểm: >= ${
-            this.thresholds.humidity.danger
-        }%</span>
+                                    <span>Cảnh báo: ≥ ${this.thresholds.humidity.warning}%</span>
+                                    <span>Nguy hiểm: ≥ ${this.thresholds.humidity.danger}%</span>
                                 </div>
                                 <div class="threshold-item">
                                     <strong>Ánh sáng:</strong>
-                                    <span>Cảnh báo: >= ${
-                                        this.thresholds.light.warning
-                                    }%</span>
-                                    <span>Nguy hiểm: >= ${
-            this.thresholds.light.danger
-        }%</span>
+                                    <span>Cảnh báo: ≥ ${this.thresholds.light.warning}%</span>
+                                    <span>Nguy hiểm: ≥ ${this.thresholds.light.danger}%</span>
                                 </div>
                             </div>
                         </div>
@@ -493,55 +481,23 @@ class ThresholdStatsControl {
                             <div class="summary-grid">
                                 <div class="summary-item temp">
                                     <span class="label">Nhiệt độ:</span>
-                                    <span class="value warning">${
-                                        this.currentStats.temperature.warning
-                                    } phút cảnh báo</span>
-                                    <span class="value danger">${
-                                        this.currentStats.temperature.danger
-                                    } phút nguy hiểm</span>
+                                    <span class="value warning">${this.currentStats.temperature.warning} phút cảnh báo</span>
+                                    <span class="value danger">${this.currentStats.temperature.danger} phút nguy hiểm</span>
                                 </div>
                                 <div class="summary-item hum">
                                     <span class="label">Độ ẩm:</span>
-                                    <span class="value warning">${
-                                        this.currentStats.humidity.warning
-                                    } phút cảnh báo</span>
-                                    <span class="value danger">${
-                                        this.currentStats.humidity.danger
-                                    } phút nguy hiểm</span>
+                                    <span class="value warning">${this.currentStats.humidity.warning} phút cảnh báo</span>
+                                    <span class="value danger">${this.currentStats.humidity.danger} phút nguy hiểm</span>
                                 </div>
                                 <div class="summary-item light">
                                     <span class="label">Ánh sáng:</span>
-                                    <span class="value warning">${
-                                        this.currentStats.light.warning
-                                    } phút cảnh báo</span>
-                                    <span class="value danger">${
-                                        this.currentStats.light.danger
-                                    } phút nguy hiểm</span>
+                                    <span class="value warning">${this.currentStats.light.warning} phút cảnh báo</span>
+                                    <span class="value danger">${this.currentStats.light.danger} phút nguy hiểm</span>
                                 </div>
-                            </div>
-                            <div style="margin-top: 12px; padding: 12px; background: rgba(0, 122, 255, 0.1); border-radius: 8px;">
-                                <p style="margin: 0; font-size: 13px; color: rgba(0, 0, 0, 0.7);">
-                                    <strong>Thống kê:</strong> ${
-                                        this.debugData.length
-                                    } bản ghi thô được nhóm thành ${
-            groupedData.length
-        } phút 
-                                    (tỷ lệ nén: ${(
-                                        this.debugData.length /
-                                        groupedData.length
-                                    ).toFixed(1)}x)
-                                </p>
                             </div>
                         </div>
 
                         <div class="debug-data-table">
-                            <h4>Chi tiết theo phút - Chỉ hiển thị vượt ngưỡng:</h4>
-                            <div style="margin-bottom: 12px; padding: 12px; background: rgba(255, 152, 0, 0.1); border-left: 4px solid #ff9800; border-radius: 4px;">
-                                <p style="margin: 0; font-size: 13px; color: rgba(0, 0, 0, 0.7);">
-                                    <strong>Lưu ý:</strong> Bảng này chỉ liệt kê những khoảng thời gian có trạng thái <strong>Cảnh báo</strong> hoặc <strong>Nguy hiểm</strong>. 
-                                    Dữ liệu đã được nhóm theo phút và tính trung bình.
-                                </p>
-                            </div>
                             <table>
                                 <thead>
                                     <tr>
@@ -576,11 +532,11 @@ class ThresholdStatsControl {
                 tempStatus !== "normal" ||
                 humStatus !== "normal" ||
                 lightStatus !== "normal";
-            
+
             if (hasViolation) {
                 violationCount++;
                 displayIndex++;
-                
+
                 debugHTML += `
                 <tr class="violation-row">
                     <td>${displayIndex}</td>
@@ -625,18 +581,6 @@ class ThresholdStatsControl {
         debugHTML += `
                                 </tbody>
                             </table>
-                            <div class="debug-footer">
-                                <p><strong>Tổng số bản ghi thô:</strong> ${
-                                    this.debugData.length
-                                }</p>
-                                <p><strong>Số phút có dữ liệu:</strong> ${
-                                    groupedData.length
-                                }</p>
-                                <p><strong>Số phút vượt ngưỡng:</strong> ${violationCount}</p>
-                                <p><strong>Số phút bình thường:</strong> ${
-                                    groupedData.length - violationCount
-                                }</p>
-                            </div>
                         </div>
                     </div>
                 </div>

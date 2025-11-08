@@ -59,7 +59,7 @@ class ThresholdSettingsPopup {
                         </div>
                         <div class="threshold-hint">
                             <i class="fas fa-info-circle"></i>
-                            Nếu giá trị >= ngưỡng nguy hiểm thì nguy hiểm, >= ngưỡng cảnh báo thì cảnh báo
+                            Nếu giá trị ≥ ngưỡng nguy hiểm thì nguy hiểm, ≥ ngưỡng cảnh báo thì cảnh báo
                         </div>
                     </div>
 
@@ -84,7 +84,7 @@ class ThresholdSettingsPopup {
                         </div>
                         <div class="threshold-hint">
                             <i class="fas fa-info-circle"></i>
-                            Nếu giá trị >= ngưỡng nguy hiểm thì nguy hiểm, >= ngưỡng cảnh báo thì cảnh báo
+                            Nếu giá trị ≥ ngưỡng nguy hiểm thì nguy hiểm, ≥ ngưỡng cảnh báo thì cảnh báo
                         </div>
                     </div>
 
@@ -109,7 +109,7 @@ class ThresholdSettingsPopup {
                         </div>
                         <div class="threshold-hint">
                             <i class="fas fa-info-circle"></i>
-                            Nếu giá trị >= ngưỡng nguy hiểm thì nguy hiểm, >= ngưỡng cảnh báo thì cảnh báo
+                            Nếu giá trị ≥ ngưỡng nguy hiểm thì nguy hiểm, ≥ ngưỡng cảnh báo thì cảnh báo
                         </div>
                     </div>
                 </div>

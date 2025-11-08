@@ -2420,10 +2420,10 @@ body {
 }
 
 .debug-modal {
-    background: rgba(255, 255, 255, 0.98);
-    backdrop-filter: blur(20px);
-    border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: var(--border-radius-2xl);
+    box-shadow: var(--liquid-glass-shadow);
+    border: var(--liquid-glass-border);
     max-width: 90%;
     width: 1200px;
     max-height: 90vh;
@@ -2431,6 +2431,7 @@ body {
     display: flex;
     flex-direction: column;
     animation: slideUp 0.3s ease;
+    position: relative;
 }
 
 @keyframes slideUp {
@@ -2449,12 +2450,11 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 24px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    background: linear-gradient(
-        135deg,
-        rgba(52, 199, 89, 0.05) 0%,
-        rgba(52, 199, 89, 0.02) 100%
-    );
+    border-bottom: var(--liquid-glass-border-light);
+    background: var(--liquid-glass-gradient),
+        var(--liquid-glass-radial-light);
+    position: relative;
+    overflow: hidden;
 }
 
 .debug-modal-header h3 {
@@ -2465,8 +2465,8 @@ body {
 }
 
 .debug-close-btn {
-    background: none;
-    border: none;
+    background: rgba(255, 255, 255, 0.3);
+    border: var(--liquid-glass-border-light);
     font-size: 24px;
     color: rgba(0, 0, 0, 0.6);
     cursor: pointer;
@@ -2476,12 +2476,17 @@ body {
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    transition: all 0.2s ease;
+    transition: var(--liquid-glass-transition);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 .debug-close-btn:hover {
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.5);
     color: #666;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
 
 .debug-modal-content {
@@ -2491,10 +2496,19 @@ body {
 }
 
 .debug-threshold-info {
-    background: rgba(0, 122, 255, 0.05);
+    background: var(--liquid-glass-gradient),
+        radial-gradient(
+            ellipse 150px 100px at 20% 20%,
+            rgba(0, 122, 255, 0.15) 0%,
+            transparent 60%
+        );
     padding: 20px;
-    border-radius: 12px;
+    border-radius: var(--border-radius-lg);
     margin-bottom: 24px;
+    border: var(--liquid-glass-border-light);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .debug-threshold-info h4 {
@@ -2516,10 +2530,21 @@ body {
     flex-direction: column;
     gap: 4px;
     padding: 12px;
-    background: white;
-    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: var(--border-radius-lg);
     flex: 1;
     min-width: 200px;
+    border: var(--liquid-glass-border-light);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    transition: var(--liquid-glass-transition);
+}
+
+.threshold-item:hover {
+    background: rgba(255, 255, 255, 0.85);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 1);
 }
 
 .threshold-item strong {
@@ -2534,10 +2559,19 @@ body {
 }
 
 .debug-summary {
-    background: rgba(52, 199, 89, 0.05);
+    background: var(--liquid-glass-gradient),
+        radial-gradient(
+            ellipse 150px 100px at 80% 80%,
+            rgba(52, 199, 89, 0.15) 0%,
+            transparent 60%
+        );
     padding: 20px;
-    border-radius: 12px;
+    border-radius: var(--border-radius-lg);
     margin-bottom: 24px;
+    border: var(--liquid-glass-border-light);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .debug-summary h4 {
@@ -2558,9 +2592,22 @@ body {
     flex-direction: column;
     gap: 8px;
     padding: 16px;
-    background: white;
-    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: var(--border-radius-lg);
     border-left: 4px solid;
+    border-top: var(--liquid-glass-border-light);
+    border-right: var(--liquid-glass-border-light);
+    border-bottom: var(--liquid-glass-border-light);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    transition: var(--liquid-glass-transition);
+}
+
+.summary-item:hover {
+    background: rgba(255, 255, 255, 0.85);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 1);
 }
 
 .summary-item.temp {
@@ -2608,38 +2655,62 @@ body {
 .debug-data-table table {
     width: 100%;
     border-collapse: collapse;
-    background: white;
-    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: var(--border-radius-lg);
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: var(--liquid-glass-border-light);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .debug-data-table th {
-    background: rgba(0, 0, 0, 0.05);
+    background: var(--liquid-glass-gradient),
+        radial-gradient(
+            ellipse 100px 50px at 50% 50%,
+            rgba(0, 122, 255, 0.08) 0%,
+            transparent 60%
+        );
     padding: 12px;
     text-align: left;
     font-size: 13px;
     font-weight: 600;
     color: #666;
-    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+    border-bottom: var(--liquid-glass-border-light);
 }
 
 .debug-data-table td {
     padding: 12px;
     font-size: 13px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+    background: rgba(255, 255, 255, 0.3);
 }
 
 .debug-data-table tbody tr:hover {
-    background: rgba(0, 122, 255, 0.05);
+    background: var(--liquid-glass-gradient);
+}
+
+.debug-data-table tbody tr:hover td {
+    background: transparent;
 }
 
 .debug-data-table tbody tr.violation-row {
-    background: rgba(255, 149, 0, 0.08);
+    background: linear-gradient(
+        90deg,
+        rgba(255, 149, 0, 0.1) 0%,
+        rgba(255, 149, 0, 0.05) 100%
+    );
+}
+
+.debug-data-table tbody tr.violation-row td {
+    background: transparent;
 }
 
 .debug-data-table tbody tr.violation-row:hover {
-    background: rgba(255, 149, 0, 0.12);
+    background: linear-gradient(
+        90deg,
+        rgba(255, 149, 0, 0.15) 0%,
+        rgba(255, 149, 0, 0.08) 100%
+    );
 }
 
 .status-normal {
@@ -2659,11 +2730,19 @@ body {
 
 .debug-footer {
     padding: 16px;
-    background: rgba(0, 0, 0, 0.03);
-    border-radius: 8px;
+    background: var(--liquid-glass-gradient),
+        radial-gradient(
+            ellipse 120px 80px at 50% 50%,
+            rgba(0, 122, 255, 0.08) 0%,
+            transparent 60%
+        );
+    border-radius: var(--border-radius-sm);
     margin-top: 16px;
     display: flex;
     justify-content: space-around;
+    border: var(--liquid-glass-border-light);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .debug-footer p {
