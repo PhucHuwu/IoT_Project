@@ -45,31 +45,21 @@ class ThresholdSettingsPopup {
                         </h3>
                         <div class="threshold-inputs">
                             <div class="threshold-input-group">
-                                <label>Bình thường từ</label>
-                                <input type="number" step="0.1" id="temp-normal-min" 
-                                    value="${this.thresholds.temperature.normal_min}" />
+                                <label>Ngưỡng cảnh báo</label>
+                                <input type="number" step="0.1" id="temp-warning" 
+                                    value="${this.thresholds.temperature.warning}" />
                                 <span class="unit">°C</span>
                             </div>
                             <div class="threshold-input-group">
-                                <label>đến</label>
-                                <input type="number" step="0.1" id="temp-normal-max" 
-                                    value="${this.thresholds.temperature.normal_max}" />
+                                <label>Ngưỡng nguy hiểm</label>
+                                <input type="number" step="0.1" id="temp-danger" 
+                                    value="${this.thresholds.temperature.danger}" />
                                 <span class="unit">°C</span>
                             </div>
                         </div>
-                        <div class="threshold-inputs">
-                            <div class="threshold-input-group">
-                                <label>Cảnh báo từ</label>
-                                <input type="number" step="0.1" id="temp-warning-min" 
-                                    value="${this.thresholds.temperature.warning_min}" />
-                                <span class="unit">°C</span>
-                            </div>
-                            <div class="threshold-input-group">
-                                <label>đến</label>
-                                <input type="number" step="0.1" id="temp-warning-max" 
-                                    value="${this.thresholds.temperature.warning_max}" />
-                                <span class="unit">°C</span>
-                            </div>
+                        <div class="threshold-hint">
+                            <i class="fas fa-info-circle"></i>
+                            Nếu giá trị >= ngưỡng nguy hiểm thì nguy hiểm, >= ngưỡng cảnh báo thì cảnh báo
                         </div>
                     </div>
 
@@ -80,31 +70,21 @@ class ThresholdSettingsPopup {
                         </h3>
                         <div class="threshold-inputs">
                             <div class="threshold-input-group">
-                                <label>Bình thường từ</label>
-                                <input type="number" step="0.1" id="humidity-normal-min" 
-                                    value="${this.thresholds.humidity.normal_min}" />
+                                <label>Ngưỡng cảnh báo</label>
+                                <input type="number" step="0.1" id="humidity-warning" 
+                                    value="${this.thresholds.humidity.warning}" />
                                 <span class="unit">%</span>
                             </div>
                             <div class="threshold-input-group">
-                                <label>đến</label>
-                                <input type="number" step="0.1" id="humidity-normal-max" 
-                                    value="${this.thresholds.humidity.normal_max}" />
+                                <label>Ngưỡng nguy hiểm</label>
+                                <input type="number" step="0.1" id="humidity-danger" 
+                                    value="${this.thresholds.humidity.danger}" />
                                 <span class="unit">%</span>
                             </div>
                         </div>
-                        <div class="threshold-inputs">
-                            <div class="threshold-input-group">
-                                <label>Cảnh báo từ</label>
-                                <input type="number" step="0.1" id="humidity-warning-min" 
-                                    value="${this.thresholds.humidity.warning_min}" />
-                                <span class="unit">%</span>
-                            </div>
-                            <div class="threshold-input-group">
-                                <label>đến</label>
-                                <input type="number" step="0.1" id="humidity-warning-max" 
-                                    value="${this.thresholds.humidity.warning_max}" />
-                                <span class="unit">%</span>
-                            </div>
+                        <div class="threshold-hint">
+                            <i class="fas fa-info-circle"></i>
+                            Nếu giá trị >= ngưỡng nguy hiểm thì nguy hiểm, >= ngưỡng cảnh báo thì cảnh báo
                         </div>
                     </div>
 
@@ -115,31 +95,21 @@ class ThresholdSettingsPopup {
                         </h3>
                         <div class="threshold-inputs">
                             <div class="threshold-input-group">
-                                <label>Bình thường từ</label>
-                                <input type="number" step="0.1" id="light-normal-min" 
-                                    value="${this.thresholds.light.normal_min}" />
+                                <label>Ngưỡng cảnh báo</label>
+                                <input type="number" step="0.1" id="light-warning" 
+                                    value="${this.thresholds.light.warning}" />
                                 <span class="unit">%</span>
                             </div>
                             <div class="threshold-input-group">
-                                <label>đến</label>
-                                <input type="number" step="0.1" id="light-normal-max" 
-                                    value="${this.thresholds.light.normal_max}" />
+                                <label>Ngưỡng nguy hiểm</label>
+                                <input type="number" step="0.1" id="light-danger" 
+                                    value="${this.thresholds.light.danger}" />
                                 <span class="unit">%</span>
                             </div>
                         </div>
-                        <div class="threshold-inputs">
-                            <div class="threshold-input-group">
-                                <label>Cảnh báo từ</label>
-                                <input type="number" step="0.1" id="light-warning-min" 
-                                    value="${this.thresholds.light.warning_min}" />
-                                <span class="unit">%</span>
-                            </div>
-                            <div class="threshold-input-group">
-                                <label>đến</label>
-                                <input type="number" step="0.1" id="light-warning-max" 
-                                    value="${this.thresholds.light.warning_max}" />
-                                <span class="unit">%</span>
-                            </div>
+                        <div class="threshold-hint">
+                            <i class="fas fa-info-circle"></i>
+                            Nếu giá trị >= ngưỡng nguy hiểm thì nguy hiểm, >= ngưỡng cảnh báo thì cảnh báo
                         </div>
                     </div>
                 </div>
@@ -200,48 +170,34 @@ class ThresholdSettingsPopup {
 
             const newThresholds = {
                 temperature: {
-                    normal_min: parseFloat(
-                        document.getElementById("temp-normal-min").value
-                    ),
-                    normal_max: parseFloat(
-                        document.getElementById("temp-normal-max").value
-                    ),
-                    warning_min: parseFloat(
-                        document.getElementById("temp-warning-min").value
-                    ),
-                    warning_max: parseFloat(
-                        document.getElementById("temp-warning-max").value
-                    ),
+                    warning: parseFloat(document.getElementById("temp-warning").value),
+                    danger: parseFloat(document.getElementById("temp-danger").value),
                 },
                 humidity: {
-                    normal_min: parseFloat(
-                        document.getElementById("humidity-normal-min").value
-                    ),
-                    normal_max: parseFloat(
-                        document.getElementById("humidity-normal-max").value
-                    ),
-                    warning_min: parseFloat(
-                        document.getElementById("humidity-warning-min").value
-                    ),
-                    warning_max: parseFloat(
-                        document.getElementById("humidity-warning-max").value
-                    ),
+                    warning: parseFloat(document.getElementById("humidity-warning").value),
+                    danger: parseFloat(document.getElementById("humidity-danger").value),
                 },
                 light: {
-                    normal_min: parseFloat(
-                        document.getElementById("light-normal-min").value
-                    ),
-                    normal_max: parseFloat(
-                        document.getElementById("light-normal-max").value
-                    ),
-                    warning_min: parseFloat(
-                        document.getElementById("light-warning-min").value
-                    ),
-                    warning_max: parseFloat(
-                        document.getElementById("light-warning-max").value
-                    ),
+                    warning: parseFloat(document.getElementById("light-warning").value),
+                    danger: parseFloat(document.getElementById("light-danger").value),
                 },
             };
+
+            for (const sensor in newThresholds) {
+                const { warning, danger } = newThresholds[sensor];
+                if (warning >= danger) {
+                    alert(`Ngưỡng cảnh báo phải nhỏ hơn ngưỡng nguy hiểm cho ${sensor === 'temperature' ? 'nhiệt độ' : sensor === 'humidity' ? 'độ ẩm' : 'ánh sáng'}`);
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = originalContent;
+                    return;
+                }
+                if (warning < 0 || danger < 0) {
+                    alert(`Ngưỡng không được âm cho ${sensor === 'temperature' ? 'nhiệt độ' : sensor === 'humidity' ? 'độ ẩm' : 'ánh sáng'}`);
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = originalContent;
+                    return;
+                }
+            }
 
             const result = await SensorDataService.updateThresholds(
                 newThresholds
@@ -274,51 +230,27 @@ class ThresholdSettingsPopup {
 
         const defaultThresholds = {
             temperature: {
-                normal_min: 25.0,
-                normal_max: 35.0,
-                warning_min: 15.0,
-                warning_max: 40.0,
+                warning: 35.0,
+                danger: 40.0,
             },
             humidity: {
-                normal_min: 40.0,
-                normal_max: 60.0,
-                warning_min: 30.0,
-                warning_max: 70.0,
+                warning: 70.0,
+                danger: 85.0,
             },
             light: {
-                normal_min: 40.0,
-                normal_max: 60.0,
-                warning_min: 20.0,
-                warning_max: 80.0,
+                warning: 60.0,
+                danger: 80.0,
             },
         };
 
-        document.getElementById("temp-normal-min").value =
-            defaultThresholds.temperature.normal_min;
-        document.getElementById("temp-normal-max").value =
-            defaultThresholds.temperature.normal_max;
-        document.getElementById("temp-warning-min").value =
-            defaultThresholds.temperature.warning_min;
-        document.getElementById("temp-warning-max").value =
-            defaultThresholds.temperature.warning_max;
+        document.getElementById("temp-warning").value = defaultThresholds.temperature.warning;
+        document.getElementById("temp-danger").value = defaultThresholds.temperature.danger;
 
-        document.getElementById("humidity-normal-min").value =
-            defaultThresholds.humidity.normal_min;
-        document.getElementById("humidity-normal-max").value =
-            defaultThresholds.humidity.normal_max;
-        document.getElementById("humidity-warning-min").value =
-            defaultThresholds.humidity.warning_min;
-        document.getElementById("humidity-warning-max").value =
-            defaultThresholds.humidity.warning_max;
+        document.getElementById("humidity-warning").value = defaultThresholds.humidity.warning;
+        document.getElementById("humidity-danger").value = defaultThresholds.humidity.danger;
 
-        document.getElementById("light-normal-min").value =
-            defaultThresholds.light.normal_min;
-        document.getElementById("light-normal-max").value =
-            defaultThresholds.light.normal_max;
-        document.getElementById("light-warning-min").value =
-            defaultThresholds.light.warning_min;
-        document.getElementById("light-warning-max").value =
-            defaultThresholds.light.warning_max;
+        document.getElementById("light-warning").value = defaultThresholds.light.warning;
+        document.getElementById("light-danger").value = defaultThresholds.light.danger;
     }
 
     close() {

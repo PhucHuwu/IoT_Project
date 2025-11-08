@@ -1961,6 +1961,25 @@ body {
     color: rgba(0, 0, 0, 0.6);
 }
 
+.threshold-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: rgba(0, 122, 255, 0.08);
+    border-radius: 8px;
+    margin-top: 8px;
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.65);
+    line-height: 1.5;
+}
+
+.threshold-hint i {
+    color: #007aff;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
 .threshold-popup-footer {
     display: flex;
     justify-content: space-between;

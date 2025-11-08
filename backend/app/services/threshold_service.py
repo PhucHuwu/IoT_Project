@@ -10,22 +10,16 @@ class ThresholdService:
 
     DEFAULT_THRESHOLDS = {
         'temperature': {
-            'normal_min': 25.0,
-            'normal_max': 35.0,
-            'warning_min': 15.0,
-            'warning_max': 40.0
+            'warning': 35.0,
+            'danger': 40.0
         },
         'humidity': {
-            'normal_min': 40.0,
-            'normal_max': 60.0,
-            'warning_min': 30.0,
-            'warning_max': 70.0
+            'warning': 70.0,
+            'danger': 85.0
         },
         'light': {
-            'normal_min': 40.0,
-            'normal_max': 60.0,
-            'warning_min': 20.0,
-            'warning_max': 80.0
+            'warning': 60.0,
+            'danger': 80.0
         }
     }
 
@@ -70,7 +64,7 @@ class ThresholdService:
                     if sensor_type not in current:
                         current[sensor_type] = {}
 
-                    for key in ['normal_min', 'normal_max', 'warning_min', 'warning_max']:
+                    for key in ['warning', 'danger']:
                         if key in new_thresholds[sensor_type]:
                             try:
                                 current[sensor_type][key] = float(new_thresholds[sensor_type][key])
@@ -95,21 +89,15 @@ class ThresholdService:
 
                 sensor_data = thresholds[sensor_type]
 
-                if 'normal_min' in sensor_data and 'normal_max' in sensor_data:
-                    if sensor_data['normal_min'] >= sensor_data['normal_max']:
-                        return False, f"Ngưỡng normal_min phải nhỏ hơn normal_max cho {sensor_type}"
-
-                if 'warning_min' in sensor_data and 'warning_max' in sensor_data:
-                    if sensor_data['warning_min'] >= sensor_data['warning_max']:
-                        return False, f"Ngưỡng warning_min phải nhỏ hơn warning_max cho {sensor_type}"
-
-                if 'warning_min' in sensor_data and 'normal_min' in sensor_data:
-                    if sensor_data['warning_min'] > sensor_data['normal_min']:
-                        return False, f"Ngưỡng warning_min phải nhỏ hơn hoặc bằng normal_min cho {sensor_type}"
-
-                if 'normal_max' in sensor_data and 'warning_max' in sensor_data:
-                    if sensor_data['normal_max'] > sensor_data['warning_max']:
-                        return False, f"Ngưỡng normal_max phải nhỏ hơn hoặc bằng warning_max cho {sensor_type}"
+                if 'warning' in sensor_data and 'danger' in sensor_data:
+                    warning = sensor_data['warning']
+                    danger = sensor_data['danger']
+                    
+                    if warning >= danger:
+                        return False, f"Ngưỡng cảnh báo phải nhỏ hơn ngưỡng nguy hiểm cho {sensor_type}"
+                    
+                    if warning < 0 or danger < 0:
+                        return False, f"Ngưỡng không được âm cho {sensor_type}"
 
             return True, "Hợp lệ"
 

@@ -350,35 +350,23 @@ class ThresholdStatsControl {
 
     getTemperatureStatus(value) {
         const t = this.thresholds.temperature;
-        if (value >= t.normal_min && value <= t.normal_max) return "normal";
-        if (
-            (value >= t.warning_min && value < t.normal_min) ||
-            (value > t.normal_max && value <= t.warning_max)
-        )
-            return "warning";
-        return "danger";
+        if (value >= t.danger) return "danger";
+        if (value >= t.warning) return "warning";
+        return "normal";
     }
 
     getHumidityStatus(value) {
         const h = this.thresholds.humidity;
-        if (value >= h.normal_min && value <= h.normal_max) return "normal";
-        if (
-            (value >= h.warning_min && value < h.normal_min) ||
-            (value > h.normal_max && value <= h.warning_max)
-        )
-            return "warning";
-        return "danger";
+        if (value >= h.danger) return "danger";
+        if (value >= h.warning) return "warning";
+        return "normal";
     }
 
     getLightStatus(value) {
         const l = this.thresholds.light;
-        if (value >= l.normal_min && value <= l.normal_max) return "normal";
-        if (
-            (value >= l.warning_min && value < l.normal_min) ||
-            (value > l.normal_max && value <= l.warning_max)
-        )
-            return "warning";
-        return "danger";
+        if (value >= l.danger) return "danger";
+        if (value >= l.warning) return "warning";
+        return "normal";
     }
 
     renderStats(stats) {
@@ -472,41 +460,29 @@ class ThresholdStatsControl {
                             <div class="threshold-display">
                                 <div class="threshold-item">
                                     <strong>Nhiệt độ:</strong>
-                                    <span>Bình thường: ${
-                                        this.thresholds.temperature.normal_min
-                                    }°C - ${
-            this.thresholds.temperature.normal_max
-        }°C</span>
-                                    <span>Cảnh báo: ${
-                                        this.thresholds.temperature.warning_min
-                                    }°C - ${
-            this.thresholds.temperature.warning_max
+                                    <span>Cảnh báo: >= ${
+                                        this.thresholds.temperature.warning
+                                    }°C</span>
+                                    <span>Nguy hiểm: >= ${
+            this.thresholds.temperature.danger
         }°C</span>
                                 </div>
                                 <div class="threshold-item">
                                     <strong>Độ ẩm:</strong>
-                                    <span>Bình thường: ${
-                                        this.thresholds.humidity.normal_min
-                                    }% - ${
-            this.thresholds.humidity.normal_max
-        }%</span>
-                                    <span>Cảnh báo: ${
-                                        this.thresholds.humidity.warning_min
-                                    }% - ${
-            this.thresholds.humidity.warning_max
+                                    <span>Cảnh báo: >= ${
+                                        this.thresholds.humidity.warning
+                                    }%</span>
+                                    <span>Nguy hiểm: >= ${
+            this.thresholds.humidity.danger
         }%</span>
                                 </div>
                                 <div class="threshold-item">
                                     <strong>Ánh sáng:</strong>
-                                    <span>Bình thường: ${
-                                        this.thresholds.light.normal_min
-                                    }% - ${
-            this.thresholds.light.normal_max
-        }%</span>
-                                    <span>Cảnh báo: ${
-                                        this.thresholds.light.warning_min
-                                    }% - ${
-            this.thresholds.light.warning_max
+                                    <span>Cảnh báo: >= ${
+                                        this.thresholds.light.warning
+                                    }%</span>
+                                    <span>Nguy hiểm: >= ${
+            this.thresholds.light.danger
         }%</span>
                                 </div>
                             </div>

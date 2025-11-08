@@ -1,9 +1,4 @@
 from typing import Dict, Any, Tuple
-from app.core.config import (
-    TEMP_NORMAL_MIN, TEMP_NORMAL_MAX, TEMP_WARNING_MIN, TEMP_WARNING_MAX,
-    HUMIDITY_NORMAL_MIN, HUMIDITY_NORMAL_MAX, HUMIDITY_WARNING_MIN, HUMIDITY_WARNING_MAX,
-    LIGHT_NORMAL_MIN, LIGHT_NORMAL_MAX, LIGHT_WARNING_MIN, LIGHT_WARNING_MAX
-)
 from app.core.logger_config import logger
 
 
@@ -17,24 +12,9 @@ class StatusService:
         except Exception as e:
             logger.error(f"Error loading dynamic thresholds: {e}, using defaults")
             return {
-                'temperature': {
-                    'normal_min': TEMP_NORMAL_MIN,
-                    'normal_max': TEMP_NORMAL_MAX,
-                    'warning_min': TEMP_WARNING_MIN,
-                    'warning_max': TEMP_WARNING_MAX
-                },
-                'humidity': {
-                    'normal_min': HUMIDITY_NORMAL_MIN,
-                    'normal_max': HUMIDITY_NORMAL_MAX,
-                    'warning_min': HUMIDITY_WARNING_MIN,
-                    'warning_max': HUMIDITY_WARNING_MAX
-                },
-                'light': {
-                    'normal_min': LIGHT_NORMAL_MIN,
-                    'normal_max': LIGHT_NORMAL_MAX,
-                    'warning_min': LIGHT_WARNING_MIN,
-                    'warning_max': LIGHT_WARNING_MAX
-                }
+                'temperature': {'warning': 35.0, 'danger': 40.0},
+                'humidity': {'warning': 70.0, 'danger': 85.0},
+                'light': {'warning': 60.0, 'danger': 80.0}
             }
 
     @staticmethod
@@ -43,17 +23,15 @@ class StatusService:
             thresholds = StatusService._get_thresholds()
             temp_thresholds = thresholds.get('temperature', {})
 
-            normal_min = temp_thresholds.get('normal_min', TEMP_NORMAL_MIN)
-            normal_max = temp_thresholds.get('normal_max', TEMP_NORMAL_MAX)
-            warning_min = temp_thresholds.get('warning_min', TEMP_WARNING_MIN)
-            warning_max = temp_thresholds.get('warning_max', TEMP_WARNING_MAX)
+            warning_threshold = temp_thresholds.get('warning', 35.0)
+            danger_threshold = temp_thresholds.get('danger', 40.0)
 
-            if normal_min <= temperature <= normal_max:
-                return "bình thường", "status-normal"
-            elif warning_min <= temperature < normal_min or normal_max < temperature <= warning_max:
+            if temperature >= danger_threshold:
+                return "nguy hiểm", "status-danger"
+            elif temperature >= warning_threshold:
                 return "cảnh báo", "status-warning"
             else:
-                return "nguy hiểm", "status-danger"
+                return "bình thường", "status-normal"
         except Exception as e:
             logger.error(f"Error determining temperature status: {e}")
             return "lỗi", "status-error"
@@ -64,17 +42,15 @@ class StatusService:
             thresholds = StatusService._get_thresholds()
             hum_thresholds = thresholds.get('humidity', {})
 
-            normal_min = hum_thresholds.get('normal_min', HUMIDITY_NORMAL_MIN)
-            normal_max = hum_thresholds.get('normal_max', HUMIDITY_NORMAL_MAX)
-            warning_min = hum_thresholds.get('warning_min', HUMIDITY_WARNING_MIN)
-            warning_max = hum_thresholds.get('warning_max', HUMIDITY_WARNING_MAX)
+            warning_threshold = hum_thresholds.get('warning', 70.0)
+            danger_threshold = hum_thresholds.get('danger', 85.0)
 
-            if normal_min <= humidity <= normal_max:
-                return "bình thường", "status-normal"
-            elif warning_min <= humidity < normal_min or normal_max < humidity <= warning_max:
+            if humidity >= danger_threshold:
+                return "nguy hiểm", "status-danger"
+            elif humidity >= warning_threshold:
                 return "cảnh báo", "status-warning"
             else:
-                return "nguy hiểm", "status-danger"
+                return "bình thường", "status-normal"
         except Exception as e:
             logger.error(f"Error determining humidity status: {e}")
             return "lỗi", "status-error"
@@ -85,17 +61,15 @@ class StatusService:
             thresholds = StatusService._get_thresholds()
             light_thresholds = thresholds.get('light', {})
 
-            normal_min = light_thresholds.get('normal_min', LIGHT_NORMAL_MIN)
-            normal_max = light_thresholds.get('normal_max', LIGHT_NORMAL_MAX)
-            warning_min = light_thresholds.get('warning_min', LIGHT_WARNING_MIN)
-            warning_max = light_thresholds.get('warning_max', LIGHT_WARNING_MAX)
+            warning_threshold = light_thresholds.get('warning', 60.0)
+            danger_threshold = light_thresholds.get('danger', 80.0)
 
-            if normal_min <= light <= normal_max:
-                return "bình thường", "status-normal"
-            elif warning_min <= light < normal_min or normal_max < light <= warning_max:
+            if light >= danger_threshold:
+                return "nguy hiểm", "status-danger"
+            elif light >= warning_threshold:
                 return "cảnh báo", "status-warning"
             else:
-                return "nguy hiểm", "status-danger"
+                return "bình thường", "status-normal"
         except Exception as e:
             logger.error(f"Error determining light status: {e}")
             return "lỗi", "status-error"

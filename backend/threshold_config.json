@@ -1,20 +1,14 @@
 {
     "temperature": {
-        "normal_min": 25.0,
-        "normal_max": 35.0,
-        "warning_min": 15.0,
-        "warning_max": 40.0
+        "warning": 35.0,
+        "danger": 40.0
     },
     "humidity": {
-        "normal_min": 40.0,
-        "normal_max": 60.0,
-        "warning_min": 30.0,
-        "warning_max": 70.0
+        "warning": 70.0,
+        "danger": 85.0
     },
     "light": {
-        "normal_min": 40.0,
-        "normal_max": 60.0,
-        "warning_min": 20.0,
-        "warning_max": 80.0
+        "warning": 60.0,
+        "danger": 80.0
     }
 }
