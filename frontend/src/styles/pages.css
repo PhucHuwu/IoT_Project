@@ -304,8 +304,16 @@
 }
 
 .statistics-page .stats-total-count {
-    font-size: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 60px;
+    padding: 8px 12px;
+    gap: 4px;
+    font-size: 28px;
     font-weight: 700;
+    line-height: 1;
     color: #34c759;
 }
 

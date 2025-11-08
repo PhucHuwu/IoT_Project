@@ -326,6 +326,10 @@ body {
     color: #febc2f;
 }
 
+.nav-item .fa-chart-bar {
+    color: #ef4444;
+}
+
 .main-content {
     flex: 1;
     display: flex;
