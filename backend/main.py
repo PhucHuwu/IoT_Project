@@ -639,10 +639,10 @@ def create_app():
                         "status": "error",
                         "message": "Format ngày không hợp lệ. Vui lòng dùng format: YYYY-MM-DD"
                     }, 400
-                
+
                 db = DatabaseManager()
                 data = db.get_data_by_date(date)
-                
+
                 def serialize_document(doc):
                     serialized = {}
                     for key, value in doc.items():
@@ -655,16 +655,16 @@ def create_app():
                         else:
                             serialized[key] = value
                     return serialized
-                
+
                 data = [serialize_document(doc) for doc in data]
-                
+
                 return {
                     "status": "success",
                     "data": data,
                     "count": len(data),
                     "date": date
                 }
-                
+
             except Exception as e:
                 logger.error(f"Error getting sensor data by date: {e}")
                 return {
@@ -694,7 +694,7 @@ def create_app():
                     "status": "error",
                     "message": str(e)
                 }, 500
-        
+
         @sensors_ns.doc('update_thresholds',
                         description='Cập nhật cấu hình ngưỡng cảm biến',
                         responses={
@@ -711,23 +711,23 @@ def create_app():
             try:
                 from app.services.threshold_service import ThresholdService
                 from flask import request
-                
+
                 data = request.get_json()
-                
+
                 is_valid, message = ThresholdService.validate_thresholds(data)
                 if not is_valid:
                     return {
                         "status": "error",
                         "message": message
                     }, 400
-                
+
                 result = ThresholdService.update_thresholds(data)
-                
+
                 if result.get("status") == "success":
                     return result, 200
                 else:
                     return result, 500
-                    
+
             except Exception as e:
                 logger.error(f"Error updating thresholds: {e}")
                 return {
