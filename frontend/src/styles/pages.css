@@ -197,11 +197,10 @@
 .statistics-page .led-stats-content {
     display: flex;
     flex-direction: column;
-    gap: 16px;
     flex: 1;
-    overflow-y: visible;
+    overflow-y: auto;
+    overflow-x: hidden;
     min-height: 0;
-    padding: 20px 0;
 }
 
 .statistics-page .stats-item {
@@ -212,11 +211,23 @@
     background: rgba(0, 0, 0, 0.02);
     border-radius: 12px;
     transition: all 0.3s ease;
+    margin-bottom: 12px;
+    margin-right: 4px;
+    flex-shrink: 0;
+}
+
+.statistics-page .stats-item:first-child {
+    margin-top: 0;
+}
+
+.statistics-page .stats-item:last-child {
+    margin-bottom: 0;
 }
 
 .statistics-page .stats-item:hover {
     background: rgba(0, 0, 0, 0.04);
     transform: translateX(4px);
+    margin-right: 0;
 }
 
 .statistics-page .stats-item-content {

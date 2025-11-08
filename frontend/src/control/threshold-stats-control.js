@@ -535,13 +535,11 @@ class ThresholdStatsControl {
                         </div>
 
                         <div class="debug-data-table">
-                            <h4>Chi tiết theo phút (${
-                                groupedData.length
-                            } phút):</h4>
-                            <div style="margin-bottom: 12px; padding: 12px; background: rgba(0, 122, 255, 0.1); border-radius: 8px;">
+                            <h4>Chi tiết theo phút - Chỉ hiển thị vượt ngưỡng:</h4>
+                            <div style="margin-bottom: 12px; padding: 12px; background: rgba(255, 152, 0, 0.1); border-left: 4px solid #ff9800; border-radius: 4px;">
                                 <p style="margin: 0; font-size: 13px; color: rgba(0, 0, 0, 0.7);">
-                                    <strong>Lưu ý:</strong> Dữ liệu đã được nhóm theo phút và tính trung bình. 
-                                    Mỗi phút có vượt ngưỡng chỉ tính 1 lần, tránh đếm trùng khi dữ liệu gửi mỗi giây.
+                                    <strong>Lưu ý:</strong> Bảng này chỉ liệt kê những khoảng thời gian có trạng thái <strong>Cảnh báo</strong> hoặc <strong>Nguy hiểm</strong>. 
+                                    Dữ liệu đã được nhóm theo phút và tính trung bình.
                                 </p>
                             </div>
                             <table>
@@ -562,6 +560,7 @@ class ThresholdStatsControl {
         `;
 
         let violationCount = 0;
+        let displayIndex = 0;
         groupedData.forEach((item, index) => {
             const tempStatus = item.temperature
                 ? this.getTemperatureStatus(item.temperature)
@@ -577,13 +576,14 @@ class ThresholdStatsControl {
                 tempStatus !== "normal" ||
                 humStatus !== "normal" ||
                 lightStatus !== "normal";
-            if (hasViolation) violationCount++;
-
-            const rowClass = hasViolation ? "violation-row" : "";
-
-            debugHTML += `
-                <tr class="${rowClass}">
-                    <td>${index + 1}</td>
+            
+            if (hasViolation) {
+                violationCount++;
+                displayIndex++;
+                
+                debugHTML += `
+                <tr class="violation-row">
+                    <td>${displayIndex}</td>
                     <td>${item.timestamp}</td>
                     <td><span style="background: #6c757d; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px;">${
                         item.recordCount
@@ -594,27 +594,29 @@ class ThresholdStatsControl {
                             : "-"
                     }</td>
                     <td class="status-${tempStatus}">${this.getStatusLabel(
-                tempStatus
-            )}</td>
+                    tempStatus
+                )}</td>
                     <td>${
                         item.humidity ? item.humidity.toFixed(1) + "%" : "-"
                     }</td>
                     <td class="status-${humStatus}">${this.getStatusLabel(
-                humStatus
-            )}</td>
+                    humStatus
+                )}</td>
                     <td>${item.light ? item.light.toFixed(1) + "%" : "-"}</td>
                     <td class="status-${lightStatus}">${this.getStatusLabel(
-                lightStatus
-            )}</td>
+                    lightStatus
+                )}</td>
                 </tr>
             `;
+            }
         });
 
-        if (groupedData.length === 0) {
+        if (violationCount === 0) {
             debugHTML += `
                 <tr>
                     <td colspan="9" style="text-align: center; padding: 20px; color: rgba(0, 0, 0, 0.6);">
-                        <i class="fas fa-info-circle"></i> Không có dữ liệu trong ngày này
+                        <i class="fas fa-check-circle" style="color: #4caf50; font-size: 24px; margin-bottom: 8px;"></i>
+                        <div>Không có phút nào vượt ngưỡng trong ngày này</div>
                     </td>
                 </tr>
             `;

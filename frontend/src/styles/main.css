@@ -2264,7 +2264,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 16px;
-    padding: 20px 0;
+    overflow-x: hidden;
 }
 
 .threshold-stat-item {
@@ -2275,11 +2275,13 @@ body {
     background: rgba(0, 0, 0, 0.02);
     border-radius: 12px;
     transition: all 0.3s ease;
+    margin-right: 4px;
 }
 
 .threshold-stat-item:hover {
     background: rgba(0, 0, 0, 0.04);
     transform: translateX(4px);
+    margin-right: 0;
 }
 
 .threshold-stat-icon {
@@ -2504,8 +2506,9 @@ body {
 
 .threshold-display {
     display: flex;
-    flex-direction: column;
-    gap: 12px;
+    flex-direction: row;
+    gap: 16px;
+    flex-wrap: wrap;
 }
 
 .threshold-item {
@@ -2515,6 +2518,8 @@ body {
     padding: 12px;
     background: white;
     border-radius: 8px;
+    flex: 1;
+    min-width: 200px;
 }
 
 .threshold-item strong {
