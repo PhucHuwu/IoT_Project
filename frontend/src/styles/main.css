@@ -1964,7 +1964,7 @@ body {
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     padding: var(--spacing-sm) var(--spacing-md);
-    border-radius: var(--border-radius-md);
+    border-radius: var(--border-radius-lg);
     border: 1px solid rgba(255, 255, 255, 0.4);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05),
         inset 0 1px 0 rgba(255, 255, 255, 0.6);
@@ -1980,7 +1980,7 @@ body {
 .threshold-input-group input {
     flex: 1;
     border: 1px solid rgba(255, 255, 255, 0.5);
-    border-radius: var(--border-radius-sm);
+    border-radius: var(--border-radius-lg);
     padding: var(--spacing-sm) var(--spacing-md);
     font-size: var(--font-size-footnote);
     font-weight: var(--font-weight-medium);
@@ -2025,7 +2025,7 @@ body {
     );
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-radius: var(--border-radius-sm);
+    border-radius: var(--border-radius-lg);
     border: 1px solid rgba(0, 122, 255, 0.15);
     margin-top: var(--spacing-xs);
     font-size: var(--font-size-caption1);
