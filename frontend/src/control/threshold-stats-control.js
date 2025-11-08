@@ -46,7 +46,7 @@ class ThresholdStatsControl {
             const response = await SensorDataService.getAvailableDates();
             if (response.status === "success" && response.data) {
                 availableDates = response.data;
-                console.log("📅 Ngày có dữ liệu cảm biến:", availableDates);
+                console.log("Ngày có dữ liệu cảm biến:", availableDates);
             }
         } catch (error) {
             console.error("Lỗi khi lấy danh sách ngày có dữ liệu:", error);
@@ -104,7 +104,7 @@ class ThresholdStatsControl {
             },
             onChange: async (selectedDates, dateStr) => {
                 if (selectedDates.length > 0) {
-                    console.log("📆 Đã chọn ngày:", dateStr);
+                    console.log("Đã chọn ngày:", dateStr);
                     await this.loadStats(dateStr);
                 }
             },
@@ -146,7 +146,7 @@ class ThresholdStatsControl {
 
             const selectedDate = date || this.getFormattedDate();
 
-            console.log(`🔍 Đang tải dữ liệu cho ngày: ${selectedDate}`);
+            console.log(`Đang tải dữ liệu cho ngày: ${selectedDate}`);
 
             const result = await SensorDataService.getSensorDataByDate(
                 selectedDate
@@ -157,11 +157,11 @@ class ThresholdStatsControl {
                 this.selectedDate = selectedDate;
 
                 console.log(
-                    `📊 Tổng số bản ghi trong ngày ${selectedDate}:`,
+                    `Tổng số bản ghi trong ngày ${selectedDate}:`,
                     this.debugData.length
                 );
                 console.log(
-                    `⏰ Khoảng thời gian:`,
+                    `Khoảng thời gian:`,
                     this.debugData.length > 0
                         ? `${new Date(
                               this.debugData[
@@ -174,7 +174,7 @@ class ThresholdStatsControl {
                 );
 
                 const stats = this.calculateStats(this.debugData);
-                console.log("📈 Thống kê vượt ngưỡng (theo phút):", stats);
+                console.log("Thống kê vượt ngưỡng (theo phút):", stats);
                 console.log(
                     "├─ Nhiệt độ: ",
                     stats.temperature.warning,
@@ -223,10 +223,10 @@ class ThresholdStatsControl {
             };
         }
 
-        console.log(`📊 Tổng số bản ghi thô: ${data.length}`);
+        console.log(`Tổng số bản ghi thô: ${data.length}`);
 
         const groupedByMinute = this.groupDataByMinute(data);
-        console.log(`⏱️ Số phút có dữ liệu: ${groupedByMinute.length}`);
+        console.log(`Số phút có dữ liệu: ${groupedByMinute.length}`);
 
         const stats = {
             temperature: { warning: 0, danger: 0 },
@@ -337,11 +337,11 @@ class ThresholdStatsControl {
         groupedData.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
 
         console.log(
-            `✅ Đã nhóm ${data.length} bản ghi thành ${groupedData.length} phút`
+            `Đã nhóm ${data.length} bản ghi thành ${groupedData.length} phút`
         );
         if (groupedData.length > 0) {
             console.log(
-                `📝 Ví dụ phút đầu: ${groupedData[0].timestamp} - ${groupedData[0].recordCount} bản ghi`
+                `Ví dụ phút đầu: ${groupedData[0].timestamp} - ${groupedData[0].recordCount} bản ghi`
             );
         }
 
@@ -545,7 +545,7 @@ class ThresholdStatsControl {
                             </div>
                             <div style="margin-top: 12px; padding: 12px; background: rgba(0, 122, 255, 0.1); border-radius: 8px;">
                                 <p style="margin: 0; font-size: 13px; color: rgba(0, 0, 0, 0.7);">
-                                    📊 <strong>Thống kê:</strong> ${
+                                    <strong>Thống kê:</strong> ${
                                         this.debugData.length
                                     } bản ghi thô được nhóm thành ${
             groupedData.length
@@ -564,7 +564,7 @@ class ThresholdStatsControl {
                             } phút):</h4>
                             <div style="margin-bottom: 12px; padding: 12px; background: rgba(0, 122, 255, 0.1); border-radius: 8px;">
                                 <p style="margin: 0; font-size: 13px; color: rgba(0, 0, 0, 0.7);">
-                                    💡 <strong>Lưu ý:</strong> Dữ liệu đã được nhóm theo phút và tính trung bình. 
+                                    <strong>Lưu ý:</strong> Dữ liệu đã được nhóm theo phút và tính trung bình. 
                                     Mỗi phút có vượt ngưỡng chỉ tính 1 lần, tránh đếm trùng khi dữ liệu gửi mỗi giây.
                                 </p>
                             </div>
