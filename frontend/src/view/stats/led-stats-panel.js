@@ -34,16 +34,11 @@ class LEDStatsPanel {
         if (!contentEl) return;
 
         let totalCount = 0;
-        const statsArray = [];
+        const statsArray = Array.isArray(statsData) ? statsData : [];
 
-        const ledOrder = ["LED1", "LED2", "LED3", "LED4"];
-        ledOrder.forEach((ledId) => {
-            const count = statsData[ledId] || 0;
-            totalCount += count;
-            statsArray.push({ ledId, count });
+        statsArray.forEach((item) => {
+            totalCount += item.count || 0;
         });
-
-        statsArray.sort((a, b) => b.count - a.count);
 
         const statsItems = statsArray.map((item) =>
             this.createStatsItem(item.ledId, item.count)
