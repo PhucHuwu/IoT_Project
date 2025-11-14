@@ -34,10 +34,17 @@ class LEDStatsBadge {
     updateAllBadges(statsData) {
         if (!statsData) return;
 
-        Object.entries(statsData).forEach(([ledId, count]) => {
-            const ledNumber = ledId.replace("LED", "");
-            this.updateStats(ledNumber, count);
-        });
+        if (Array.isArray(statsData)) {
+            statsData.forEach((item) => {
+                const ledNumber = item.ledId.replace("LED", "");
+                this.updateStats(ledNumber, item.count);
+            });
+        } else {
+            Object.entries(statsData).forEach(([ledId, count]) => {
+                const ledNumber = ledId.replace("LED", "");
+                this.updateStats(ledNumber, count);
+            });
+        }
     }
 
     getStats() {
