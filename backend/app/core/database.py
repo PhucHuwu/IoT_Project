@@ -50,7 +50,7 @@ class DatabaseManager:
                     sensor_data['timestamp'] = convert_from_vietnam_time(sensor_data['timestamp'])
 
             result = self.collection.insert_one(sensor_data)
-            logger.info(f"Data stored in MongoDB with ID: {result.inserted_id}")
+            logger.info(f"Data saved in MongoDB with ID: {result.inserted_id}")
 
             logger.info(f"Temperature: {sensor_data.get('temperature')}°C, "
                         f"Humidity: {sensor_data.get('humidity')}%, "
