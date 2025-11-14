@@ -984,7 +984,7 @@ class DatabaseManager:
                 query = {
                     **query_base,
                     'led': led_id,
-                    'state': {'$in': ['ON', 'on', '1', 'true', 'TRUE']}
+                    'state': {'$in': ['ON']}
                 }
                 count = action_collection.count_documents(query)
                 led_stats[led_id] = count
